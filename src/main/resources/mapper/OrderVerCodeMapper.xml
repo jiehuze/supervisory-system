@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.schedule.supervisory.dao.mapper.OrderVerCodeMapper">
+    <!-- 结果映射 -->
+    <resultMap id="orderVerCodeResultMap" type="com.schedule.supervisory.dto.OrderVerCodeDTO">
+        <id property="id" column="id"/>
+        <result property="phoneNumber" column="phone_number"/>
+        <result property="code" column="code"/>
+        <result property="expired" column="expired"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 插入新的验证码记录 -->
+    <insert id="insert" parameterType="com.schedule.supervisory.dto.OrderVerCodeDTO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_vercode (phone_number, code, expired)
+        VALUES (#{phoneNumber}, #{code}, #{expired})
+    </insert>
+
+    <select id="selectByPhoneNumber" resultMap="orderVerCodeResultMap" parameterType="string">
+        SELECT *
+        FROM order_vercode
+        WHERE phone_number = #{phoneNumber} AND expired = '0'
+        ORDER BY id DESC
+        LIMIT 1;
+    </select>
+
+    <!-- 更新验证码状态为已过期 -->
+    <update id="markAsExpired" parameterType="long">
+        UPDATE order_vercode
+        SET expired = '1'
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除过期的验证码 -->
+<!--    <update id="updateVerCodeExpiration" parameterType="java.util.Date">-->
+<!--        UPDATE order_vercode-->
+<!--        SET expired = '1'-->
+<!--        WHERE create_time < #{expirationThreshold}-->
+<!--    </update>-->
+
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.schedule.supervisory.mapper.TaskMapper">
+
+    <!-- 定义 resultMap -->
+    <resultMap id="taskResultMap" type="com.schedule.supervisory.entity.Task">
+        <id column="id" property="id"/>
+        <result column="source" property="source"/>
+        <result column="content" property="content"/>
+        <result column="leading_official" property="leadingOfficial"/>
+        <result column="leading_department" property="leadingDepartment"/>
+        <result column="deadline" property="deadline"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="progress" property="progress"/>
+        <result column="issues_and_challenges" property="issuesAndChallenges"/>
+        <result column="requires_coordination" property="requiresCoordination"/>
+        <result column="approval_status" property="approvalStatus"/>
+        <result column="status" property="status"/>
+        <result column="is_urgent" property="isUrgent"/>
+    </resultMap>
+
+    <!-- 定义查询字段 -->
+    <sql id="Base_Column_List">
+        id, source, content, leading_official, leading_department,
+        deadline, created_at, progress, issues_and_challenges,
+        requires_coordination, approval_status, status, is_urgent
+    </sql>
+
+    <!-- 插入任务 -->
+    <insert id="insertTask" parameterType="com.schedule.supervisory.entity.Task">
+        INSERT INTO task (
+            source, content, leading_official, leading_department,
+            deadline, created_at, progress, issues_and_challenges,
+            requires_coordination, approval_status, status, is_urgent
+        ) VALUES (
+                     #{source}, #{content}, #{leadingOfficial}, #{leadingDepartment},
+                     #{deadline}, #{createdAt}, #{progress}, #{issuesAndChallenges},
+                     #{requiresCoordination}, #{approvalStatus}, #{status}, #{isUrgent}
+                 )
+    </insert>
+
+    <!-- 批量插入任务 -->
+    <insert id="batchInsertTasks">
+        INSERT INTO task (
+        source, content, leading_official, leading_department,
+        deadline, created_at, progress, issues_and_challenges,
+        requires_coordination, approval_status, status, is_urgent
+        )
+        <foreach collection="tasks" item="task" separator=";">
+            (
+            #{task.source}, #{task.content}, #{task.leadingOfficial}, #{task.leadingDepartment},
+            #{task.deadline}, #{task.createdAt}, #{task.progress}, #{task.issuesAndChallenges},
+            #{task.requiresCoordination}, #{task.approvalStatus}, #{task.status}, #{task.isUrgent}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 更新任务 -->
+    <update id="updateTask" parameterType="com.schedule.supervisory.entity.Task">
+        UPDATE task
+        SET
+            source = #{source},
+            content = #{content},
+            leading_official = #{leadingOfficial},
+            leading_department = #{leadingDepartment},
+            deadline = #{deadline},
+            created_at = #{createdAt},
+            progress = #{progress},
+            issues_and_challenges = #{issuesAndChallenges},
+            requires_coordination = #{requiresCoordination},
+            approval_status = #{approvalStatus},
+            status = #{status},
+            is_urgent = #{isUrgent}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 获取任务列表 -->
+    <select id="listTasks" resultMap="taskResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM task
+    </select>
+
+    <!-- 根据任务状态获取任务列表 -->
+    <select id="listTasksByStatus" parameterType="int" resultMap="taskResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM task
+        WHERE status = #{status}
+    </select>
+
+</mapper>
