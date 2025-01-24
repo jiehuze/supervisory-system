@@ -1,5 +1,6 @@
 package com.schedule.supervisory.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.supervisory.entity.Task;
 
@@ -42,4 +43,6 @@ public interface ITaskService extends IService<Task> {
      * @return 符合条件的任务列表
      */
     List<Task> listTasksByStatus(Integer status);
+
+    IPage<Task> getTasksByConditions(Task queryTask, int pageNum, int pageSize);
 }

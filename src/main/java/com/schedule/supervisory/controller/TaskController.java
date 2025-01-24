@@ -1,8 +1,11 @@
 package com.schedule.supervisory.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,30 +18,46 @@ public class TaskController {
     private ITaskService taskService;
 
     @PostMapping
-    public void createTask(@RequestBody Task task) {
+    public BaseResponse createTask(@RequestBody Task task) {
         taskService.insertTask(task);
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 
     @PostMapping("/batch")
-    public void createBatchTasks(@RequestBody List<Task> tasks) {
+    public BaseResponse createBatchTasks(@RequestBody List<Task> tasks) {
         taskService.batchInsertTasks(tasks);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 
     @PutMapping("/{id}")
-    public void updateTask(@PathVariable Long id, @RequestBody Task task) {
+    public BaseResponse updateTask(@PathVariable Long id, @RequestBody Task task) {
         task.setId(id);
         taskService.updateTask(task);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.listTasks();
+    public BaseResponse getAllTasks() {
+        List<Task> tasks = taskService.listTasks();
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasks, Integer.toString(0));
     }
 
     @GetMapping("/status/{status}")
-    public List<Task> getTasksByStatus(@PathVariable Integer status) {
-        return taskService.listTasksByStatus(status);
+    public BaseResponse getTasksByStatus(@PathVariable Integer status) {
+        List<Task> tasks = taskService.listTasksByStatus(status);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasks, Integer.toString(0));
     }
 
-    // 其他 RESTful API 方法...
+    @GetMapping("/search")
+    public BaseResponse searchTasks(@ModelAttribute Task queryTask,
+                                    @RequestParam(defaultValue = "1") int pageNum,
+                                    @RequestParam(defaultValue = "10") int pageSize) {
+        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, pageNum, pageSize);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
+    }
+
 }
