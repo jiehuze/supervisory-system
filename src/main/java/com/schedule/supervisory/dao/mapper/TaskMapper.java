@@ -1,4 +1,4 @@
-package com.schedule.supervisory.mapper;
+package com.schedule.supervisory.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.schedule.supervisory.entity.Task;

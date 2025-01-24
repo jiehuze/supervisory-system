@@ -1,8 +1,8 @@
 package com.schedule.supervisory.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.schedule.supervisory.dao.mapper.TaskMapper;
 import com.schedule.supervisory.entity.Task;
-import com.schedule.supervisory.mapper.TaskMapper;
 import com.schedule.supervisory.service.ITaskService;
 import org.springframework.stereotype.Service;
 

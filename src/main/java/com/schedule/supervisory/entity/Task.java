@@ -25,4 +25,5 @@ public class Task {
     private String approvalStatus; // 对应数据库列 'approval_status'
     private Integer status; // 对应数据库列 'status'
     private Boolean isUrgent; // 对应数据库列 'is_urgent'
+    private Boolean isReview; // 对应数据库列 'is_review'
 }
