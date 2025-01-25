@@ -2,6 +2,7 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.dto.TaskCollectDTO;
 import com.schedule.supervisory.dto.TaskDTO;
 import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.entity.Task;
@@ -79,6 +80,19 @@ public class TaskController {
     public BaseResponse getTask(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
         return new BaseResponse(HttpStatus.OK.value(), "success", task, Integer.toString(0));
+    }
+
+    @GetMapping("/collect")
+    public BaseResponse getTaskCollect() {
+        TaskCollectDTO taskCollectDTO = new TaskCollectDTO();
+        taskCollectDTO.setOverdueTasks(10);
+        taskCollectDTO.setCompletedTasks(1);
+        taskCollectDTO.setTotalTasks(100);
+        taskCollectDTO.setProgressingTasks(10);
+        taskCollectDTO.setCompletionRate(80);
+        taskCollectDTO.setShortTermCompletionRate(40);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskCollectDTO, Integer.toString(0));
     }
 
     @GetMapping("/search")
