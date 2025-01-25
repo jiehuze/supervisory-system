@@ -30,7 +30,7 @@ public class Task {
     * 3：已超期；
     * 4：审核中（承包领导）
     * 5：审核中（交办人）
-    * 6：完成
+    * 6：已完成
     * */
     private Integer status; // 对应数据库列 'status'
     private Boolean isUrgent; // 对应数据库列 'is_urgent'

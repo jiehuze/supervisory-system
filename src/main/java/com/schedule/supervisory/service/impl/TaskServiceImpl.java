@@ -77,6 +77,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getStatus() != null) {
             queryWrapper.eq(Task::getStatus, queryTask.getStatus());
         }
+
+//        if (queryTask.getId() != null) {
+//            queryWrapper.eq(Task::getId, queryTask.getId());
+//        }
         return page(page, queryWrapper);
     }
 
@@ -94,5 +98,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         updateWrapper.eq(Task::getId, taskId)
                 .set(Task::getIsUrgent, isUrgent);
         return update(updateWrapper);
+    }
+
+    @Override
+    public Task getTaskById(Long id) {
+        return getById(id);
     }
 }

@@ -52,6 +52,10 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", tasks, Integer.toString(0));
     }
 
+    @GetMapping("/{id}")
+    public Task getTask(@PathVariable Long id) {
+        return taskService.getTaskById(id);
+    }
     @GetMapping("/search")
     public BaseResponse searchTasks(@ModelAttribute Task queryTask,
                                     @RequestParam(defaultValue = "1") int pageNum,
