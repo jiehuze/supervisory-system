@@ -39,4 +39,8 @@ public class Task {
     private String handler; // 对应数据库列 'handler'
     private String phone; // 对应数据库列 'phone'
     private LocalDateTime updatedAt; // 对应数据库列 'updated_at'
+    private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
+    private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
+    private Integer taskPeriod; // 任务周期（int类型）对应数据库列 'task_period'
+    private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
 }

@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,7 +19,7 @@ public class StageNode {
 
     private String stageGoal;
 
-    private LocalDateTime deadline;
+    private LocalDate deadline;
 
     /**
      * 1: 正常推进

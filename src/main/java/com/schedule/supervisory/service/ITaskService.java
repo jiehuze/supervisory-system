@@ -2,6 +2,7 @@ package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.dto.TaskDTO;
 import com.schedule.supervisory.entity.Task;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface ITaskService extends IService<Task> {
      *
      * @param task 要插入的任务对象
      */
-    void insertTask(Task task);
+    Long insertTask(Task task);
 
     /**
      * 批量插入任务

@@ -22,8 +22,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public void insertTask(Task task) {
-        taskMapper.insertTask(task);
+    public Long insertTask(Task task) {
+//        taskMapper.insertTask(task);
+        boolean result = save(task);
+        if (result) {
+            return task.getId();
+        } else {
+            return null;
+        }
     }
 
     @Override

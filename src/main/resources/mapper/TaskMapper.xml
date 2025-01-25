@@ -23,6 +23,10 @@
         <result column="handler" property="handler"/>
         <result column="phone" property="phone"/>
         <result column="updated_at" property="updatedAt"/>
+        <result column="source_date" property="sourceDate"/>
+        <result column="responsible_person" property="responsiblePerson"/>
+        <result column="task_period" property="taskPeriod"/>
+        <result column="field_id" property="fieldId"/>
     </resultMap>
 
     <!-- 定义查询字段 -->
