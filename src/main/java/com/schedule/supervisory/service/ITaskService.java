@@ -45,4 +45,8 @@ public interface ITaskService extends IService<Task> {
     List<Task> listTasksByStatus(Integer status);
 
     IPage<Task> getTasksByConditions(Task queryTask, int pageNum, int pageSize);
+
+    boolean updateStatusById(Long taskId, Integer newStatus);
+
+    boolean updateIsUrgentById(Long taskId, Boolean isUrgent);
 }

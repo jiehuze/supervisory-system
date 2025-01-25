@@ -1,6 +1,7 @@
 package com.schedule.supervisory.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -76,10 +77,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getStatus() != null) {
             queryWrapper.eq(Task::getStatus, queryTask.getStatus());
         }
-
-        // 根据需要添加其他条件...
-
-        // 执行分页查询
         return page(page, queryWrapper);
+    }
+
+    @Override
+    public boolean updateStatusById(Long taskId, Integer newStatus) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId)
+                .set(Task::getStatus, newStatus);
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean updateIsUrgentById(Long taskId, Boolean isUrgent) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId)
+                .set(Task::getIsUrgent, isUrgent);
+        return update(updateWrapper);
     }
 }

@@ -30,8 +30,9 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody Task task) {
+        System.out.println(task);
         task.setId(id);
         taskService.updateTask(task);
 
@@ -60,4 +61,17 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
     }
 
+    @PutMapping("/{taskId}/status")
+    public BaseResponse updateTaskStatus(@PathVariable Long taskId,
+                                         @RequestParam Integer newStatus) {
+        boolean modify = taskService.updateStatusById(taskId, newStatus);
+        return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
+    }
+
+    @PutMapping("/{taskId}/urgent")
+    public BaseResponse updateTaskIsUrgent(@PathVariable Long taskId,
+                                           @RequestParam Boolean isUrgent) {
+        boolean modify = taskService.updateIsUrgentById(taskId, isUrgent);
+        return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
+    }
 }

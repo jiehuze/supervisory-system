@@ -19,6 +19,11 @@ public class StageNode {
 
     private LocalDateTime deadline;
 
+    /**
+     * 1: 正常推进
+     * 2： 完成
+     * 3： 已逾期
+     */
     private Integer status;
 
     private LocalDateTime createdAt;

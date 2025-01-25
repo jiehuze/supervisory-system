@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.schedule.supervisory.mapper.TaskMapper">
+<mapper namespace="com.schedule.supervisory.dao.mapper.TaskMapper">
 
     <!-- 定义 resultMap -->
     <resultMap id="taskResultMap" type="com.schedule.supervisory.entity.Task">
@@ -19,6 +19,10 @@
         <result column="approval_status" property="approvalStatus"/>
         <result column="status" property="status"/>
         <result column="is_urgent" property="isUrgent"/>
+        <result column="next_steps" property="nextSteps"/>
+        <result column="handler" property="handler"/>
+        <result column="phone" property="phone"/>
+        <result column="updated_at" property="updatedAt"/>
     </resultMap>
 
     <!-- 定义查询字段 -->
@@ -61,18 +65,15 @@
     <update id="updateTask" parameterType="com.schedule.supervisory.entity.Task">
         UPDATE task
         SET
-            source = #{source},
-            content = #{content},
-            leading_official = #{leadingOfficial},
-            leading_department = #{leadingDepartment},
-            deadline = #{deadline},
-            created_at = #{createdAt},
             progress = #{progress},
             issues_and_challenges = #{issuesAndChallenges},
             requires_coordination = #{requiresCoordination},
             approval_status = #{approvalStatus},
             status = #{status},
-            is_urgent = #{isUrgent}
+            is_urgent = #{isUrgent},
+            next_steps = #{nextSteps},
+            handler = #{handler},
+            phone = #{phone}
         WHERE id = #{id}
     </update>
 
