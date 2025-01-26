@@ -58,4 +58,10 @@ public class ProgressReportController {
         boolean update = progressReportService.updateStatus(id, status);
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
+
+    @PutMapping("/{id}/revoke")
+    public BaseResponse revoke(@PathVariable Integer id, @RequestBody ProgressReport progressReport) {
+        boolean update = progressReportService.revoke(id, progressReport.getStatus(), progressReport.getRevokeDesc());
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+    }
 }

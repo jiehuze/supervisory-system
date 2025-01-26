@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -37,4 +38,5 @@ public class ProgressReport {
      * 3：完成
      */
     private Integer status;
+    private String revokeDesc; // 新增的撤回描述字段
 }

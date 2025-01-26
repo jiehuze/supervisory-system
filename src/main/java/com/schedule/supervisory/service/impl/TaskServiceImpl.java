@@ -89,6 +89,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.eq(Task::getStatus, queryTask.getStatus());
         }
 
+        queryWrapper.orderByDesc(Task::getId);
 //        if (queryTask.getId() != null) {
 //            queryWrapper.eq(Task::getId, queryTask.getId());
 //        }

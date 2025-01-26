@@ -67,4 +67,13 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
                 .set(ProgressReport::getStatus, status);
         return update(updateWrapper);
     }
+
+    @Override
+    public boolean revoke(Integer id, Integer status, String revokeDesc) {
+        LambdaUpdateWrapper<ProgressReport> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(ProgressReport::getId, id)
+                .set(ProgressReport::getStatus, status)
+                .set(ProgressReport::getRevokeDesc, revokeDesc);
+        return update(updateWrapper);
+    }
 }
