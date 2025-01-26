@@ -31,6 +31,7 @@ public class Task {
     * 4：审核中（承包领导）
     * 5：审核中（交办人）
     * 6：已完成
+    * 7：已取消
     * */
     private Integer status; // 对应数据库列 'status'
     private Boolean isUrgent; // 对应数据库列 'is_urgent'
@@ -41,6 +42,7 @@ public class Task {
     private LocalDateTime updatedAt; // 对应数据库列 'updated_at'
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
     private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
+    //1:短期；2：中期；3：长期
     private Integer taskPeriod; // 任务周期（int类型）对应数据库列 'task_period'
     private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
     private String coOrganizer; // 协办单位对应数据库列 'co_organizer'
