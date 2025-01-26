@@ -1,9 +1,11 @@
 package com.schedule.supervisory.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.ProgressReportMapper;
 import com.schedule.supervisory.entity.ProgressReport;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
 import org.springframework.stereotype.Service;
 
@@ -35,12 +37,14 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
             throw new RuntimeException("Progress Report not found for id: " + id);
         }
         progressReport.setTaskId(progressReportDetails.getTaskId());
+        progressReport.setStageNodeId(progressReportDetails.getStageNodeId());
         progressReport.setProgress(progressReportDetails.getProgress());
         progressReport.setIssuesAndChallenges(progressReportDetails.getIssuesAndChallenges());
         progressReport.setRequiresCoordination(progressReportDetails.getRequiresCoordination());
         progressReport.setNextSteps(progressReportDetails.getNextSteps());
         progressReport.setHandler(progressReportDetails.getHandler());
         progressReport.setPhone(progressReportDetails.getPhone());
+        progressReport.setStatus(progressReportDetails.getStatus());
 
         updateById(progressReport);
         return progressReport;
@@ -54,5 +58,13 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
     @Override
     public List<ProgressReport> getProgressReportsByTaskId(Long taskId) {
         return baseMapper.selectByTaskIdOrderByCreatedAtDesc(taskId);
+    }
+
+    @Override
+    public boolean updateStatus(Integer id, Integer status) {
+        LambdaUpdateWrapper<ProgressReport> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(ProgressReport::getId, id)
+                .set(ProgressReport::getStatus, status);
+        return update(updateWrapper);
     }
 }

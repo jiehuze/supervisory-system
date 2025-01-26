@@ -52,4 +52,10 @@ public class ProgressReportController {
         List<ProgressReport> progressReports = progressReportService.getProgressReportsByTaskId(taskId);
         return new BaseResponse(HttpStatus.OK.value(), "success", progressReports, Integer.toString(0));
     }
+
+    @PutMapping("/{id}/status")
+    public BaseResponse updateStatus(@PathVariable Integer id, @RequestParam Integer status) {
+        boolean update = progressReportService.updateStatus(id, status);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+    }
 }

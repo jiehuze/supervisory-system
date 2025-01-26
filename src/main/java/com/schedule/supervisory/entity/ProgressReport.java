@@ -15,6 +15,8 @@ public class ProgressReport {
 
     private Long taskId;
 
+    private Integer stageNodeId;
+
     private String progress;
 
     private String issuesAndChallenges;
@@ -28,4 +30,11 @@ public class ProgressReport {
     private String phone;
 
     private LocalDateTime createdAt;
+
+    /**
+     * 1: 已撤回
+     * 2：撤回失败
+     * 3：完成
+     */
+    private Integer status;
 }
