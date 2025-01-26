@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.TaskCollectDTO;
 import com.schedule.supervisory.dto.TaskDTO;
+import com.schedule.supervisory.entity.ProgressReport;
 import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.entity.Task;
+import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class TaskController {
     private ITaskService taskService;
     @Autowired
     private IStageNodeService stageNodeService;
+
+    @Autowired
+    private IProgressReportService progressReportService;
 
     @PostMapping
     public BaseResponse createTask(@RequestBody Task task) {
@@ -69,7 +74,18 @@ public class TaskController {
         task.setId(id);
         taskService.updateCbReport(task);
 
-        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
+        ProgressReport progressReport = new ProgressReport();
+        progressReport.setTaskId(task.getId());
+        progressReport.setStatus(3);
+        progressReport.setProgress(task.getProgress());
+        progressReport.setIssuesAndChallenges(task.getIssuesAndChallenges());
+        progressReport.setRequiresCoordination(task.getRequiresCoordination());
+        progressReport.setNextSteps(task.getNextSteps());
+        progressReport.setHandler(task.getHandler());
+        progressReport.setPhone(task.getPhone());
+        ProgressReport update = progressReportService.createProgressReport(progressReport);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
     @GetMapping
