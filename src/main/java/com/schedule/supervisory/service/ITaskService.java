@@ -49,4 +49,6 @@ public interface ITaskService extends IService<Task> {
     boolean updateStatusById(Long taskId, Integer newStatus);
     boolean updateIsUrgentById(Long taskId, Boolean isUrgent);
     public Task getTaskById(Long id);
+    boolean updateCbApplyDone(Task task);
+    boolean updateClosureReview(Task task);
 }

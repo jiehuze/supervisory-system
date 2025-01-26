@@ -43,4 +43,10 @@ public class Task {
     private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
     private Integer taskPeriod; // 任务周期（int类型）对应数据库列 'task_period'
     private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
+    private String coOrganizer; // 协办单位对应数据库列 'co_organizer'
+    private String cbDoneDesc; // 承办人办结申请描述对应数据库列 'cb_done_desc'
+    private String cbDoneFile; // 申请文件对应数据库列 'cb_done_file'
+    private Integer closureReviewResult; // 办结审核结果对应数据库列 'closure_review_result'
+    private String closureReviewDesc; // 办结审核描述对应数据库列 'closure_review_desc'
+    private String closureReviewFile; // 办结审核文件对应数据库列 'closure_review_file'
 }

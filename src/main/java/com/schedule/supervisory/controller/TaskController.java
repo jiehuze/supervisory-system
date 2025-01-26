@@ -117,4 +117,18 @@ public class TaskController {
         boolean modify = taskService.updateIsUrgentById(taskId, isUrgent);
         return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
     }
+
+    //承办人办结申请
+    @PutMapping("/cbapply")
+    public BaseResponse partialUpdate(@RequestBody Task task) {
+        boolean update = taskService.updateCbApplyDone(task);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+    }
+
+    //交办人审核申请
+    @PutMapping("/closureReviewUpdate")
+    public BaseResponse closureReviewUpdate(@RequestBody Task task) {
+        boolean update = taskService.updateClosureReview(task);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+    }
 }

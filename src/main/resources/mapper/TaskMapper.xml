@@ -27,26 +27,28 @@
         <result column="responsible_person" property="responsiblePerson"/>
         <result column="task_period" property="taskPeriod"/>
         <result column="field_id" property="fieldId"/>
+        <result column="co_organizer" property="coOrganizer"/>
+        <result column="closure_review_result" property="closureReviewResult"/>
+        <result column="closure_review_desc" property="closureReviewDesc"/>
+        <result column="closure_review_file" property="closureReviewFile"/>
     </resultMap>
 
     <!-- 定义查询字段 -->
     <sql id="Base_Column_List">
-        id, source, content, leading_official, leading_department,
+        id
+        , source, content, leading_official, leading_department,
         deadline, created_at, progress, issues_and_challenges,
         requires_coordination, approval_status, status, is_urgent
     </sql>
 
     <!-- 插入任务 -->
     <insert id="insertTask" parameterType="com.schedule.supervisory.entity.Task">
-        INSERT INTO task (
-            source, content, leading_official, leading_department,
-            deadline, created_at, progress, issues_and_challenges,
-            requires_coordination, approval_status, status, is_urgent
-        ) VALUES (
-                     #{source}, #{content}, #{leadingOfficial}, #{leadingDepartment},
-                     #{deadline}, #{createdAt}, #{progress}, #{issuesAndChallenges},
-                     #{requiresCoordination}, #{approvalStatus}, #{status}, #{isUrgent}
-                 )
+        INSERT INTO task (source, content, leading_official, leading_department,
+                          deadline, created_at, progress, issues_and_challenges,
+                          requires_coordination, approval_status, status, is_urgent)
+        VALUES (#{source}, #{content}, #{leadingOfficial}, #{leadingDepartment},
+                #{deadline}, #{createdAt}, #{progress}, #{issuesAndChallenges},
+                #{requiresCoordination}, #{approvalStatus}, #{status}, #{isUrgent})
     </insert>
 
     <!-- 批量插入任务 -->
@@ -68,28 +70,29 @@
     <!-- 更新任务 -->
     <update id="updateTask" parameterType="com.schedule.supervisory.entity.Task">
         UPDATE task
-        SET
-            progress = #{progress},
+        SET progress              = #{progress},
             issues_and_challenges = #{issuesAndChallenges},
             requires_coordination = #{requiresCoordination},
-            approval_status = #{approvalStatus},
-            status = #{status},
-            is_urgent = #{isUrgent},
-            next_steps = #{nextSteps},
-            handler = #{handler},
-            phone = #{phone}
+            approval_status       = #{approvalStatus},
+            status                = #{status},
+            is_urgent             = #{isUrgent},
+            next_steps            = #{nextSteps},
+            handler               = #{handler},
+            phone                 = #{phone}
         WHERE id = #{id}
     </update>
 
     <!-- 获取任务列表 -->
     <select id="listTasks" resultMap="taskResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM task
     </select>
 
     <!-- 根据任务状态获取任务列表 -->
     <select id="listTasksByStatus" parameterType="int" resultMap="taskResultMap">
-        SELECT <include refid="Base_Column_List"/>
+        SELECT
+        <include refid="Base_Column_List"/>
         FROM task
         WHERE status = #{status}
     </select>

@@ -110,4 +110,43 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public Task getTaskById(Long id) {
         return getById(id);
     }
+
+    @Override
+    public boolean updateCbApplyDone(Task task) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, task.getId());
+
+        if (task.getStatus() != null) {
+            updateWrapper.set(Task::getStatus, task.getStatus());
+        }
+        if (task.getCbDoneDesc() != null) {
+            updateWrapper.set(Task::getCbDoneDesc, task.getCbDoneDesc());
+        }
+        if (task.getCbDoneFile() != null) {
+            updateWrapper.set(Task::getCbDoneFile, task.getCbDoneFile());
+        }
+
+        return update(null, updateWrapper);
+    }
+
+    @Override
+    public boolean updateClosureReview(Task task) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, task.getId());
+
+        if (task.getStatus() != null) {
+            updateWrapper.set(Task::getStatus, task.getStatus());
+        }
+        if (task.getClosureReviewResult() != null) {
+            updateWrapper.set(Task::getClosureReviewResult, task.getClosureReviewResult());
+        }
+        if (task.getClosureReviewDesc() != null) {
+            updateWrapper.set(Task::getClosureReviewDesc, task.getClosureReviewDesc());
+        }
+        if (task.getClosureReviewFile() != null) {
+            updateWrapper.set(Task::getClosureReviewFile, task.getClosureReviewFile());
+        }
+
+        return update(null, updateWrapper);
+    }
 }
