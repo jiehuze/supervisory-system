@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.schedule.supervisory.entity.Task;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
 import java.util.List;
 
 @Mapper
@@ -44,4 +46,7 @@ public interface TaskMapper extends BaseMapper<Task> {
      * @return 符合条件的任务列表
      */
     List<Task> listTasksByStatus(@Param("status") Integer status);
+
+    @Select("SELECT DISTINCT source FROM public.task ORDER BY source")
+    List<String> selectDistinctSources();
 }

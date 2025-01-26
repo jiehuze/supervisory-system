@@ -48,6 +48,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
+    public List<String> getDistinctSources() {
+        return taskMapper.selectDistinctSources();
+    }
+
+    @Override
     public List<Task> listTasksByStatus(Integer status) {
         return taskMapper.listTasksByStatus(status);
     }

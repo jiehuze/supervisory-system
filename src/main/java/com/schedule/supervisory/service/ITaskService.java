@@ -37,6 +37,8 @@ public interface ITaskService extends IService<Task> {
      */
     List<Task> listTasks();
 
+    List<String> getDistinctSources();
+
     /**
      * 根据任务状态获取任务列表
      *

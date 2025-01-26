@@ -146,4 +146,10 @@ public class TaskController {
         boolean update = taskService.updateCancelInfo(task);
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
+
+    @GetMapping("/distinct-sources")
+    public BaseResponse getDistinctSources() {
+        List<String> distinctSources = taskService.getDistinctSources();
+        return new BaseResponse(HttpStatus.OK.value(), "success", distinctSources, Integer.toString(0));
+    }
 }
