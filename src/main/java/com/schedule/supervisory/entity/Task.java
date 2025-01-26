@@ -22,7 +22,7 @@ public class Task {
     private String progress; // 对应数据库列 'progress'
     private String issuesAndChallenges; // 对应数据库列 'issues_and_challenges'
     private Boolean requiresCoordination; // 对应数据库列 'requires_coordination'
-    private String approvalStatus; // 对应数据库列 'approval_status'
+    private String instruction; // 对应数据库列 'approval_status'
     /*
     * 状态定义：
     * 1：待接收；
@@ -31,7 +31,8 @@ public class Task {
     * 4：审核中（承包领导）
     * 5：审核中（交办人）
     * 6：已完成
-    * 7：已取消
+    * 7：取消审核中（交办人）
+    * 8：已取消
     * */
     private Integer status; // 对应数据库列 'status'
     private Boolean isUrgent; // 对应数据库列 'is_urgent'
@@ -51,4 +52,6 @@ public class Task {
     private Integer closureReviewResult; // 办结审核结果对应数据库列 'closure_review_result'
     private String closureReviewDesc; // 办结审核描述对应数据库列 'closure_review_desc'
     private String closureReviewFile; // 办结审核文件对应数据库列 'closure_review_file'
+    private String cancelDesc; // 取消描述
+    private String cancelFile; // 取消文件
 }

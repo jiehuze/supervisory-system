@@ -69,11 +69,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
 
         if (queryTask.getLeadingOfficial() != null && !queryTask.getLeadingOfficial().isEmpty()) {
-            queryWrapper.eq(Task::getLeadingOfficial, queryTask.getLeadingOfficial());
+            queryWrapper.like(Task::getLeadingOfficial, queryTask.getLeadingOfficial());
         }
 
         if (queryTask.getLeadingDepartment() != null && !queryTask.getLeadingDepartment().isEmpty()) {
-            queryWrapper.eq(Task::getLeadingDepartment, queryTask.getLeadingDepartment());
+            queryWrapper.like(Task::getLeadingDepartment, queryTask.getLeadingDepartment());
         }
 
         if (queryTask.getDeadline() != null) {
@@ -103,6 +103,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, taskId)
                 .set(Task::getIsUrgent, isUrgent);
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean updateInstructionById(Long taskId, String instrunction) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId)
+                .set(Task::getInstruction, instrunction);
         return update(updateWrapper);
     }
 
@@ -145,6 +153,54 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
         if (task.getClosureReviewFile() != null) {
             updateWrapper.set(Task::getClosureReviewFile, task.getClosureReviewFile());
+        }
+
+        return update(null, updateWrapper);
+    }
+
+    @Override
+    public boolean updateCancelInfo(Task task) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, task.getId());
+
+        if (task.getStatus() != null) {
+            updateWrapper.set(Task::getStatus, task.getStatus());
+        }
+        if (task.getCancelDesc() != null) {
+            updateWrapper.set(Task::getCancelDesc, task.getCancelDesc());
+        }
+        if (task.getCancelFile() != null) {
+            updateWrapper.set(Task::getCancelFile, task.getCancelFile());
+        }
+
+        return update(null, updateWrapper);
+    }
+
+    @Override
+    public boolean updateCbReport(Task task) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, task.getId());
+
+        if (task.getStatus() != null) {
+            updateWrapper.set(Task::getStatus, task.getStatus());
+        }
+        if (task.getProgress() != null) {
+            updateWrapper.set(Task::getProgress, task.getProgress());
+        }
+        if (task.getIssuesAndChallenges() != null) {
+            updateWrapper.set(Task::getIssuesAndChallenges, task.getIssuesAndChallenges());
+        }
+        if (task.getRequiresCoordination() != null) {
+            updateWrapper.set(Task::getRequiresCoordination, task.getRequiresCoordination());
+        }
+        if (task.getNextSteps() != null) {
+            updateWrapper.set(Task::getNextSteps, task.getNextSteps());
+        }
+        if (task.getHandler() != null) {
+            updateWrapper.set(Task::getHandler, task.getHandler());
+        }
+        if (task.getPhone() != null) {
+            updateWrapper.set(Task::getPhone, task.getPhone());
         }
 
         return update(null, updateWrapper);

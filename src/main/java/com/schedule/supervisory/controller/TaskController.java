@@ -63,6 +63,15 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 
+    @PutMapping("/report/{id}")
+    public BaseResponse reportTask(@PathVariable Long id, @RequestBody Task task) {
+        System.out.println(task);
+        task.setId(id);
+        taskService.updateCbReport(task);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
+    }
+
     @GetMapping
     public BaseResponse getAllTasks() {
         List<Task> tasks = taskService.listTasks();
@@ -97,9 +106,9 @@ public class TaskController {
 
     @GetMapping("/search")
     public BaseResponse searchTasks(@ModelAttribute Task queryTask,
-                                    @RequestParam(defaultValue = "1") int pageNum,
-                                    @RequestParam(defaultValue = "10") int pageSize) {
-        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, pageNum, pageSize);
+                                    @RequestParam(defaultValue = "1") int current,
+                                    @RequestParam(defaultValue = "10") int size) {
+        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
     }
@@ -129,6 +138,12 @@ public class TaskController {
     @PutMapping("/closureReviewUpdate")
     public BaseResponse closureReviewUpdate(@RequestBody Task task) {
         boolean update = taskService.updateClosureReview(task);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+    }
+
+    @PutMapping("/updateCancelInfo")
+    public BaseResponse updateCancelInfo(@RequestBody Task task) {
+        boolean update = taskService.updateCancelInfo(task);
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 }

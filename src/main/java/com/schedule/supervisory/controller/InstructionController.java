@@ -3,6 +3,7 @@ package com.schedule.supervisory.controller;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.Instruction;
 import com.schedule.supervisory.service.IInstructionService;
+import com.schedule.supervisory.service.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ public class InstructionController {
 
     @Autowired
     private IInstructionService instructionService;
+    @Autowired
+    private ITaskService taskService;
 
     @GetMapping("/all")
     public BaseResponse getAllInstructions() {
@@ -25,6 +28,7 @@ public class InstructionController {
     @PostMapping("/add")
     public BaseResponse addInstruction(@RequestBody Instruction instruction) {
         boolean save = instructionService.save(instruction);
+        taskService.updateInstructionById((long) instruction.getTaskId(), instruction.getContent());
         return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
 
