@@ -2,8 +2,7 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
-import com.schedule.supervisory.dto.TaskCollectDTO;
-import com.schedule.supervisory.dto.TaskDTO;
+import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.ProgressReport;
 import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.entity.Task;
@@ -14,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/tasks")
@@ -168,4 +169,69 @@ public class TaskController {
         List<String> distinctSources = taskService.getDistinctSources();
         return new BaseResponse(HttpStatus.OK.value(), "success", distinctSources, Integer.toString(0));
     }
+
+    //统计类接口
+    @GetMapping("/statistics")
+    public BaseResponse getTaskStatusStatistics(
+            @RequestParam(required = false) LocalDateTime createdAtStart,
+            @RequestParam(required = false) LocalDateTime createdAtEnd,
+            @RequestParam(required = false) String coOrganizerId) {
+        //统计：已办结，未超期的任务数
+        TaskStatistics taskStatistics = new TaskStatistics();
+        taskStatistics.setTotals(taskService.countTasksNums(createdAtStart, createdAtEnd, coOrganizerId));
+        taskStatistics.setInprogressNums(taskService.countTasksInProgress(createdAtStart, createdAtEnd, coOrganizerId));
+        taskStatistics.setOverdueNums(taskService.countTasksOverdue(createdAtStart, createdAtEnd, coOrganizerId));
+        taskStatistics.setCompleteNums(taskService.countTasksComplete(createdAtStart, createdAtEnd, coOrganizerId));
+        taskStatistics.setCompletOnTimesNums(taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId));
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskStatistics, Integer.toString(0));
+
+    }
+
+    //统计：已办结，未超期的任务数
+    @GetMapping("/statistics_complete")
+    public BaseResponse getTaskCompleteOntime(
+            @RequestParam(required = false) LocalDateTime createdAtStart,
+            @RequestParam(required = false) LocalDateTime createdAtEnd,
+            @RequestParam(required = false) String coOrganizerId) {
+        Long count = taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId);
+        return new BaseResponse(HttpStatus.OK.value(), "success", count, Integer.toString(0));
+
+    }
+
+    @GetMapping("/statistics_period")
+    public BaseResponse countTasksByTaskPeriod(
+            @RequestParam(required = false) LocalDateTime createdAtStart,
+            @RequestParam(required = false) LocalDateTime createdAtEnd,
+            @RequestParam(required = false) String coOrganizerId) {
+        List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod(coOrganizerId, createdAtStart, createdAtEnd);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+        TaskPeriodCount taskPeriodCount = new TaskPeriodCount();
+        taskPeriodCount.setTotals(totals);
+        taskPeriodCount.setComplete_totals(complete_totals);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskPeriodCount, Integer.toString(0));
+
+    }
+
+    @GetMapping("/statistics_fields")
+    public BaseResponse countTasksByTaskField(
+            @RequestParam(required = false) LocalDateTime createdAtStart,
+            @RequestParam(required = false) LocalDateTime createdAtEnd,
+            @RequestParam(required = false) String coOrganizerId) {
+        List<Map<String, Object>> totals = taskService.countTasksByFieldId(coOrganizerId, createdAtStart, createdAtEnd);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+        TaskFileldCount taskFileldCount = new TaskFileldCount();
+        taskFileldCount.setTotals(totals);
+        taskFileldCount.setComplete_totals(complete_totals);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskFileldCount, Integer.toString(0));
+
+    }
+
+//    @GetMapping("/update_overdue")
+//    public BaseResponse updateTaskStatusAndDays() {
+//        return new BaseResponse(HttpStatus.OK.value(), "success", statusStatistics, Integer.toString(0));
+//
+//    }
 }

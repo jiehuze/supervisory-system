@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.supervisory.dto.TaskDTO;
 import com.schedule.supervisory.entity.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface ITaskService extends IService<Task> {
 
@@ -65,4 +67,31 @@ public interface ITaskService extends IService<Task> {
 
     //承办人填报
     boolean updateCbReport(Task task);
+
+    //计算总数
+    Long countTasksNums(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
+
+    List<Map<String, Object>> getStatusStatistics(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
+
+    //获取状态为已完成，并未超期任务数
+    Long countTasksCompleteOnTime(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
+
+    Long countTasksInProgress(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
+
+    Long countTasksOverdue(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
+
+    Long countTasksComplete(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
+
+    //根据任务周期读取已办结数量
+    List<Map<String, Object>> countTasksByTaskPeriod(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+
+    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+
+    //根据所属领域读取已办结数量
+    List<Map<String, Object>> countTasksByFieldId(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+
+    List<Map<String, Object>> countTasksByFieldIdAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+
+    //更新超期任务
+    void updateOverdueDays(int taskId);
 }

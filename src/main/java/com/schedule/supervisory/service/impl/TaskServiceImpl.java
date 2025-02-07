@@ -3,6 +3,7 @@ package com.schedule.supervisory.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.TaskMapper;
@@ -10,7 +11,9 @@ import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.ITaskService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements ITaskService {
@@ -59,6 +62,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
     @Override
     public IPage<Task> getTasksByConditions(Task queryTask, int pageNum, int pageSize) {
+
+        //todo 读取用户的权限，根据权限判断要读取什么样的数据
+        //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
+
         // 创建分页对象
         Page<Task> page = new Page<>(pageNum, pageSize);
 
@@ -77,8 +84,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.like(Task::getLeadingOfficial, queryTask.getLeadingOfficial());
         }
 
-        if (queryTask.getLeadingDepartment() != null && !queryTask.getLeadingDepartment().isEmpty()) {
-            queryWrapper.like(Task::getLeadingDepartment, queryTask.getLeadingDepartment());
+        if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingDepartmentId, queryTask.getLeadingDepartmentId());
+        }
+
+        if (queryTask.getResponsiblePersonId() != null && !queryTask.getResponsiblePersonId().isEmpty()) {
+            queryWrapper.like(Task::getResponsiblePersonId, queryTask.getResponsiblePersonId());
         }
 
         if (queryTask.getDeadline() != null) {
@@ -211,4 +222,123 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         return update(null, updateWrapper);
     }
+
+    @Override
+    public Long countTasksNums(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        // 添加协办单位筛选条件
+        if (coOrganizerId != null && !coOrganizerId.isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, coOrganizerId);
+        }
+
+        // 添加创建时间范围的筛选条件
+        if (createdAtStart != null && createdAtEnd != null) {
+            queryWrapper.between(Task::getCreatedAt, createdAtStart, createdAtEnd);
+        }
+
+        return taskMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    public List<Map<String, Object>> getStatusStatistics(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+        return taskMapper.getStatusStatistics(createdAtStart, createdAtEnd, coOrganizerId);
+    }
+
+    @Override
+    public Long countTasksCompleteOnTime(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 添加 status 为 6 的条件
+        queryWrapper.eq(Task::getStatus, 6);
+
+        // 添加 updated_at 小于等于 deadline 的条件
+        // 添加 updated_at 小于等于 deadline 的条件
+        queryWrapper.apply("updated_at <= deadline");
+
+        // 添加协办单位筛选条件
+        if (coOrganizerId != null && !coOrganizerId.isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, coOrganizerId);
+        }
+
+        // 添加创建时间范围的筛选条件
+        if (createdAtStart != null && createdAtEnd != null) {
+            queryWrapper.between(Task::getCreatedAt, createdAtStart, createdAtEnd);
+        }
+
+        return taskMapper.selectCount(queryWrapper);
+    }
+
+    @Override
+    public Long countTasksInProgress(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+    @Override
+    public Long countTasksOverdue(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+        return taskMapper.countTasksOverdue(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+    @Override
+    public Long countTasksComplete(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+        return taskMapper.countTasksComplete(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+    /**
+     * 计算taskPeriod分别为1,2,3的任务总数。
+     *
+     * @param coOrganizerId  协办单位ID
+     * @param createdAtStart 创建时间起始范围
+     * @param createdAtEnd   创建时间结束范围
+     * @return 符合条件的任务数量列表
+     */
+    @Override
+    public List<Map<String, Object>> countTasksByTaskPeriod(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
+        return taskMapper.countTasksByTaskPeriod(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+    /**
+     * 计算taskPeriod分别为1,2,3且状态status为6的任务数。
+     *
+     * @param coOrganizerId  协办单位ID
+     * @param createdAtStart 创建时间起始范围
+     * @param createdAtEnd   创建时间结束范围
+     * @return 符合条件的任务数量列表
+     */
+    @Override
+    public List<Map<String, Object>> countTasksByTaskPeriodAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
+        return taskMapper.countTasksByTaskPeriodAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+    /**
+     * 计算根据fieldId分组的所有任务总数。
+     *
+     * @param coOrganizerId  协办单位ID
+     * @param createdAtStart 创建时间起始范围
+     * @param createdAtEnd   创建时间结束范围
+     * @return 符合条件的任务数量列表
+     */
+    @Override
+    public List<Map<String, Object>> countTasksByFieldId(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
+        return taskMapper.countTasksByFieldId(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+    /**
+     * 计算根据fieldId分组且状态status为6的任务数。
+     *
+     * @param coOrganizerId  协办单位ID
+     * @param createdAtStart 创建时间起始范围
+     * @param createdAtEnd   创建时间结束范围
+     * @return 符合条件的任务数量列表
+     */
+    @Override
+    public List<Map<String, Object>> countTasksByFieldIdAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
+        return taskMapper.countTasksByFieldIdAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+    }
+
+
+    @Override
+    public void updateOverdueDays(int taskId) {
+        taskMapper.updateOverdueDays(taskId);
+    }
+
 }
