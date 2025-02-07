@@ -78,10 +78,12 @@ public interface TaskMapper extends BaseMapper<Task> {
             "WHERE status != 6 AND status != 9 " +
             "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" + //牵头区领导id查询
             "</script>")
     long countTasksInProgress(@Param("coOrganizerId") String coOrganizerId,
                               @Param("createdAtStart") LocalDateTime createdAtStart,
-                              @Param("createdAtEnd") LocalDateTime createdAtEnd);
+                              @Param("createdAtEnd") LocalDateTime createdAtEnd,
+                              @Param("leadingOfficialId") String leadingOfficialId);
 
     //办结任务：状态为已办结的任务
     @Select("<script>" +
@@ -89,10 +91,14 @@ public interface TaskMapper extends BaseMapper<Task> {
             "WHERE status = 6 " +
             "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+            "<if test='taskPeriod == true'> AND task_period = 1</if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" + //牵头区领导id查询
             "</script>")
     long countTasksComplete(@Param("coOrganizerId") String coOrganizerId,
                             @Param("createdAtStart") LocalDateTime createdAtStart,
-                            @Param("createdAtEnd") LocalDateTime createdAtEnd);
+                            @Param("createdAtEnd") LocalDateTime createdAtEnd,
+                            @Param("leadingOfficialId") String leadingOfficialId,
+                            @Param("taskPeriod") Boolean taskPeriod);
 
     //逾期任务：任务状态为逾期的，（当前时间大于预期办结时间）,转态不是完成和取消
     @Select("<script>" +
@@ -100,10 +106,12 @@ public interface TaskMapper extends BaseMapper<Task> {
             "WHERE status != 6 AND status != 9 and updated_at > deadline " +
             "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" + //牵头区领导id查询
             "</script>")
     long countTasksOverdue(@Param("coOrganizerId") String coOrganizerId,
                            @Param("createdAtStart") LocalDateTime createdAtStart,
-                           @Param("createdAtEnd") LocalDateTime createdAtEnd);
+                           @Param("createdAtEnd") LocalDateTime createdAtEnd,
+                           @Param("leadingOfficialId") String leadingOfficialId);
 
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +

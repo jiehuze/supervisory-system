@@ -3,9 +3,11 @@ package com.schedule.supervisory.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.*;
+import com.schedule.supervisory.entity.Field;
 import com.schedule.supervisory.entity.ProgressReport;
 import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.entity.Task;
+import com.schedule.supervisory.service.IFieldService;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +31,9 @@ public class TaskController {
 
     @Autowired
     private IProgressReportService progressReportService;
+
+    @Autowired
+    private IFieldService fieldService;
 
     @PostMapping
     public BaseResponse createTask(@RequestBody Task task) {
@@ -175,29 +181,31 @@ public class TaskController {
     public BaseResponse getTaskStatusStatistics(
             @RequestParam(required = false) LocalDateTime createdAtStart,
             @RequestParam(required = false) LocalDateTime createdAtEnd,
-            @RequestParam(required = false) String coOrganizerId) {
+            @RequestParam(required = false) String coOrganizerId,
+            @RequestParam(required = false) String leadingOfficialId) {
         //统计：已办结，未超期的任务数
         TaskStatistics taskStatistics = new TaskStatistics();
-        taskStatistics.setTotals(taskService.countTasksNums(createdAtStart, createdAtEnd, coOrganizerId));
-        taskStatistics.setInprogressNums(taskService.countTasksInProgress(createdAtStart, createdAtEnd, coOrganizerId));
-        taskStatistics.setOverdueNums(taskService.countTasksOverdue(createdAtStart, createdAtEnd, coOrganizerId));
-        taskStatistics.setCompleteNums(taskService.countTasksComplete(createdAtStart, createdAtEnd, coOrganizerId));
-        taskStatistics.setCompletOnTimesNums(taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId));
+        taskStatistics.setTotals(taskService.countTasksNums(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
+        taskStatistics.setInprogressNums(taskService.countTasksInProgress(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
+        taskStatistics.setOverdueNums(taskService.countTasksOverdue(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
+        taskStatistics.setCompleteNums(taskService.countTasksComplete(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId, false));
+        taskStatistics.setCompleteOnTimesNums(taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
+        taskStatistics.setCompleteShortNums(taskService.countTasksComplete(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId, true));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", taskStatistics, Integer.toString(0));
 
     }
 
     //统计：已办结，未超期的任务数
-    @GetMapping("/statistics_complete")
-    public BaseResponse getTaskCompleteOntime(
-            @RequestParam(required = false) LocalDateTime createdAtStart,
-            @RequestParam(required = false) LocalDateTime createdAtEnd,
-            @RequestParam(required = false) String coOrganizerId) {
-        Long count = taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId);
-        return new BaseResponse(HttpStatus.OK.value(), "success", count, Integer.toString(0));
-
-    }
+//    @GetMapping("/statistics_complete")
+//    public BaseResponse getTaskCompleteOntime(
+//            @RequestParam(required = false) LocalDateTime createdAtStart,
+//            @RequestParam(required = false) LocalDateTime createdAtEnd,
+//            @RequestParam(required = false) String coOrganizerId, leadingOfficialId) {
+//        Long count = taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId);
+//        return new BaseResponse(HttpStatus.OK.value(), "success", count, Integer.toString(0));
+//
+//    }
 
     @GetMapping("/statistics_period")
     public BaseResponse countTasksByTaskPeriod(
@@ -206,11 +214,28 @@ public class TaskController {
             @RequestParam(required = false) String coOrganizerId) {
         List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod(coOrganizerId, createdAtStart, createdAtEnd);
         List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
-        TaskPeriodCount taskPeriodCount = new TaskPeriodCount();
-        taskPeriodCount.setTotals(totals);
-        taskPeriodCount.setComplete_totals(complete_totals);
 
-        return new BaseResponse(HttpStatus.OK.value(), "success", taskPeriodCount, Integer.toString(0));
+        ArrayList<TaskPeriodCount> taskPeriodCounts = new ArrayList<>();
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 1, "短期"));
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 2, "中期"));
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 3, "长期"));
+
+        for (TaskPeriodCount taskPeriodCount : taskPeriodCounts) {
+            for (Map<String, Object> total : totals) {
+                if (((Integer) total.get("task_period")).equals(taskPeriodCount.getPeriod())) {
+                    taskPeriodCount.setTotal(((Long) total.get("count")).intValue());
+                    break;
+                }
+            }
+            for (Map<String, Object> complete_total : complete_totals) {
+                if (((Integer) complete_total.get("task_period")).equals(taskPeriodCount.getPeriod())) {
+                    taskPeriodCount.setComplete(((Long) complete_total.get("count")).intValue());
+                    break;
+                }
+            }
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskPeriodCounts, Integer.toString(0));
 
     }
 
@@ -221,11 +246,34 @@ public class TaskController {
             @RequestParam(required = false) String coOrganizerId) {
         List<Map<String, Object>> totals = taskService.countTasksByFieldId(coOrganizerId, createdAtStart, createdAtEnd);
         List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
-        TaskFileldCount taskFileldCount = new TaskFileldCount();
-        taskFileldCount.setTotals(totals);
-        taskFileldCount.setComplete_totals(complete_totals);
+        List<Field> list = fieldService.list();
 
-        return new BaseResponse(HttpStatus.OK.value(), "success", taskFileldCount, Integer.toString(0));
+        ArrayList<TaskFieldCount> taskFieldCounts = new ArrayList<>(list.size());
+        for (Field field : list) {
+            TaskFieldCount taskFieldCount = new TaskFieldCount();
+            taskFieldCount.setFieldId(field.getId());
+            taskFieldCount.setFieldName(field.getName());
+            for (Map<String, Object> total : totals) {
+//                System.out.println(total.get("field_id"));
+//                System.out.println(total.get("count"));
+                if (((Integer) total.get("field_id")).equals(field.getId())) {
+                    taskFieldCount.setTotal(((Long) total.get("count")).intValue());
+                    break;
+                }
+            }
+            for (Map<String, Object> complete_total : complete_totals) {
+//                System.out.println(complete_total.get("field_id"));
+//                System.out.println(complete_total.get("count"));
+                if (((Integer) complete_total.get("field_id")).equals(field.getId())) {
+                    taskFieldCount.setComplete(((Long) complete_total.get("count")).intValue());
+                    break;
+                }
+            }
+
+            taskFieldCounts.add(taskFieldCount);
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskFieldCounts, Integer.toString(0));
 
     }
 

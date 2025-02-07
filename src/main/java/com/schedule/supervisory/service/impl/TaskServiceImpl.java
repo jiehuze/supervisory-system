@@ -224,11 +224,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public Long countTasksNums(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+    public Long countTasksNums(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
         // 添加协办单位筛选条件
         if (coOrganizerId != null && !coOrganizerId.isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, coOrganizerId);
+        }
+
+        // 添加牵头领导筛选条件
+        if (leadingOfficialId != null && !leadingOfficialId.isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, leadingOfficialId);
         }
 
         // 添加创建时间范围的筛选条件
@@ -245,7 +250,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public Long countTasksCompleteOnTime(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
+    public Long countTasksCompleteOnTime(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
 
         // 添加 status 为 6 的条件
@@ -260,6 +265,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.like(Task::getCoOrganizerId, coOrganizerId);
         }
 
+        // 添加牵头领导筛选条件
+        if (leadingOfficialId != null && !leadingOfficialId.isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, leadingOfficialId);
+        }
+
         // 添加创建时间范围的筛选条件
         if (createdAtStart != null && createdAtEnd != null) {
             queryWrapper.between(Task::getCreatedAt, createdAtStart, createdAtEnd);
@@ -269,18 +279,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public Long countTasksInProgress(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
-        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd);
+    public Long countTasksInProgress(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
+        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
     }
 
     @Override
-    public Long countTasksOverdue(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
-        return taskMapper.countTasksOverdue(coOrganizerId, createdAtStart, createdAtEnd);
+    public Long countTasksOverdue(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
+        return taskMapper.countTasksOverdue(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
     }
 
     @Override
-    public Long countTasksComplete(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId) {
-        return taskMapper.countTasksComplete(coOrganizerId, createdAtStart, createdAtEnd);
+    public Long countTasksComplete(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId, Boolean taskPeriod) {
+        return taskMapper.countTasksComplete(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId, taskPeriod);
     }
 
     /**

@@ -8,6 +8,18 @@ import java.util.Map;
 
 @Data
 public class TaskPeriodCount implements Serializable {
-    private List<Map<String, Object>> totals;
-    private List<Map<String, Object>> complete_totals;
+    public TaskPeriodCount() {
+    }
+
+    public TaskPeriodCount(int total, int complete, int period, String periodName) {
+        this.total = total;
+        this.complete = complete;
+        this.period = period;
+        this.periodName = periodName;
+    }
+
+    private int total;
+    private int complete;
+    private int period;
+    private String periodName;
 }
