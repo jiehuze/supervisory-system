@@ -11,6 +11,7 @@ import com.schedule.supervisory.service.IFieldService;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
+import com.schedule.utils.WordFileReplace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -235,6 +236,8 @@ public class TaskController {
             }
         }
 
+//        WordFileReplace.replace("{{Y}}", "2025", "/Users/jiehu/works/test/replacefile/testreplace2.doc");
+
         return new BaseResponse(HttpStatus.OK.value(), "success", taskPeriodCounts, Integer.toString(0));
 
     }
@@ -254,16 +257,12 @@ public class TaskController {
             taskFieldCount.setFieldId(field.getId());
             taskFieldCount.setFieldName(field.getName());
             for (Map<String, Object> total : totals) {
-//                System.out.println(total.get("field_id"));
-//                System.out.println(total.get("count"));
                 if (((Integer) total.get("field_id")).equals(field.getId())) {
                     taskFieldCount.setTotal(((Long) total.get("count")).intValue());
                     break;
                 }
             }
             for (Map<String, Object> complete_total : complete_totals) {
-//                System.out.println(complete_total.get("field_id"));
-//                System.out.println(complete_total.get("count"));
                 if (((Integer) complete_total.get("field_id")).equals(field.getId())) {
                     taskFieldCount.setComplete(((Long) complete_total.get("count")).intValue());
                     break;
