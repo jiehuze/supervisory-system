@@ -11,7 +11,6 @@ import com.schedule.supervisory.service.IFieldService;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
-import com.schedule.utils.WordFileReplace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -91,6 +90,7 @@ public class TaskController {
         progressReport.setNextSteps(task.getNextSteps());
         progressReport.setHandler(task.getHandler());
         progressReport.setPhone(task.getPhone());
+        progressReport.setTbFileUrl(task.getTbFileUrl());
         ProgressReport update = progressReportService.createProgressReport(progressReport);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
@@ -129,9 +129,17 @@ public class TaskController {
     }
 
     @GetMapping("/search")
-    public BaseResponse searchTasks(@ModelAttribute Task queryTask,
+    public BaseResponse searchTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                    @ModelAttribute TaskSearchDTO queryTask,
                                     @RequestParam(defaultValue = "1") int current,
                                     @RequestParam(defaultValue = "10") int size) {
+        String token = null;
+        // 如果存在Authorization头部且是以Bearer开头，则提取token
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            token = authorizationHeader.substring(7);
+        }
+        System.out.println("searchTasks----------------" + authorizationHeader);
+        System.out.println("token----------------" + token);
         IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));

@@ -100,6 +100,11 @@
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:5.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:6.1.13" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:6.1.13" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:4.9.3" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okio:okio:2.8.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-common:1.9.25" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.9.25" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml:5.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml-lite:5.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.apache.xmlbeans:xmlbeans:5.1.1" level="project" />

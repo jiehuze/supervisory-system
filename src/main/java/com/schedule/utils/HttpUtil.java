@@ -1,9 +1,19 @@
 package com.schedule.utils;
 
+import okhttp3.*;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Map;
 
 public class HttpUtil {
     public String get(String uri) {
@@ -50,5 +60,118 @@ public class HttpUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String get(String url, Map<String, String> params, String token) {
+        try {
+            // 创建HttpClient实例
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2) // 可选，指定HTTP协议版本
+                    .connectTimeout(Duration.ofSeconds(10)) // 设置连接超时时间
+                    .build();
+
+            // 创建HttpRequest，设置请求方法为GET，并在Headers中添加Authorization
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .header("Authorization", "Bearer " + token) // 在这里添加token
+                    .GET() // 明确指定这是一个GET请求
+                    .build();
+
+            // 发送请求并接收响应
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // 打印响应状态码和响应体
+            System.out.println("Response Code: " + response.statusCode());
+            System.out.println("Response Body: " + response.body());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String uploadFile(String url, String token, String tenantId) {
+//        String url = "http://113.207.111.33:48770/admin/sys-file/upload";
+        File uploadFile = new File("/Users/jiehu/works/test/replacefile/templete.doc"); // 替换为你要上传的文件路径
+//        String token = "your-token-value"; // 你的token值
+//        String tenantId = "your-tenant-id"; // 你的tenant-id值
+
+        OkHttpClient client = new OkHttpClient();
+
+        // 创建请求体，使用MultipartBody构建multipart/form-data请求
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", uploadFile.getName(),
+                        RequestBody.create(uploadFile, okhttp3.MediaType.parse("application/octet-stream")))
+                .build();
+
+        // 创建请求对象，并添加头部信息
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer " + token) // 设置Authorization头部
+                .header("tenant-id", tenantId) // 设置tenant-id头部
+                .post(requestBody)
+                .build();
+
+        try {
+            // 同步执行请求
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                System.out.println("File uploaded successfully: " + response.body().string());
+            } else {
+                System.out.println("Failed to upload file: " + response.code() + " " + response.message());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void upload(String url, String token, String tenantId, String filePath) {
+        // 创建 OkHttpClient
+        OkHttpClient client = new OkHttpClient();
+
+        // 要上传的文件
+        File file = new File(filePath);
+        if (!file.exists()) {
+            System.out.println("文件不存在：" + filePath);
+            return;
+        }
+
+        // 创建 MultipartBody
+        RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM) // multipart 表单上传
+                .addFormDataPart("file", file.getName(), fileBody) // `file` 是请求参数名，按需修改
+                .build();
+
+        // 创建请求
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .addHeader("Authorization", token) // 设置 Authorization 头
+                .addHeader("tenant-id", tenantId) // 设置 tenant-id 头
+                .build();
+
+        // 发送请求
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                System.out.println("文件上传成功：" + response.body().string());
+            } else {
+                System.out.println("文件上传失败，错误码：" + response.code() + "，错误信息：" + response.message());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return;
+    }
+
+    public static void main(String[] args) {
+        HttpUtil httpUtil = new HttpUtil();
+        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
+
+        httpUtil.upload("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
     }
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.TaskMapper;
+import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.ITaskService;
 import org.springframework.stereotype.Service;
@@ -61,11 +62,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public IPage<Task> getTasksByConditions(Task queryTask, int pageNum, int pageSize) {
+    public IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize) {
 
         //todo 读取用户的权限，根据权限判断要读取什么样的数据
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
-
+        //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
+        //所以看获取的人员部门数组；如果数组为空：判断创建人或者责任人；如果不为空，需要查询包含部门的数据
         // 创建分页对象
         Page<Task> page = new Page<>(pageNum, pageSize);
 
@@ -82,6 +84,29 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         if (queryTask.getLeadingOfficial() != null && !queryTask.getLeadingOfficial().isEmpty()) {
             queryWrapper.like(Task::getLeadingOfficial, queryTask.getLeadingOfficial());
+        }
+
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
+        }
+
+        // 处理leadingOfficialId模糊查询的情况
+        String[] leadingOfficialIds = null;
+        if (leadingOfficialIds != null && leadingOfficialIds.length > 0) {
+            queryWrapper.and(wrapper -> {
+                for (String id : leadingOfficialIds) {
+                    if (id != null && !id.trim().isEmpty()) {
+                        wrapper.or(w -> w.like(Task::getLeadingOfficialId, id));
+                    }
+                }
+            });
+        } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.or(wrapper -> wrapper
+                    .like(Task::getAssignerId, queryTask.getUserId())
+                    .or()
+                    .like(Task::getResponsiblePersonId, queryTask.getUserId())
+            );
         }
 
         if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
@@ -101,9 +126,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
 
         queryWrapper.orderByDesc(Task::getId);
-//        if (queryTask.getId() != null) {
-//            queryWrapper.eq(Task::getId, queryTask.getId());
-//        }
+
         return page(page, queryWrapper);
     }
 
@@ -218,6 +241,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
         if (task.getPhone() != null) {
             updateWrapper.set(Task::getPhone, task.getPhone());
+        }
+        if (task.getTbFileUrl() != null) {
+            updateWrapper.set(Task::getTbFileUrl, task.getTbFileUrl());
         }
 
         return update(null, updateWrapper);

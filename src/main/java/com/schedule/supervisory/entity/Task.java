@@ -44,6 +44,7 @@ public class Task {
     private Boolean isReview; // 是否需要承办领导审核 'is_review'
     private String nextSteps; // 下一个阶段 'next_steps'
     private String handler; // 经办人 'handler'
+    private String handlerId; //经办人id
     private String phone; // 电话 'phone'
     private LocalDateTime updatedAt; // 更新时间 'updated_at'
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
@@ -61,4 +62,7 @@ public class Task {
     private String closureReviewFile; // 办结审核文件对应数据库列 'closure_review_file'
     private String cancelDesc; // 取消描述
     private String cancelFile; // 取消文件
+    private String assigner; //交办人
+    private String assignerId; //交办人Id
+    private String tbFileUrl; //同步文件url
 }

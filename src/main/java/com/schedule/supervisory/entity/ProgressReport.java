@@ -39,4 +39,6 @@ public class ProgressReport {
      */
     private Integer status;
     private String revokeDesc; // 新增的撤回描述字段
+
+    private String tbFileUrl; //通报文件
 }
