@@ -1,5 +1,7 @@
 package com.schedule.supervisory.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.*;
@@ -11,6 +13,7 @@ import com.schedule.supervisory.service.IFieldService;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
+import com.schedule.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -138,8 +141,16 @@ public class TaskController {
 //        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 //            token = authorizationHeader.substring(7);
 //        }
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("------------ size: " + deptDTOs.size());
+        }
+
         System.out.println("searchTasks----------------" + authorizationHeader);
-        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size);
+        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
     }

@@ -43,11 +43,12 @@ public class DuchaReportController {
     public BaseResponse searchReports(
             @RequestParam(value = "submitterId", required = false) String submitterId,
             @RequestParam(value = "leadingOfficialId", required = false) String leadingOfficialId,
+            @RequestParam(value = "userId", required = false) String userId,
             @RequestParam(value = "reportName", required = false) String reportName,
             @RequestParam(value = "current", defaultValue = "1") Integer current,
             @RequestParam(value = "size", defaultValue = "10") Integer size) {
 
-        Page<DuchaReport> duchaReportPage = duchaReportService.searchReports(submitterId, leadingOfficialId, reportName, size, size);
+        Page<DuchaReport> duchaReportPage = duchaReportService.searchReports(userId, reportName, size, size);
         return new BaseResponse(HttpStatus.OK.value(), "success", duchaReportPage, Integer.toString(0));
     }
 

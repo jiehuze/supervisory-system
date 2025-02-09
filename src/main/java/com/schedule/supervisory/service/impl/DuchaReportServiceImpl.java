@@ -36,7 +36,7 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
     private DuchaReportMapper duchaReportMapper;
 
     @Override
-    public Page<DuchaReport> searchReports(String submitterId, String leadingOfficialId, String reportName, Integer pageNum, Integer pageSize) {
+    public Page<DuchaReport> searchReports(String userId, String reportName, Integer pageNum, Integer pageSize) {
         // 创建分页对象
         Page<DuchaReport> page = new Page<>(pageNum, pageSize);
 
@@ -44,12 +44,14 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
         LambdaQueryWrapper<DuchaReport> queryWrapper = new LambdaQueryWrapper<>();
 
         // 添加模糊查询条件
-        if (submitterId != null && !submitterId.trim().isEmpty()) {
-            queryWrapper.like(DuchaReport::getSubmitterId, submitterId);
+        if (userId != null && !userId.trim().isEmpty()) {
+            queryWrapper.or(wrapper -> wrapper
+                    .like(DuchaReport::getSubmitterId, userId)
+                    .or()
+                    .like(DuchaReport::getLeadingOfficialId, userId)
+            );
         }
-        if (leadingOfficialId != null && !leadingOfficialId.trim().isEmpty()) {
-            queryWrapper.like(DuchaReport::getLeadingOfficialId, leadingOfficialId);  // 使用 like 进行模糊匹配
-        }
+
         if (reportName != null && !reportName.trim().isEmpty()) {
             queryWrapper.like(DuchaReport::getReportName, reportName);  // 使用 like 进行模糊匹配
         }

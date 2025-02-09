@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.TaskMapper;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.ITaskService;
@@ -62,7 +63,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize) {
+    public IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
 
         //todo 读取用户的权限，根据权限判断要读取什么样的数据
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
@@ -91,13 +92,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
 
         // 处理leadingOfficialId模糊查询的情况
-        String[] leadingOfficialIds = null;
-        if (leadingOfficialIds != null && leadingOfficialIds.length > 0) {
+        if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
-                for (String id : leadingOfficialIds) {
-                    if (id != null && !id.trim().isEmpty()) {
-                        wrapper.or(w -> w.like(Task::getLeadingOfficialId, id));
-                    }
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {

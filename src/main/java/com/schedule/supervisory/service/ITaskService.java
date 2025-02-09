@@ -2,6 +2,7 @@ package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 
@@ -49,7 +50,7 @@ public interface ITaskService extends IService<Task> {
      */
     List<Task> listTasksByStatus(Integer status);
 
-    IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize);
+    IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     boolean updateStatusById(Long taskId, Integer newStatus);
 

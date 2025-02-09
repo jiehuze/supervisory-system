@@ -2,6 +2,9 @@ package com.schedule.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.dto.DeptResponseDTO;
 import okhttp3.*;
 
 import java.io.BufferedReader;
@@ -15,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 public class HttpUtil {
@@ -64,7 +68,7 @@ public class HttpUtil {
         return null;
     }
 
-    public String get(String url, Map<String, String> params, String token) {
+    public String get(String url, String token, String tenantId) {
         try {
             // 创建HttpClient实例
             HttpClient client = HttpClient.newBuilder()
@@ -75,7 +79,8 @@ public class HttpUtil {
             // 创建HttpRequest，设置请求方法为GET，并在Headers中添加Authorization
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(url))
-                    .header("Authorization", "Bearer " + token) // 在这里添加token
+                    .header("Authorization", token) // 在这里添加token
+                    .header("tenant-id", tenantId) // 设置tenant-id头部
                     .GET() // 明确指定这是一个GET请求
                     .build();
 
@@ -86,6 +91,12 @@ public class HttpUtil {
             System.out.println("Response Code: " + response.statusCode());
             System.out.println("Response Body: " + response.body());
 
+            DeptResponseDTO deptResponseDTO = JSON.parseObject(response.body(), DeptResponseDTO.class);
+            if (deptResponseDTO.getCode() == 0) {
+                return deptResponseDTO.getData().toString();
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -94,11 +105,7 @@ public class HttpUtil {
     }
 
     public String uploadFile(String url, String token, String tenantId) {
-//        String url = "http://113.207.111.33:48770/admin/sys-file/upload";
         File uploadFile = new File("/Users/jiehu/works/test/replacefile/templete.doc"); // 替换为你要上传的文件路径
-//        String token = "your-token-value"; // 你的token值
-//        String tenantId = "your-tenant-id"; // 你的tenant-id值
-
         OkHttpClient client = new OkHttpClient();
 
         // 创建请求体，使用MultipartBody构建multipart/form-data请求
@@ -111,7 +118,7 @@ public class HttpUtil {
         // 创建请求对象，并添加头部信息
         Request request = new Request.Builder()
                 .url(url)
-                .header("Authorization", "Bearer " + token) // 设置Authorization头部
+                .header("Authorization", token) // 设置Authorization头部
                 .header("tenant-id", tenantId) // 设置tenant-id头部
                 .post(requestBody)
                 .build();
@@ -192,6 +199,15 @@ public class HttpUtil {
         HttpUtil httpUtil = new HttpUtil();
 //        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
 
-        httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", "Bearer 9dadc78f-6fd5-4a09-8de7-d6fa181c7b06", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
+//        httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", "Bearer 9dadc78f-6fd5-4a09-8de7-d6fa181c7b06", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
+
+        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", "Bearer df441d65-c544-4b10-bc73-cf21aeac8054", "1877665103373783042");
+        System.out.println("++++++++ " + deptJson);
+        if (deptJson != null) {
+            List<DeptDTO> deptDTOS = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("------------ size: " + deptDTOS.size());
+        }
+//
+//        System.out.println("------------- " + deptDTOs);
     }
 }
