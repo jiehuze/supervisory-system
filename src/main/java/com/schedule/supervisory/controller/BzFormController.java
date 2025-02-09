@@ -1,10 +1,8 @@
 package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
-import com.schedule.supervisory.dto.BzFromDTO;
-import com.schedule.supervisory.dto.TaskSearchDTO;
+import com.schedule.supervisory.dto.BzFormDTO;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.service.IBzFormService;
@@ -36,7 +34,7 @@ public class BzFormController {
     }
 
     @PostMapping("/add")
-    public BaseResponse saveOrUpdateTasks(@RequestBody BzFromDTO bzFromDTO) {
+    public BaseResponse saveOrUpdateTasks(@RequestBody BzFormDTO bzFromDTO) {
         BzForm bzForm = bzFromDTO.getBzForm();
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {

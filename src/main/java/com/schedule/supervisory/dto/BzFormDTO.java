@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class BzFromDTO implements Serializable {
+public class BzFormDTO implements Serializable {
     private BzForm bzForm;
 
     private List<BzFormTarget> bzFormTargetList;
