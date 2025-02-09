@@ -55,6 +55,7 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
         if (reportName != null && !reportName.trim().isEmpty()) {
             queryWrapper.like(DuchaReport::getReportName, reportName);  // 使用 like 进行模糊匹配
         }
+        queryWrapper.eq(DuchaReport::getIsDeleted, false); //只查询没有删除的报告
 
         // 按照id降序排列
         queryWrapper.orderByDesc(DuchaReport::getId);

@@ -3,6 +3,7 @@ package com.schedule.supervisory.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.BzIssueDTO;
+import com.schedule.supervisory.dto.BzIssueDTO;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueService;
@@ -32,7 +33,16 @@ public class BzIssueController {
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueByConditions, Integer.toString(0));
     }
+    @GetMapping("/detail/{id}")
+    public BaseResponse detail(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                               @PathVariable Long id) {
+        BzIssueDTO bzIssueDTO = new BzIssueDTO();
+        bzIssueDTO.setBzIssue(bzIssueService.getById(id));
+        bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(id));
 
+        return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueDTO, Integer.toString(0));
+    }
     @PostMapping("/add")
     public BaseResponse saveOrUpdateTasks(@RequestBody BzIssueDTO bzFromDTO) {
         BzIssue bzIssue = bzFromDTO.getBzIssue();

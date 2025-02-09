@@ -33,6 +33,17 @@ public class BzFormController {
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormByConditions, Integer.toString(0));
     }
 
+    @GetMapping("/detail/{id}")
+    public BaseResponse detail(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                               @PathVariable Long id) {
+        BzFormDTO bzFormDTO = new BzFormDTO();
+        bzFormDTO.setBzForm(bzFormService.getById(id));
+        bzFormDTO.setBzFormTargetList(bzFormTargetService.getByFormId(id));
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", bzFormDTO, Integer.toString(0));
+    }
+
     @PostMapping("/add")
     public BaseResponse saveOrUpdateTasks(@RequestBody BzFormDTO bzFromDTO) {
         BzForm bzForm = bzFromDTO.getBzForm();
