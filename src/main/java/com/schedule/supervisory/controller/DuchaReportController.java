@@ -31,8 +31,10 @@ public class DuchaReportController {
 
     //生成报告
     @PostMapping("/create")
-    public BaseResponse generateReport(@RequestBody DuchaReportCreationDTO reportCreationDTO) {
-        boolean create = duchaReportService.generateReportFromTasks(reportCreationDTO);
+    public BaseResponse generateReport(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                       @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                       @RequestBody DuchaReportCreationDTO reportCreationDTO) {
+        boolean create = duchaReportService.generateReportFromTasks(reportCreationDTO, authorizationHeader, tenantId);
         return new BaseResponse(HttpStatus.OK.value(), "success", create, Integer.toString(0));
     }
 
@@ -41,10 +43,11 @@ public class DuchaReportController {
     public BaseResponse searchReports(
             @RequestParam(value = "submitterId", required = false) String submitterId,
             @RequestParam(value = "leadingOfficialId", required = false) String leadingOfficialId,
+            @RequestParam(value = "reportName", required = false) String reportName,
             @RequestParam(value = "current", defaultValue = "1") Integer current,
             @RequestParam(value = "size", defaultValue = "10") Integer size) {
 
-        Page<DuchaReport> duchaReportPage = duchaReportService.searchReports(submitterId, leadingOfficialId, size, size);
+        Page<DuchaReport> duchaReportPage = duchaReportService.searchReports(submitterId, leadingOfficialId, reportName, size, size);
         return new BaseResponse(HttpStatus.OK.value(), "success", duchaReportPage, Integer.toString(0));
     }
 

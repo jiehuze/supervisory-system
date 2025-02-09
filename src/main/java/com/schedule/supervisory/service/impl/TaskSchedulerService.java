@@ -1,0 +1,65 @@
+package com.schedule.supervisory.service.impl;
+
+import com.schedule.supervisory.entity.Task;
+import com.schedule.supervisory.service.ITaskService;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@Service
+public class TaskSchedulerService {
+
+    private final ITaskService taskService;
+
+    public TaskSchedulerService(ITaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    // 任务1：每天 01:00 执行
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void executeTaskAt1AM() {
+        logTime("01:00 定时任务");
+        //每天1点更新下过期时间
+        taskService.updateOverdueDays();
+    }
+
+    // 任务2：每天 09:00 执行
+    @Scheduled(cron = "0 2 9 * * ?")
+    public void executeTaskAt9AM() {
+        logTime("09:00 定时任务");
+        List<Task> tasks = taskService.getTasksDueInHours(24);
+        for (Task task : tasks) {
+            //todo 发送消息，不到24小时消息
+            logTime(task.getSource() + "不到24小时消息");
+        }
+
+        //查询是否有快超期的任务，并做提醒
+    }
+
+    // 任务3：每天 12:00 执行
+    @Scheduled(cron = "0 2 12 * * ?")
+    public void executeTaskAt12PM() {
+        logTime("12:00 定时任务");
+        List<Task> tasks = taskService.getTasksDueInHours(14);
+        for (Task task : tasks) {
+            //todo 发送消息，不到12小时消息
+            logTime(task.getSource() + "不到12小时消息");
+        }
+        //查询是否有快超级的任务，并做提醒
+    }
+
+    // 任务4：每 5 秒执行一次
+//    @Scheduled(fixedRate = 5000)  // 或者 @Scheduled(cron = "*/5 * * * * ?")
+//    public void executeTaskEvery5Seconds() {
+//        logTime("每 5 秒执行的任务");
+//    }
+
+    // 打印执行时间
+    private void logTime(String taskName) {
+        String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        System.out.println(taskName + " 执行时间：" + time);
+    }
+}

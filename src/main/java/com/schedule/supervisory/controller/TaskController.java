@@ -130,16 +130,15 @@ public class TaskController {
 
     @GetMapping("/search")
     public BaseResponse searchTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                    @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                     @ModelAttribute TaskSearchDTO queryTask,
                                     @RequestParam(defaultValue = "1") int current,
                                     @RequestParam(defaultValue = "10") int size) {
-        String token = null;
         // 如果存在Authorization头部且是以Bearer开头，则提取token
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            token = authorizationHeader.substring(7);
-        }
+//        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+//            token = authorizationHeader.substring(7);
+//        }
         System.out.println("searchTasks----------------" + authorizationHeader);
-        System.out.println("token----------------" + token);
         IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
@@ -284,9 +283,17 @@ public class TaskController {
 
     }
 
-//    @GetMapping("/update_overdue")
-//    public BaseResponse updateTaskStatusAndDays() {
-//        return new BaseResponse(HttpStatus.OK.value(), "success", statusStatistics, Integer.toString(0));
-//
-//    }
+    @GetMapping("/update_overdue")
+    public BaseResponse updateTaskStatusAndDays() {
+        taskService.updateOverdueDays();
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
+
+    }
+
+    @GetMapping("/getdue")
+    public BaseResponse getdue() {
+        List<Task> tasksDueInHours = taskService.getTasksDueInHours(15);
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasksDueInHours, Integer.toString(0));
+
+    }
 }

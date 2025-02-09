@@ -167,13 +167,20 @@ public interface TaskMapper extends BaseMapper<Task> {
     void updateStatusForOverdueTasks();
 
     // 计算并更新所有状态为3的任务的超期天数
-    @Update("UPDATE task SET overdue_days = EXTRACT(DAY FROM (CURRENT_DATE - deadline)) " +
-            "WHERE status = 3")
-    void updateOverdueDays();
+//    @Update("UPDATE task SET overdue_days = EXTRACT(DAY FROM (CURRENT_DATE - deadline)) " +
+//            "WHERE status = 3")
+//    void updateOverdueDays();
 
     //计算状态为6已完成时，没有超期的任务数
     @Select("SELECT COUNT(*) " +
             "FROM task " +
             "WHERE status = 6 AND updated_at <= deadline")
     int countTasksCompleteOmTime();
+
+    @Update("UPDATE task " +
+            "SET overdue_days = GREATEST((CURRENT_DATE - deadline), 0) " +
+            "WHERE status NOT IN (6, 9) " +
+            "AND updated_at > deadline " +
+            "AND deadline IS NOT NULL")
+    void updateOverdueDays();
 }

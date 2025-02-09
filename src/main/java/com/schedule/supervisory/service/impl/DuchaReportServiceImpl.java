@@ -11,6 +11,7 @@ import com.schedule.supervisory.dto.ReportUpdateDTO;
 import com.schedule.supervisory.entity.DuchaReport;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IDuchaReportService;
+import com.schedule.utils.HttpUtil;
 import com.schedule.utils.WordFileReplace;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -35,7 +36,7 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
     private DuchaReportMapper duchaReportMapper;
 
     @Override
-    public Page<DuchaReport> searchReports(String submitterId, String leadingOfficialId, Integer pageNum, Integer pageSize) {
+    public Page<DuchaReport> searchReports(String submitterId, String leadingOfficialId, String reportName, Integer pageNum, Integer pageSize) {
         // 创建分页对象
         Page<DuchaReport> page = new Page<>(pageNum, pageSize);
 
@@ -49,6 +50,9 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
         if (leadingOfficialId != null && !leadingOfficialId.trim().isEmpty()) {
             queryWrapper.like(DuchaReport::getLeadingOfficialId, leadingOfficialId);  // 使用 like 进行模糊匹配
         }
+        if (reportName != null && !reportName.trim().isEmpty()) {
+            queryWrapper.like(DuchaReport::getReportName, reportName);  // 使用 like 进行模糊匹配
+        }
 
         // 按照id降序排列
         queryWrapper.orderByDesc(DuchaReport::getId);
@@ -58,7 +62,7 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
     }
 
     @Override
-    public boolean generateReportFromTasks(DuchaReportCreationDTO duchaReportCreationDTO) {
+    public boolean generateReportFromTasks(DuchaReportCreationDTO duchaReportCreationDTO, String token, String tenantId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         List<Long> taskIds = duchaReportCreationDTO.getTaskIds();
         String collect = taskIds.stream()
@@ -127,6 +131,12 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
 
         String outputPath = "/tmp/report" + System.currentTimeMillis() + ".doc";
         WordFileReplace.replaceTextInWord(replacements, outputPath);
+
+        //上传文件
+        HttpUtil httpUtil = new HttpUtil();
+        String uploadUrl = httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", token, tenantId, outputPath);
+        report.setReportFile(uploadUrl);
+
         return this.save(report);
     }
 

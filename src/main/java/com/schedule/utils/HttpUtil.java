@@ -1,5 +1,7 @@
 package com.schedule.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 
 import java.io.BufferedReader;
@@ -128,7 +130,7 @@ public class HttpUtil {
         return null;
     }
 
-    public void upload(String url, String token, String tenantId, String filePath) {
+    public String upload(String url, String token, String tenantId, String filePath) {
         // 创建 OkHttpClient
         OkHttpClient client = new OkHttpClient();
 
@@ -136,28 +138,46 @@ public class HttpUtil {
         File file = new File(filePath);
         if (!file.exists()) {
             System.out.println("文件不存在：" + filePath);
-            return;
+            return null;
         }
 
-        // 创建 MultipartBody
-        RequestBody fileBody = RequestBody.create(file, MediaType.parse("application/octet-stream"));
+        // 设置 multipart/form-data
+        RequestBody fileBody = RequestBody.create(file, MediaType.parse("multipart/form-data"));
         RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM) // multipart 表单上传
-                .addFormDataPart("file", file.getName(), fileBody) // `file` 是请求参数名，按需修改
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), fileBody)
                 .build();
 
         // 创建请求
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
-                .addHeader("Authorization", token) // 设置 Authorization 头
-                .addHeader("tenant-id", tenantId) // 设置 tenant-id 头
+                .addHeader("Authorization", token)
+                .addHeader("tenant-id", tenantId)
+                .addHeader("Content-Type", "multipart/form-data") // 确保 Content-Type 正确
                 .build();
 
         // 发送请求
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful()) {
-                System.out.println("文件上传成功：" + response.body().string());
+                String jsonstr = response.body().string();
+                System.out.println("文件上传成功：" + jsonstr);
+                // 解析JSON字符串为JSONObject对象
+                JSONObject jsonObject = JSON.parseObject(jsonstr);
+
+                // 获取"data"节点
+                JSONObject dataNode = jsonObject.getJSONObject("data");
+
+                if (dataNode != null && dataNode.containsKey("url")) {
+                    // 如果存在url节点，则打印其值
+                    String jsonurl = dataNode.getString("url");
+                    System.out.println("URL: " + jsonurl);
+
+                    return jsonurl;
+                } else {
+                    // 如果没有找到url节点，则给出提示
+                    System.out.println("Warning: URL not found in the JSON.");
+                }
             } else {
                 System.out.println("文件上传失败，错误码：" + response.code() + "，错误信息：" + response.message());
             }
@@ -165,13 +185,13 @@ public class HttpUtil {
             e.printStackTrace();
         }
 
-        return;
+        return null;
     }
 
     public static void main(String[] args) {
         HttpUtil httpUtil = new HttpUtil();
-        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
+//        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
 
-        httpUtil.upload("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
+        httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", "Bearer 9dadc78f-6fd5-4a09-8de7-d6fa181c7b06", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
     }
 }

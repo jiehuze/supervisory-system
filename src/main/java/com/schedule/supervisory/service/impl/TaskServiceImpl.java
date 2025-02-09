@@ -373,8 +373,24 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
 
     @Override
-    public void updateOverdueDays(int taskId) {
-        taskMapper.updateOverdueDays(taskId);
+    public void updateOverdueDays() {
+        taskMapper.updateOverdueDays();
+    }
+
+    @Override
+    public List<Task> getTasksDueInHours(int hours) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime futureTime = now.plusHours(hours); // 当前时间 + N 小时
+
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .isNotNull(Task::getDeadline)  // 确保 deadline 不是 null
+                .gt(Task::getDeadline, now)   // deadline 在当前时间之后
+                .lt(Task::getDeadline, futureTime)  // deadline - now < N 小时
+                .ne(Task::getStatus, 6)  // 排除状态 6
+                .ne(Task::getStatus, 9); // 排除状态 9
+
+        return taskMapper.selectList(queryWrapper);
     }
 
 }

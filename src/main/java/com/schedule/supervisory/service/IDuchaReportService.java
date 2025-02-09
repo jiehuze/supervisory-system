@@ -7,9 +7,9 @@ import com.schedule.supervisory.dto.ReportUpdateDTO;
 import com.schedule.supervisory.entity.DuchaReport;
 
 public interface IDuchaReportService extends IService<DuchaReport> {
-    Page<DuchaReport> searchReports(String submitterId, String leadingOfficialId, Integer pageNum, Integer pageSize);
+    Page<DuchaReport> searchReports(String submitterId, String leadingOfficialId, String reportName, Integer pageNum, Integer pageSize);
 
-    boolean generateReportFromTasks(DuchaReportCreationDTO duchaReportCreationDTO);
+    boolean generateReportFromTasks(DuchaReportCreationDTO duchaReportCreationDTO, String token, String tenantId);
 
     boolean updateSubmitById(Long duchaReportId, ReportUpdateDTO reportSubmissionDTO);
 

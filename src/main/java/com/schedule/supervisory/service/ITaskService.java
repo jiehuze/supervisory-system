@@ -94,5 +94,7 @@ public interface ITaskService extends IService<Task> {
     List<Map<String, Object>> countTasksByFieldIdAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
 
     //更新超期任务
-    void updateOverdueDays(int taskId);
+    void updateOverdueDays();
+
+    public List<Task> getTasksDueInHours(int hours);
 }
