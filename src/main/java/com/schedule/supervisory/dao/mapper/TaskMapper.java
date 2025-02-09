@@ -158,9 +158,9 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                            @Param("createdAtStart") LocalDateTime createdAtStart,
                                                            @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
-    @Update("UPDATE task SET overdue_days = EXTRACT(DAY FROM (CURRENT_DATE - deadline)) " +
-            "WHERE status = 3 AND deadline < CURRENT_DATE")
-    void updateOverdueDays(@Param("id") int id);
+//    @Update("UPDATE task SET overdue_days = EXTRACT(DAY FROM (CURRENT_DATE - deadline)) " +
+//            "WHERE status = 3 AND deadline < CURRENT_DATE")
+//    void updateOverdueDays(@Param("id") int id);
 
     // 更新状态不为3但是超过截止日期的任务状态为3
     @Update("UPDATE task SET status = 3 WHERE status != 3 AND deadline < CURRENT_DATE")

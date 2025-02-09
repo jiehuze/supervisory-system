@@ -1,9 +1,14 @@
 package com.schedule.supervisory.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.dto.BzFromDTO;
+import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.service.IBzFormService;
+import com.schedule.supervisory.service.IBzFormTargetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,17 +20,41 @@ public class BzFormController {
     @Autowired
     private IBzFormService bzFormService;
 
-    @GetMapping("/list")
-    public BaseResponse list(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
-        Page<BzForm> bzFormPage = bzFormService.page(new Page<>(pageNum, pageSize));
+    @Autowired
+    private IBzFormTargetService bzFormTargetService;
 
-        return new BaseResponse(HttpStatus.OK.value(), "success", bzFormPage, Integer.toString(0));
+    @GetMapping("/search")
+    public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                             @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                             @ModelAttribute BzForm bzForm,
+                             @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
+                             @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
+//        Page<BzForm> bzFormPage = bzFormService.page(new Page<>(pageNum, pageSize));
+        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzForm, pageNum, pageSize);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", bzFormByConditions, Integer.toString(0));
     }
 
-    // 插入新记录
     @PostMapping("/add")
-    public boolean addBzForm(@RequestBody BzForm bzForm) {
-        return bzFormService.addBzForm(bzForm);
+    public BaseResponse saveOrUpdateTasks(@RequestBody BzFromDTO bzFromDTO) {
+        BzForm bzForm = bzFromDTO.getBzForm();
+        Long id = bzFormService.insertBzForm(bzForm);
+        if (id == null) {
+            return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
+        }
+        for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
+            bzFormTarget.setBzFormId(id);
+        }
+        if (bzFromDTO.getBzFormTargetList().size() != 0) {
+            bzFormTargetService.saveBatch(bzFromDTO.getBzFormTargetList());
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
+    }
+
+    @PutMapping("/update")
+    public BaseResponse updateBzForm(@RequestBody BzForm bzForm) {
+        boolean upate = bzFormService.updateBzFrom(bzForm);
+        return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
     }
 }

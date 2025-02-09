@@ -129,8 +129,8 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
                 new SimpleEntry<>("{{extra}}", "New Value") // 添加额外键值对
         );
 
-        String outputPath = "/tmp/report" + System.currentTimeMillis() + ".doc";
-        WordFileReplace.replaceTextInWord(replacements, outputPath);
+        String outputPath = "/tmp/report" + System.currentTimeMillis() + ".docx";
+        WordFileReplace.replaceTextInWordX(replacements, outputPath);
 
         //上传文件
         HttpUtil httpUtil = new HttpUtil();

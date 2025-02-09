@@ -4,8 +4,8 @@ package com.schedule.supervisory.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.ProgressReportMapper;
+import com.schedule.supervisory.dto.TaskWithProgressReportDTO;
 import com.schedule.supervisory.entity.ProgressReport;
-import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +13,8 @@ import java.util.List;
 
 @Service
 public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper, ProgressReport> implements IProgressReportService {
+
+    private ProgressReportMapper progressReportMapper;
 
     @Override
     public List<ProgressReport> getAllProgressReports() {
@@ -75,5 +77,10 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
                 .set(ProgressReport::getStatus, status)
                 .set(ProgressReport::getRevokeDesc, revokeDesc);
         return update(updateWrapper);
+    }
+
+    @Override
+    public List<TaskWithProgressReportDTO> checkFileCycle() {
+        return progressReportMapper.findTasksWithConditions();
     }
 }

@@ -12,7 +12,9 @@ public class BzForm {
     private String name; // 名称
     private String type; // 类型
     private Integer typeId; // 类型id
-    private Integer gear; // 档位
+    private Integer fillCycle; //通报周期
+    private Integer actualGear; // 档位
+    private Integer predictedGear; //预估档位
     private String creator; // 创建人
     private String creatorId; // 创建人id
     private java.sql.Timestamp createdAt; // 创建时间

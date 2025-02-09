@@ -65,4 +65,5 @@ public class Task {
     private String assigner; //交办人
     private String assignerId; //交办人Id
     private String tbFileUrl; //同步文件url
+    private Integer fillCycle; //填报周期
 }

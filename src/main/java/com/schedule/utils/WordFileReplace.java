@@ -3,6 +3,9 @@ package com.schedule.utils;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.CharacterRun;
 import org.apache.poi.hwpf.usermodel.Range;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -96,6 +99,49 @@ public class WordFileReplace {
         return false;
     }
 
+    /**
+     * 替换 Word 文档 (.docx) 中的多个字符串
+     *
+     * @param replacements   需要替换的文本映射（key: 旧文本，value: 新文本）
+     * @param outputFilePath 输出文件路径
+     * @return 替换成功返回 true，失败返回 false
+     */
+    public static boolean replaceTextInWordX(Map<String, String> replacements, String outputFilePath) {
+        String inputFilePath = "doc/templete.docx"; // 资源目录中的模板文件
+
+        try {
+            // 读取 .docx 文件
+            Resource resource = new ClassPathResource(inputFilePath);
+            try (InputStream fis = resource.getInputStream();
+                 XWPFDocument document = new XWPFDocument(fis);
+                 FileOutputStream fos = new FileOutputStream(outputFilePath)) {
+
+                // 遍历所有段落并进行文本替换
+                for (XWPFParagraph paragraph : document.getParagraphs()) {
+                    for (XWPFRun run : paragraph.getRuns()) {
+                        String text = run.getText(0);
+                        if (text != null) {
+                            for (Map.Entry<String, String> entry : replacements.entrySet()) {
+                                if (text.contains(entry.getKey())) {
+                                    text = text.replace(entry.getKey(), entry.getValue());
+                                    run.setText(text, 0);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 保存修改后的文档
+                document.write(fos);
+                System.out.println("✅ 文档中的文字已成功替换！");
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
 //        WordFileReplace.replace("X", "CCCCC");
         Map<String, String> replacements = Map.of(
@@ -106,10 +152,10 @@ public class WordFileReplace {
         );
 
         // 输出文件路径
-        String outputFilePath = "/Users/jiehu/works/test/replacefile/output.doc";
+        String outputFilePath = "/Users/jiehu/works/test/replacefile/output.docx";
 
         // 调用方法进行替换
-        boolean success = replaceTextInWord(replacements, outputFilePath);
+        boolean success = replaceTextInWordX(replacements, outputFilePath);
 
         if (success) {
             System.out.println("Word 文件替换成功，已保存至: " + outputFilePath);
