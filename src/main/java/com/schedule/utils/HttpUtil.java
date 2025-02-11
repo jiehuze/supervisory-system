@@ -201,7 +201,7 @@ public class HttpUtil {
 
 //        httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", "Bearer 9dadc78f-6fd5-4a09-8de7-d6fa181c7b06", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
 
-        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", "Bearer df441d65-c544-4b10-bc73-cf21aeac8054", "1877665103373783042");
+        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", "Bearer 255c2cbb-d36c-442c-9fc7-651e980ea8d6", "1877665103373783042");
         System.out.println("++++++++ " + deptJson);
         if (deptJson != null) {
             List<DeptDTO> deptDTOS = JSON.parseArray(deptJson, DeptDTO.class);

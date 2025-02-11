@@ -21,4 +21,7 @@ public class TaskSearchDTO implements Serializable {
     private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
     private String responsiblePersonId; // 责任人ID 'responsible_person_id'
     private String userId;
+    private String coOrganizerId;
+    private LocalDateTime createdAtStart;
+    private LocalDateTime createdAtEnd;
 }

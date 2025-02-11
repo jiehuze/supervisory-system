@@ -8,10 +8,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueMapper;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzIssueService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> implements IBzIssueService {
+
+    @Autowired
+    private BzIssueMapper bzIssueMapper;
+
     @Override
     public boolean addBzIssue(BzIssue bzIssue) {
         return this.save(bzIssue);
@@ -66,5 +74,10 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
                 .set(BzIssue::getFillCycle, bzIssue.getFillCycle())
                 .set(BzIssue::getTypeId, bzIssue.getTypeId());
         return update(updateWrapper);
+    }
+
+    @Override
+    public List<Map<String, Object>> countEffectiveGear() {
+        return bzIssueMapper.countEffectiveGear();
     }
 }

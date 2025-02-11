@@ -7,22 +7,19 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.DuchaReportMapper;
 import com.schedule.supervisory.dao.mapper.TaskMapper;
 import com.schedule.supervisory.dto.DuchaReportCreationDTO;
+import com.schedule.supervisory.dto.ParameterDTO;
 import com.schedule.supervisory.dto.ReportUpdateDTO;
 import com.schedule.supervisory.entity.DuchaReport;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IDuchaReportService;
 import com.schedule.utils.HttpUtil;
 import com.schedule.utils.WordFileReplace;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.AbstractMap.SimpleEntry;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +31,9 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
 
     @Autowired
     private DuchaReportMapper duchaReportMapper;
+
+    @Autowired
+    private ParameterDTO parameterDTO;
 
     @Override
     public Page<DuchaReport> searchReports(String userId, String reportName, Integer pageNum, Integer pageSize) {
@@ -134,10 +134,10 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
 
         String outputPath = "/tmp/report" + System.currentTimeMillis() + ".docx";
         WordFileReplace.replaceTextInWordX(replacements, outputPath);
-
+        System.out.println("uploadurl: " + parameterDTO.getUploadUrl());
         //上传文件
         HttpUtil httpUtil = new HttpUtil();
-        String uploadUrl = httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", token, tenantId, outputPath);
+        String uploadUrl = httpUtil.upload(parameterDTO.getUploadUrl(), token, tenantId, outputPath);
         report.setReportFile(uploadUrl);
 
         return this.save(report);

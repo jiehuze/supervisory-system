@@ -1,7 +1,6 @@
 package com.schedule.supervisory.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.*;
@@ -37,6 +36,9 @@ public class TaskController {
 
     @Autowired
     private IFieldService fieldService;
+
+    @Autowired
+    private ParameterDTO parameterDTO;
 
     @PostMapping
     public BaseResponse createTask(@RequestBody Task task) {
@@ -137,19 +139,18 @@ public class TaskController {
                                     @ModelAttribute TaskSearchDTO queryTask,
                                     @RequestParam(defaultValue = "1") int current,
                                     @RequestParam(defaultValue = "10") int size) {
-        // 如果存在Authorization头部且是以Bearer开头，则提取token
-//        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-//            token = authorizationHeader.substring(7);
-//        }
+        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
-        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", authorizationHeader, tenantId);
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
         if (deptJson != null) {
             deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("------------ size: " + deptDTOs.size());
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
-        System.out.println("searchTasks----------------" + authorizationHeader);
+        System.out.println("searchTasks token：" + authorizationHeader);
         IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
@@ -197,35 +198,41 @@ public class TaskController {
 
     //统计类接口
     @GetMapping("/statistics")
-    public BaseResponse getTaskStatusStatistics(
-            @RequestParam(required = false) LocalDateTime createdAtStart,
-            @RequestParam(required = false) LocalDateTime createdAtEnd,
-            @RequestParam(required = false) String coOrganizerId,
-            @RequestParam(required = false) String leadingOfficialId) {
+    public BaseResponse getTaskStatusStatistics(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                                @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                                @ModelAttribute TaskSearchDTO queryTask) {
+        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+
         //统计：已办结，未超期的任务数
         TaskStatistics taskStatistics = new TaskStatistics();
-        taskStatistics.setTotals(taskService.countTasksNums(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
-        taskStatistics.setInprogressNums(taskService.countTasksInProgress(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
-        taskStatistics.setOverdueNums(taskService.countTasksOverdue(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
-        taskStatistics.setCompleteNums(taskService.countTasksComplete(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId, false));
-        taskStatistics.setCompleteOnTimesNums(taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId));
-        taskStatistics.setCompleteShortNums(taskService.countTasksComplete(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId, true));
+        taskStatistics.setTotals(taskService.countTasksNums(queryTask, deptDTOs));
+        taskStatistics.setInprogressNums(taskService.countTasksInProgress(queryTask, deptDTOs));
+        taskStatistics.setOverdueNums(taskService.countTasksOverdue(queryTask, deptDTOs));
+        taskStatistics.setCompleteNums(taskService.countTasksComplete(queryTask, deptDTOs, false));
+        taskStatistics.setCompleteOnTimesNums(taskService.countTasksCompleteOnTime(queryTask, deptDTOs));
+        taskStatistics.setCompleteShortNums(taskService.countTasksComplete(queryTask, deptDTOs, true));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", taskStatistics, Integer.toString(0));
 
     }
 
-    //统计：已办结，未超期的任务数
-//    @GetMapping("/statistics_complete")
-//    public BaseResponse getTaskCompleteOntime(
-//            @RequestParam(required = false) LocalDateTime createdAtStart,
-//            @RequestParam(required = false) LocalDateTime createdAtEnd,
-//            @RequestParam(required = false) String coOrganizerId, leadingOfficialId) {
-//        Long count = taskService.countTasksCompleteOnTime(createdAtStart, createdAtEnd, coOrganizerId, leadingOfficialId);
-//        return new BaseResponse(HttpStatus.OK.value(), "success", count, Integer.toString(0));
-//
-//    }
-
+    /**
+     * 短，中，长期统计
+     *
+     * @param createdAtStart
+     * @param createdAtEnd
+     * @param coOrganizerId
+     * @return
+     */
     @GetMapping("/statistics_period")
     public BaseResponse countTasksByTaskPeriod(
             @RequestParam(required = false) LocalDateTime createdAtStart,
@@ -254,12 +261,18 @@ public class TaskController {
             }
         }
 
-//        WordFileReplace.replace("{{Y}}", "2025", "/Users/jiehu/works/test/replacefile/testreplace2.doc");
-
         return new BaseResponse(HttpStatus.OK.value(), "success", taskPeriodCounts, Integer.toString(0));
 
     }
 
+    /**
+     * 按照所属领域统计
+     *
+     * @param createdAtStart
+     * @param createdAtEnd
+     * @param coOrganizerId
+     * @return
+     */
     @GetMapping("/statistics_fields")
     public BaseResponse countTasksByTaskField(
             @RequestParam(required = false) LocalDateTime createdAtStart,

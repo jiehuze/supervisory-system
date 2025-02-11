@@ -103,7 +103,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     //逾期任务：任务状态为逾期的，（当前时间大于预期办结时间）,转态不是完成和取消
     @Select("<script>" +
             "SELECT COUNT(*) AS count FROM task " +
-            "WHERE status != 6 AND status != 9 and updated_at > deadline " +
+            "WHERE status != 6 OR status != 9 and updated_at > deadline " +
             "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" + //牵头区领导id查询

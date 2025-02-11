@@ -70,18 +70,18 @@ public interface ITaskService extends IService<Task> {
     boolean updateCbReport(Task task);
 
     //计算总数
-    Long countTasksNums(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId);
+    Long countTasksNums(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
     List<Map<String, Object>> getStatusStatistics(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId);
 
     //获取状态为已完成，并未超期任务数
-    Long countTasksCompleteOnTime(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId);
+    Long countTasksCompleteOnTime(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
-    Long countTasksInProgress(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId);
+    Long countTasksInProgress(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
-    Long countTasksOverdue(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId);
+    Long countTasksOverdue(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
-    Long countTasksComplete(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId, Boolean taskPeriod);
+    Long countTasksComplete(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs, Boolean taskPeriod);
 
     //根据任务周期读取已办结数量
     List<Map<String, Object>> countTasksByTaskPeriod(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);

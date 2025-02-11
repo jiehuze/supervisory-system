@@ -3,7 +3,6 @@ package com.schedule.supervisory.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.TaskMapper;
@@ -248,21 +247,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public Long countTasksNums(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
+    public Long countTasksNums(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
         // 添加协办单位筛选条件
-        if (coOrganizerId != null && !coOrganizerId.isEmpty()) {
-            queryWrapper.like(Task::getCoOrganizerId, coOrganizerId);
+        if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
 
         // 添加牵头领导筛选条件
-        if (leadingOfficialId != null && !leadingOfficialId.isEmpty()) {
-            queryWrapper.like(Task::getLeadingOfficialId, leadingOfficialId);
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
 
         // 添加创建时间范围的筛选条件
-        if (createdAtStart != null && createdAtEnd != null) {
-            queryWrapper.between(Task::getCreatedAt, createdAtStart, createdAtEnd);
+        if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
+            queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
         }
 
         return taskMapper.selectCount(queryWrapper);
@@ -274,7 +273,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public Long countTasksCompleteOnTime(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
+    public Long countTasksCompleteOnTime(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
 
         // 添加 status 为 6 的条件
@@ -285,36 +284,108 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         queryWrapper.apply("updated_at <= deadline");
 
         // 添加协办单位筛选条件
-        if (coOrganizerId != null && !coOrganizerId.isEmpty()) {
-            queryWrapper.like(Task::getCoOrganizerId, coOrganizerId);
+        if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
 
         // 添加牵头领导筛选条件
-        if (leadingOfficialId != null && !leadingOfficialId.isEmpty()) {
-            queryWrapper.like(Task::getLeadingOfficialId, leadingOfficialId);
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
 
         // 添加创建时间范围的筛选条件
-        if (createdAtStart != null && createdAtEnd != null) {
-            queryWrapper.between(Task::getCreatedAt, createdAtStart, createdAtEnd);
+        if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
+            queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
         }
 
         return taskMapper.selectCount(queryWrapper);
     }
 
     @Override
-    public Long countTasksInProgress(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
-        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
+    public Long countTasksInProgress(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+//        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 添加协办单位筛选条件
+        if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
+        }
+
+        // 添加牵头领导筛选条件
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
+        }
+
+        queryWrapper.ne(Task::getStatus, 6);
+        queryWrapper.ne(Task::getStatus, 9);
+
+        // 添加创建时间范围的筛选条件
+        if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
+            queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+        }
+
+        return taskMapper.selectCount(queryWrapper);
     }
 
     @Override
-    public Long countTasksOverdue(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId) {
-        return taskMapper.countTasksOverdue(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
+    public Long countTasksOverdue(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+//        return taskMapper.countTasksOverdue(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
+
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.apply("updated_at > deadline");
+
+        // 添加协办单位筛选条件
+        if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
+        }
+
+        // 添加牵头领导筛选条件
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
+        }
+
+        queryWrapper.and(wrapper -> wrapper
+                .ne(Task::getStatus, 6)
+                .or()
+                .ne(Task::getStatus, 9)
+        );
+
+        // 添加创建时间范围的筛选条件
+        if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
+            queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+        }
+
+        return taskMapper.selectCount(queryWrapper);
     }
 
     @Override
-    public Long countTasksComplete(LocalDateTime createdAtStart, LocalDateTime createdAtEnd, String coOrganizerId, String leadingOfficialId, Boolean taskPeriod) {
-        return taskMapper.countTasksComplete(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId, taskPeriod);
+    public Long countTasksComplete(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs, Boolean taskPeriod) {
+//        return taskMapper.countTasksComplete(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId, taskPeriod);
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 添加 status 为 6 的条件
+        queryWrapper.eq(Task::getStatus, 6);
+        // 添加协办单位筛选条件
+        if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
+            queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
+        }
+
+        // 添加牵头领导筛选条件
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
+        }
+
+        if (taskPeriod) {
+            queryWrapper.eq(Task::getTaskPeriod, 1);
+        }
+
+        // 添加创建时间范围的筛选条件
+        if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
+            queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+        }
+
+        return taskMapper.selectCount(queryWrapper);
     }
 
     /**

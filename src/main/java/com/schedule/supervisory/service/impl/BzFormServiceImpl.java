@@ -8,10 +8,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormMapper;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.service.IBzFormService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> implements IBzFormService {
+    @Autowired
+    private BzFormMapper bzFormMapper;
+
     @Override
     public boolean addBzForm(BzForm bzForm) {
         return this.save(bzForm);
@@ -66,5 +73,10 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
                 .set(BzForm::getFillCycle, bzForm.getFillCycle())
                 .set(BzForm::getTypeId, bzForm.getTypeId());
         return update(updateWrapper);
+    }
+
+    @Override
+    public List<Map<String, Object>> countEffectiveGear() {
+        return bzFormMapper.countEffectiveGear();
     }
 }
