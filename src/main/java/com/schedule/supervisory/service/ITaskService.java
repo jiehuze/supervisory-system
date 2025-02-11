@@ -84,14 +84,14 @@ public interface ITaskService extends IService<Task> {
     Long countTasksComplete(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs, Boolean taskPeriod);
 
     //根据任务周期读取已办结数量
-    List<Map<String, Object>> countTasksByTaskPeriod(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+    List<Map<String, Object>> countTasksByTaskPeriod(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
-    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
     //根据所属领域读取已办结数量
-    List<Map<String, Object>> countTasksByFieldId(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+    List<Map<String, Object>> countTasksByFieldId(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
-    List<Map<String, Object>> countTasksByFieldIdAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd);
+    List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
     //更新超期任务
     void updateOverdueDays();

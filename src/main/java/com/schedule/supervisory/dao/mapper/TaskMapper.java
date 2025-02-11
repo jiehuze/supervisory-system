@@ -113,48 +113,133 @@ public interface TaskMapper extends BaseMapper<Task> {
                            @Param("createdAtEnd") LocalDateTime createdAtEnd,
                            @Param("leadingOfficialId") String leadingOfficialId);
 
+//    @Select("<script>" +
+//            "SELECT task_period, COUNT(*) AS count FROM task " +
+//            "WHERE task_period IN (1, 2, 3) " +
+//            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+//            "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+//            "GROUP BY task_period" +
+//            "</script>")
+//    List<Map<String, Object>> countTasksByTaskPeriod(@Param("coOrganizerId") String coOrganizerId,
+//                                                     @Param("createdAtStart") LocalDateTime createdAtStart,
+//                                                     @Param("createdAtEnd") LocalDateTime createdAtEnd);
+
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "WHERE task_period IN (1, 2, 3) " +
-            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+            "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
+            "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
+            "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
+            "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
+            "</foreach>" +
+            ") </if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%'}</if>" +
+            "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY task_period" +
             "</script>")
-    List<Map<String, Object>> countTasksByTaskPeriod(@Param("coOrganizerId") String coOrganizerId,
+    List<Map<String, Object>> countTasksByTaskPeriod(@Param("leadingDepartmentIds") List<String> leadingDepartmentIds,
+                                                     @Param("leadingDepartmentId") String leadingDepartmentId,
+                                                     @Param("leadingOfficialId") String leadingOfficialId,
+                                                     @Param("source") String source,
                                                      @Param("createdAtStart") LocalDateTime createdAtStart,
                                                      @Param("createdAtEnd") LocalDateTime createdAtEnd);
+
+//    @Select("<script>" +
+//            "SELECT task_period, COUNT(*) AS count FROM task " +
+//            "WHERE status = 6 AND task_period IN (1, 2, 3) " +
+//            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+//            "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+//            "GROUP BY task_period" +
+//            "</script>")
+//    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(@Param("coOrganizerId") String coOrganizerId,
+//                                                              @Param("createdAtStart") LocalDateTime createdAtStart,
+//                                                              @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "WHERE status = 6 AND task_period IN (1, 2, 3) " +
-            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+            "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
+            "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
+            "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
+            "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
+            "</foreach>" +
+            ") </if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%'}</if>" +
+            "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY task_period" +
             "</script>")
-    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(@Param("coOrganizerId") String coOrganizerId,
+    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(@Param("leadingDepartmentIds") List<String> leadingDepartmentIds,
+                                                              @Param("leadingDepartmentId") String leadingDepartmentId,
+                                                              @Param("leadingOfficialId") String leadingOfficialId,
+                                                              @Param("source") String source,
                                                               @Param("createdAtStart") LocalDateTime createdAtStart,
                                                               @Param("createdAtEnd") LocalDateTime createdAtEnd);
+
+//    @Select("<script>" +
+//            "SELECT field_id, COUNT(*) AS count FROM task " +
+//            "<where>" +
+//            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+//            "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+//            "</where>" +
+//            "GROUP BY field_id" +
+//            "</script>")
+//    List<Map<String, Object>> countTasksByFieldId(@Param("coOrganizerId") String coOrganizerId,
+//                                                  @Param("createdAtStart") LocalDateTime createdAtStart,
+//                                                  @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" +
-            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+            "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
+            "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
+            "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
+            "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
+            "</foreach>" +
+            ") </if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%'}</if>" +
+            "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "</where>" +
             "GROUP BY field_id" +
             "</script>")
-    List<Map<String, Object>> countTasksByFieldId(@Param("coOrganizerId") String coOrganizerId,
+    List<Map<String, Object>> countTasksByFieldId(@Param("leadingDepartmentIds") List<String> leadingDepartmentIds,
+                                                  @Param("leadingDepartmentId") String leadingDepartmentId,
+                                                  @Param("leadingOfficialId") String leadingOfficialId,
+                                                  @Param("source") String source,
                                                   @Param("createdAtStart") LocalDateTime createdAtStart,
                                                   @Param("createdAtEnd") LocalDateTime createdAtEnd);
+
+//    @Select("<script>" +
+//            "SELECT field_id, COUNT(*) AS count FROM task " +
+//            "WHERE status = 6" +
+//            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+//            "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
+//            "GROUP BY field_id" +
+//            "</script>")
+//    List<Map<String, Object>> countTasksByFieldIdAndStatus(@Param("coOrganizerId") String coOrganizerId,
+//                                                           @Param("createdAtStart") LocalDateTime createdAtStart,
+//                                                           @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "WHERE status = 6" +
-            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
+            "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
+            "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
+            "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
+            "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
+            "</foreach>" +
+            ") </if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%'}</if>" +
+            "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY field_id" +
             "</script>")
-    List<Map<String, Object>> countTasksByFieldIdAndStatus(@Param("coOrganizerId") String coOrganizerId,
+    List<Map<String, Object>> countTasksByFieldIdAndStatus(@Param("leadingDepartmentIds") List<String> leadingDepartmentIds,
+                                                           @Param("leadingDepartmentId") String leadingDepartmentId,
+                                                           @Param("leadingOfficialId") String leadingOfficialId,
+                                                           @Param("source") String source,
                                                            @Param("createdAtStart") LocalDateTime createdAtStart,
                                                            @Param("createdAtEnd") LocalDateTime createdAtEnd);
 

@@ -212,15 +212,19 @@ public class TaskController {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
-        System.out.println("----------"+ queryTask.toString());
+        System.out.println("----------" + queryTask.toString());
         //统计：已办结，未超期的任务数
         TaskStatistics taskStatistics = new TaskStatistics();
+        queryTask.setStatus(6);
         taskStatistics.setTotals(taskService.countTasksNums(queryTask, deptDTOs));
         taskStatistics.setInprogressNums(taskService.countTasksInProgress(queryTask, deptDTOs));
         taskStatistics.setOverdueNums(taskService.countTasksOverdue(queryTask, deptDTOs));
         taskStatistics.setCompleteNums(taskService.countTasksComplete(queryTask, deptDTOs, false));
         taskStatistics.setCompleteOnTimesNums(taskService.countTasksCompleteOnTime(queryTask, deptDTOs));
         taskStatistics.setCompleteShortNums(taskService.countTasksComplete(queryTask, deptDTOs, true));
+        queryTask.setStatus(9);
+        taskStatistics.setCancleNums(taskService.countTasksComplete(queryTask, deptDTOs, true));
+
 
         return new BaseResponse(HttpStatus.OK.value(), "success", taskStatistics, Integer.toString(0));
 
@@ -235,12 +239,28 @@ public class TaskController {
      * @return
      */
     @GetMapping("/statistics_period")
-    public BaseResponse countTasksByTaskPeriod(
-            @RequestParam(required = false) LocalDateTime createdAtStart,
-            @RequestParam(required = false) LocalDateTime createdAtEnd,
-            @RequestParam(required = false) String coOrganizerId) {
-        List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod(coOrganizerId, createdAtStart, createdAtEnd);
-        List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+    public BaseResponse countTasksByTaskPeriod(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                               @ModelAttribute TaskSearchDTO queryTask) {
+        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
+        List<DeptDTO> deptDTOs = null;
+        List<String> leadingDepartmentIds = new ArrayList<>();
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            for (DeptDTO deptDTO : deptDTOs) {
+                leadingDepartmentIds.add(deptDTO.getDeptId());
+            }
+        }
+
+        List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod(queryTask, leadingDepartmentIds);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus(queryTask, leadingDepartmentIds);
 
         ArrayList<TaskPeriodCount> taskPeriodCounts = new ArrayList<>();
         taskPeriodCounts.add(new TaskPeriodCount(0, 0, 1, "短期"));
@@ -275,12 +295,27 @@ public class TaskController {
      * @return
      */
     @GetMapping("/statistics_fields")
-    public BaseResponse countTasksByTaskField(
-            @RequestParam(required = false) LocalDateTime createdAtStart,
-            @RequestParam(required = false) LocalDateTime createdAtEnd,
-            @RequestParam(required = false) String coOrganizerId) {
-        List<Map<String, Object>> totals = taskService.countTasksByFieldId(coOrganizerId, createdAtStart, createdAtEnd);
-        List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+    public BaseResponse countTasksByTaskField(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                              @ModelAttribute TaskSearchDTO queryTask) {
+        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
+        List<DeptDTO> deptDTOs = null;
+        List<String> leadingDepartmentIds = new ArrayList<>();
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            for (DeptDTO deptDTO : deptDTOs) {
+                leadingDepartmentIds.add(deptDTO.getDeptId());
+            }
+        }
+        List<Map<String, Object>> totals = taskService.countTasksByFieldId(queryTask, leadingDepartmentIds);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus(queryTask, leadingDepartmentIds);
         List<Field> list = fieldService.list();
 
         ArrayList<TaskFieldCount> taskFieldCounts = new ArrayList<>(list.size());

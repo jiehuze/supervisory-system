@@ -28,8 +28,8 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
     List<EffectiveGearCount> countGearCollect();
 
     @Select("SELECT COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
-            "FROM public.bz_form " +
-            "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 5 " +
+            "FROM public.bz_form_target " +
+            "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 4 " +
             "AND created_at BETWEEN #{startTime} AND #{endTime}" +
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")

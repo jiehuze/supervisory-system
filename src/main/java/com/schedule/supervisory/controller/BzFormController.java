@@ -181,7 +181,7 @@ public class BzFormController {
 
             //初始化5个档位
             Map<Integer, CountDTO> countMap = new HashMap<>();
-            for (int level = 1; level <= 5; level++) {
+            for (int level = 1; level <= 4; level++) {
                 CountDTO countDTO = new CountDTO(0, "");
                 countMap.put(level, countDTO);
             }

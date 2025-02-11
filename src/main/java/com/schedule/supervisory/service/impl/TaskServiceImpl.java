@@ -449,7 +449,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
 
         // 添加 status 为 6 的条件
-        queryWrapper.eq(Task::getStatus, 6);
+        queryWrapper.eq(Task::getStatus, queryTask.getStatus());
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
@@ -495,27 +495,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     /**
      * 计算taskPeriod分别为1,2,3的任务总数。
      *
-     * @param coOrganizerId  协办单位ID
-     * @param createdAtStart 创建时间起始范围
-     * @param createdAtEnd   创建时间结束范围
      * @return 符合条件的任务数量列表
      */
     @Override
-    public List<Map<String, Object>> countTasksByTaskPeriod(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
-        return taskMapper.countTasksByTaskPeriod(coOrganizerId, createdAtStart, createdAtEnd);
+    public List<Map<String, Object>> countTasksByTaskPeriod(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
+//        return taskMapper.countTasksByTaskPeriod(coOrganizerId, createdAtStart, createdAtEnd);
+        return taskMapper.countTasksByTaskPeriod(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
     }
 
     /**
      * 计算taskPeriod分别为1,2,3且状态status为6的任务数。
      *
-     * @param coOrganizerId  协办单位ID
-     * @param createdAtStart 创建时间起始范围
-     * @param createdAtEnd   创建时间结束范围
      * @return 符合条件的任务数量列表
      */
     @Override
-    public List<Map<String, Object>> countTasksByTaskPeriodAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
-        return taskMapper.countTasksByTaskPeriodAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+    public List<Map<String, Object>> countTasksByTaskPeriodAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
+        return taskMapper.countTasksByTaskPeriodAndStatus(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
     }
 
     /**
@@ -527,8 +522,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
      * @return 符合条件的任务数量列表
      */
     @Override
-    public List<Map<String, Object>> countTasksByFieldId(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
-        return taskMapper.countTasksByFieldId(coOrganizerId, createdAtStart, createdAtEnd);
+    public List<Map<String, Object>> countTasksByFieldId(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
+        return taskMapper.countTasksByFieldId(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
     }
 
     /**
@@ -540,8 +535,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
      * @return 符合条件的任务数量列表
      */
     @Override
-    public List<Map<String, Object>> countTasksByFieldIdAndStatus(String coOrganizerId, LocalDateTime createdAtStart, LocalDateTime createdAtEnd) {
-        return taskMapper.countTasksByFieldIdAndStatus(coOrganizerId, createdAtStart, createdAtEnd);
+    public List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
+        return taskMapper.countTasksByFieldIdAndStatus(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
     }
 
 

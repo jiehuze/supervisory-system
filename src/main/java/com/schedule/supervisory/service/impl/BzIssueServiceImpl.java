@@ -6,12 +6,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueMapper;
+import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzIssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -85,5 +87,15 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     @Override
     public List<EffectiveGearCount> countGearCollect() {
         return bzIssueMapper.countGearCollect();
+    }
+
+    @Override
+    public List<EffectiveGearCount> countGearCollectByQuarter(LocalDateTime startTime, LocalDateTime endTime) {
+        return bzIssueMapper.countGearCollectByQuarter(startTime, endTime);
+    }
+
+    @Override
+    public List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear) {
+        return bzIssueMapper.selectByTimeAndGear(startTime, endTime, gear);
     }
 }

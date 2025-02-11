@@ -2,13 +2,12 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
-import com.schedule.supervisory.dto.BzIssueDTO;
-import com.schedule.supervisory.dto.DataTypeDTO;
-import com.schedule.supervisory.dto.CountDTO;
+import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.supervisory.service.IBzIssueTargetService;
+import com.schedule.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -117,5 +116,67 @@ public class BzIssueController {
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", dataList, Integer.toString(0));
+    }
+
+    @GetMapping("/collectByQuarter")
+    public BaseResponse collectByQuarter(@RequestParam(value = "type", defaultValue = "quarter") String type) {
+        List<Quarter> quarters = null;
+        if ("quarter".equals(type)) {
+            quarters = DateUtils.getCurrentQuarters();
+        } else {
+            quarters = DateUtils.getCurrentYearQuarters();
+        }
+        HashMap<Integer, Map<Integer, CountDTO>> collectMap = new HashMap<>();
+        for (Quarter quarter : quarters) {
+            List<EffectiveGearCount> effectiveGearCounts = bzIssueService.countGearCollectByQuarter(
+                    quarter.getStartTime(),
+                    quarter.getEndTime());
+
+            //初始化5个档位
+            Map<Integer, CountDTO> countMap = new HashMap<>();
+            for (int level = 1; level <= 4; level++) {
+                CountDTO countDTO = new CountDTO(0, "");
+                countMap.put(level, countDTO);
+            }
+            collectMap.put(quarter.getQuarterNumber(), countMap);
+
+            for (EffectiveGearCount effectiveGearCount : effectiveGearCounts) {
+                CountDTO countDTO = new CountDTO(effectiveGearCount.getCountEffectiveGear().intValue(), "");
+
+                collectMap.get(quarter.getQuarterNumber()).put(effectiveGearCount.getEffectiveGear(), countDTO);
+            }
+
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", collectMap, Integer.toString(0));
+    }
+
+    /**
+     * 根据指定的类型（季度或全年）和档位获取统计数据
+     *
+     * @param type 类型（0: 全年, 1-4: 季度）
+     * @param gear 档位
+     * @return 统计结果列表
+     */
+    @GetMapping("/gearTargetCount")
+    public BaseResponse getStatsByQuarterAndGear(@RequestParam(value = "type", defaultValue = "0") int quarter,
+                                                 @RequestParam("gear") Integer gear) {
+        Quarter quarterSearch = null;
+        List<Quarter> quarters = null;
+        if (quarter == 0) {
+            quarters = DateUtils.getCurrentYearQuarters();
+        } else {
+            quarters = DateUtils.getCurrentQuarters();
+        }
+        for (Quarter quarterNode : quarters) {
+            if (quarterNode.getQuarterNumber() == quarter) {
+                quarterSearch = quarterNode;
+                break;
+            }
+        }
+        List<BzFromTargetNameCount> bzFromTargetNameCounts = bzIssueService.selectByTimeAndGear(quarterSearch.getStartTime(), quarterSearch.getEndTime(), gear);
+
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", bzFromTargetNameCounts, Integer.toString(0));
     }
 }
