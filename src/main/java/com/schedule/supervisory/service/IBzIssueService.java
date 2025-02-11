@@ -2,6 +2,7 @@ package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzIssue;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface IBzIssueService extends IService<BzIssue> {
     boolean updateBzFrom(BzIssue bzIssue);
 
     List<Map<String, Object>> countEffectiveGear();
+
+    List<EffectiveGearCount> countGearCollect();
 }

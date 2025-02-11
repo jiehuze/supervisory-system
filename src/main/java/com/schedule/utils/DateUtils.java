@@ -8,14 +8,19 @@
 
 package com.schedule.utils;
 
+import com.schedule.supervisory.dto.Quarter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -26,14 +31,19 @@ import java.util.Random;
  */
 @Slf4j
 public class DateUtils {
-    /** 时间格式(yyyy-MM-dd) */
+    /**
+     * 时间格式(yyyy-MM-dd)
+     */
     public static final String DATE_PATTERN = "yyyy-MM-dd";
-    /** 时间格式(yyyy-MM-dd HH:mm:ss) */
+    /**
+     * 时间格式(yyyy-MM-dd HH:mm:ss)
+     */
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * 日期格式化 日期格式为：yyyy-MM-dd
-     * @param date  日期
+     *
+     * @param date 日期
      * @return 返回yyyy-MM-dd格式日期
      */
     public static String format(Date date) {
@@ -42,14 +52,15 @@ public class DateUtils {
 
     /**
      * 日期格式化 日期格式为：yyyy-MM-dd
-     * @param date  日期
-     * @param pattern  格式，如：DateUtils.DATE_TIME_PATTERN
+     *
+     * @param date    日期
+     * @param pattern 格式，如：DateUtils.DATE_TIME_PATTERN
      * @return 返回yyyy-MM-dd格式日期
      */
     public static String format(Date date, String pattern) {
         if (date != null) {
-            LocalDateTime localDateTime=LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-            DateTimeFormatter df =DateTimeFormatter.ofPattern(pattern);
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+            DateTimeFormatter df = DateTimeFormatter.ofPattern(pattern);
 
             return df.format(localDateTime);
         }
@@ -58,8 +69,9 @@ public class DateUtils {
 
     /**
      * 日期解析
-     * @param date  日期
-     * @param pattern  格式，如：DateUtils.DATE_TIME_PATTERN
+     *
+     * @param date    日期
+     * @param pattern 格式，如：DateUtils.DATE_TIME_PATTERN
      * @return 返回Date
      */
     public static Date parse(String date, String pattern) {
@@ -71,7 +83,7 @@ public class DateUtils {
         return null;
     }
 
-    public static String RandomStr(){
+    public static String RandomStr() {
         // 创建一个 Random 对象
         Random random = new Random();
 
@@ -83,5 +95,69 @@ public class DateUtils {
         String twoLetterString = "" + firstLetter + secondLetter;
 
         return twoLetterString;
+    }
+
+    public static List<Quarter> getCurrentQuarters() {
+        LocalDate now = LocalDate.now();
+        int currentMonth = now.getMonthValue();
+        int currentYear = now.getYear();
+        int currentQuarter = (currentMonth - 1) / 3 + 1; // 计算当前季度
+
+        List<Quarter> quarters = new ArrayList<>();
+
+        for (int i = 1; i <= currentQuarter; i++) {
+            int startMonth = (i - 1) * 3 + 1;
+            int endMonth = startMonth + 2;
+
+            LocalDate quarterStart = LocalDate.of(currentYear, startMonth, 1);
+            LocalDate quarterEnd = quarterStart.with(TemporalAdjusters.lastDayOfMonth()).withMonth(endMonth);
+
+            if (i == currentQuarter) { // 当前季度的结束时间为当前日期
+                quarterEnd = now.with(TemporalAdjusters.lastDayOfMonth());
+            }
+
+            String quarterName = "第" + i + "季度"; // 根据需要格式化季度名称
+
+            quarters.add(new Quarter(
+                    quarterStart.atStartOfDay(),
+                    quarterEnd.atTime(23, 59, 59, 999999),
+                    quarterName,
+                    i));
+        }
+
+        return quarters;
+    }
+
+    // 生成当前年份的时间段
+    public static List<Quarter> getCurrentYearQuarters() {
+        List<Quarter> quarters = new ArrayList<>();
+
+        LocalDate now = LocalDate.now();
+        int currentYear = now.getYear();
+
+        LocalDateTime yearStart = LocalDate.of(currentYear, 1, 1).atStartOfDay();
+        LocalDateTime yearEnd = LocalDateTime.now(); // 当前时间为结束时间
+
+        quarters.add(new Quarter(
+                yearStart,
+                yearEnd,
+                String.valueOf(currentYear), // 年份作为名称
+                0)); // quarterNumber设为0
+
+        return quarters;
+    }
+
+
+    public static void main(String[] args) {
+        List<Quarter> currentQuarters = DateUtils.getCurrentQuarters();
+        for (Quarter currentQuarter : currentQuarters) {
+            System.out.println(currentQuarter.toString());
+        }
+
+        List<Quarter> currentYearQuarters = DateUtils.getCurrentYearQuarters();
+        for (Quarter currentYearQuarter : currentYearQuarters) {
+            System.out.println(currentYearQuarter.toString());
+        }
+
     }
 }

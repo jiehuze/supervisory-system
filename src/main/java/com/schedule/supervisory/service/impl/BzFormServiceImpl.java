@@ -6,11 +6,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormMapper;
+import com.schedule.supervisory.dto.BzFromTargetNameCount;
+import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.service.IBzFormService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -78,5 +81,20 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     @Override
     public List<Map<String, Object>> countEffectiveGear() {
         return bzFormMapper.countEffectiveGear();
+    }
+
+    @Override
+    public List<EffectiveGearCount> countGearCollect() {
+        return bzFormMapper.countGearCollect();
+    }
+
+    @Override
+    public List<EffectiveGearCount> countGearCollectByQuarter(LocalDateTime startTime, LocalDateTime endTime) {
+        return bzFormMapper.countGearCollectByQuarter(startTime, endTime);
+    }
+
+    @Override
+    public List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear) {
+        return bzFormMapper.selectByTimeAndGear(startTime, endTime, gear);
     }
 }

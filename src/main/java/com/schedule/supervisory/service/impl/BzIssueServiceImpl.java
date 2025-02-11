@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueMapper;
+import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzIssueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,5 +80,10 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     @Override
     public List<Map<String, Object>> countEffectiveGear() {
         return bzIssueMapper.countEffectiveGear();
+    }
+
+    @Override
+    public List<EffectiveGearCount> countGearCollect() {
+        return bzIssueMapper.countGearCollect();
     }
 }
