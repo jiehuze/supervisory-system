@@ -253,10 +253,32 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
+        if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingDepartmentId, queryTask.getLeadingDepartmentId());
+        }
+        if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
+            queryWrapper.like(Task::getSource, queryTask.getSource());
+        }
 
         // 添加牵头领导筛选条件
         if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
             queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
+        }
+
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                }
+            });
+        } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(Task::getAssignerId, queryTask.getUserId())
+                    .or()
+                    .like(Task::getResponsiblePersonId, queryTask.getUserId())
+            );
         }
 
         // 添加创建时间范围的筛选条件
@@ -287,12 +309,32 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
+        if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingDepartmentId, queryTask.getLeadingDepartmentId());
+        }
+        if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
+            queryWrapper.like(Task::getSource, queryTask.getSource());
+        }
 
         // 添加牵头领导筛选条件
         if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
             queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
-
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                }
+            });
+        } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(Task::getAssignerId, queryTask.getUserId())
+                    .or()
+                    .like(Task::getResponsiblePersonId, queryTask.getUserId())
+            );
+        }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
             queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
@@ -310,6 +352,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
+        if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingDepartmentId, queryTask.getLeadingDepartmentId());
+        }
+        if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
+            queryWrapper.like(Task::getSource, queryTask.getSource());
+        }
 
         // 添加牵头领导筛选条件
         if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
@@ -318,6 +366,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         queryWrapper.ne(Task::getStatus, 6);
         queryWrapper.ne(Task::getStatus, 9);
+
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                }
+            });
+        } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(Task::getAssignerId, queryTask.getUserId())
+                    .or()
+                    .like(Task::getResponsiblePersonId, queryTask.getUserId())
+            );
+        }
 
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
@@ -339,6 +403,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
+        if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingDepartmentId, queryTask.getLeadingDepartmentId());
+        }
+        if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
+            queryWrapper.like(Task::getSource, queryTask.getSource());
+        }
 
         // 添加牵头领导筛选条件
         if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
@@ -350,7 +420,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 .or()
                 .ne(Task::getStatus, 9)
         );
-
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                }
+            });
+        } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(Task::getAssignerId, queryTask.getUserId())
+                    .or()
+                    .like(Task::getResponsiblePersonId, queryTask.getUserId())
+            );
+        }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
             queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
@@ -370,6 +454,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
         }
+        if (queryTask.getLeadingDepartmentId() != null && !queryTask.getLeadingDepartmentId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingDepartmentId, queryTask.getLeadingDepartmentId());
+        }
+        if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
+            queryWrapper.like(Task::getSource, queryTask.getSource());
+        }
 
         // 添加牵头领导筛选条件
         if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
@@ -379,7 +469,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (taskPeriod) {
             queryWrapper.eq(Task::getTaskPeriod, 1);
         }
-
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                }
+            });
+        } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(Task::getAssignerId, queryTask.getUserId())
+                    .or()
+                    .like(Task::getResponsiblePersonId, queryTask.getUserId())
+            );
+        }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
             queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());

@@ -212,6 +212,7 @@ public class TaskController {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
+        System.out.println("----------"+ queryTask.toString());
         //统计：已办结，未超期的任务数
         TaskStatistics taskStatistics = new TaskStatistics();
         taskStatistics.setTotals(taskService.countTasksNums(queryTask, deptDTOs));
