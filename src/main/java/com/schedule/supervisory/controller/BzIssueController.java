@@ -94,16 +94,17 @@ public class BzIssueController {
         List<Map<String, Object>> countList = bzIssueService.countEffectiveGear();
 
         for (Map<String, Object> map : countList) {
-//            System.out.println("-----key: " + map.get("count_effective_gear"));
-//            System.out.println("-----key: " + map.get("type_id"));
-//            System.out.println("-----key: " + map.get("effective_gear"));
-
+            System.out.println("-----key: " + map.get("count_effective_gear"));
+            System.out.println("-----key: " + map.get("type_id"));
+            System.out.println("-----key: " + map.get("effective_gear"));
+            if (map.get("count_effective_gear") == null || map.get("type_id") == null || map.get("effective_gear") == null) {
+                continue;
+            }
             DataTypeDTO dataType = dataList.get((Integer) map.get("type_id") - 1);
             CountDTO levelData = new CountDTO(((Long) map.get("count_effective_gear")).intValue(), String.format("%d%%", 0));
             dataType.getCountDTOMap().put((Integer) map.get("effective_gear"), levelData);
             dataType.setTotal(dataType.getTotal() + ((Long) map.get("count_effective_gear")).intValue());
         }
-
         for (int type = 1; type <= 8; type++) {
             DataTypeDTO dataTypeDTO = dataList.get(type - 1);
             int total = dataTypeDTO.getTotal();

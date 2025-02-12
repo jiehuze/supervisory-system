@@ -100,7 +100,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
             // 使用apply方法添加复杂的OR条件
-            queryWrapper.or(wrapper -> wrapper
+            queryWrapper.and(wrapper -> wrapper
                     .like(Task::getAssignerId, queryTask.getUserId())
                     .or()
                     .like(Task::getResponsiblePersonId, queryTask.getUserId())

@@ -36,7 +36,8 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
     @Override
     public List<BzFormTarget> getByFormId(Long formId) {
         LambdaQueryWrapper<BzFormTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzFormTarget::getBzFormId, formId);
+        queryWrapper.eq(BzFormTarget::getBzFormId, formId)
+                .orderByAsc(BzFormTarget::getId);
         return list(queryWrapper);
     }
 }

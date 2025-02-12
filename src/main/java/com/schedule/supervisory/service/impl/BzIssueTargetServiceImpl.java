@@ -35,7 +35,8 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     @Override
     public List<BzIssueTarget> getByIssueId(Long issueId) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzIssueTarget::getBzIssueId, issueId);
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, issueId)
+                .orderByAsc(BzIssueTarget::getId);
         return list(queryWrapper);
     }
 }

@@ -106,6 +106,9 @@ public class BzFormController {
 //            System.out.println("-----key: " + map.get("count_effective_gear"));
 //            System.out.println("-----key: " + map.get("type_id"));
 //            System.out.println("-----key: " + map.get("effective_gear"));
+            if (map.get("count_effective_gear") == null || map.get("type_id") == null || map.get("effective_gear") == null) {
+                continue;
+            }
 
             DataTypeDTO dataType = dataList.get((Integer) map.get("type_id") - 1);
             CountDTO levelData = new CountDTO(((Long) map.get("count_effective_gear")).intValue(), String.format("%d%%", 0));
