@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @TableName("ducha_report")
 public class DuchaReport {
@@ -19,7 +21,7 @@ public class DuchaReport {
     private String leadingOfficial; // 新字段名：报送领导（现称为leading_official）
     private String leadingOfficialId; // 新字段名：领导ID（现称为leading_official_id），使用字符串类型
     private String reportFile; // 报告文件路径，假设以字符串形式存储
-    private java.sql.Timestamp createdAt; // 创建时间，默认为当前时间
+    private LocalDateTime createdAt; // 创建时间，默认为当前时间
     private Integer period; // 期数字段
     private Integer taskCount; // 任务总数
     private Integer inProgressCount; // 推进中的任务数

@@ -42,14 +42,16 @@ public class BzIssueTargetController {
 
     // 批量插入数据
     @PostMapping("/batch")
-    public boolean batchInsert(@RequestBody List<BzIssueTarget> bzIssueTargets) {
-        return bzIssueTargetService.saveBatch(bzIssueTargets);
+    public BaseResponse batchInsert(@RequestBody List<BzIssueTarget> bzIssueTargets) {
+        boolean saveBatch = bzIssueTargetService.saveBatch(bzIssueTargets);
+        return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }
 
     // 更新数据
     @PutMapping("/update")
-    public boolean update(@RequestBody BzIssueTarget bzIssueTarget) {
-        return bzIssueTargetService.updateById(bzIssueTarget);
+    public BaseResponse update(@RequestBody BzIssueTarget bzIssueTarget) {
+        boolean update = bzIssueTargetService.updateById(bzIssueTarget);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
     // 更新进度
@@ -70,5 +72,12 @@ public class BzIssueTargetController {
     public BaseResponse reviewProgress(@RequestBody BzIssueTarget bzIssueTarget) {
         boolean progress = bzIssueTargetService.reviewProgress(bzIssueTarget);
         return new BaseResponse(HttpStatus.OK.value(), "success", progress, Integer.toString(0));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public BaseResponse reviewProgress(@PathVariable Long id) {
+        System.out.println("++++++++++++++id: " + id);
+        boolean delete = bzIssueTargetService.removeById(id);
+        return new BaseResponse(HttpStatus.OK.value(), "success", delete, Integer.toString(0));
     }
 }

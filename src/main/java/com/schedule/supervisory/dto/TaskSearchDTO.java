@@ -24,4 +24,5 @@ public class TaskSearchDTO implements Serializable {
     private String coOrganizerId;
     private LocalDateTime createdAtStart;
     private LocalDateTime createdAtEnd;
+    private Boolean unfinished;
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzFormTargetRecord;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormTargetRecordService;
 import com.schedule.supervisory.service.IBzFormTargetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,16 @@ public class BzFormTargetController {
 
     // 批量插入数据
     @PostMapping("/batch")
-    public boolean batchInsert(@RequestBody List<BzFormTarget> bzFormTargets) {
-        return bzFormTargetService.saveBatch(bzFormTargets);
+    public BaseResponse batchInsert(@RequestBody List<BzFormTarget> bzFormTargets) {
+        boolean saveBatch = bzFormTargetService.saveBatch(bzFormTargets);
+        return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }
 
     // 更新数据
     @PutMapping("/update")
-    public boolean update(@RequestBody BzFormTarget bzFormTarget) {
-        return bzFormTargetService.updateById(bzFormTarget);
+    public BaseResponse update(@RequestBody BzFormTarget bzFormTarget) {
+        boolean update = bzFormTargetService.updateById(bzFormTarget);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
     // 更新进度
@@ -70,5 +73,12 @@ public class BzFormTargetController {
     public BaseResponse reviewProgress(@RequestBody BzFormTarget bzFormTarget) {
         boolean progress = bzFormTargetService.reviewProgress(bzFormTarget);
         return new BaseResponse(HttpStatus.OK.value(), "success", progress, Integer.toString(0));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public BaseResponse reviewProgress(@PathVariable Long id) {
+        System.out.println("++++++++++++++id: " + id);
+        boolean delete = bzFormTargetService.removeById(id);
+        return new BaseResponse(HttpStatus.OK.value(), "success", delete, Integer.toString(0));
     }
 }

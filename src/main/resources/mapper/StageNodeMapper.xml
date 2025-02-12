@@ -6,6 +6,6 @@
     <select id="selectByTaskIdOrderByCreatedAtDesc" resultType="com.schedule.supervisory.entity.StageNode">
         SELECT * FROM stage_node
         WHERE task_id = #{taskId}
-        ORDER BY created_at DESC
+        ORDER BY id ASC
     </select>
 </mapper>

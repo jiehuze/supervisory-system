@@ -69,6 +69,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
         //所以看获取的人员部门数组；如果数组为空：判断创建人或者责任人；如果不为空，需要查询包含部门的数据
         // 创建分页对象
+        System.out.println("---------------pagenum:" + pageNum);
         Page<Task> page = new Page<>(pageNum, pageSize);
 
         // 构建查询条件
@@ -94,7 +95,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
@@ -120,6 +121,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         if (queryTask.getStatus() != null) {
             queryWrapper.eq(Task::getStatus, queryTask.getStatus());
+        } else if (queryTask.getUnfinished() != null && queryTask.getUnfinished()) {
+            queryWrapper.ne(Task::getStatus, 6);
+            queryWrapper.ne(Task::getStatus, 9);
         }
 
         queryWrapper.orderByDesc(Task::getId);
@@ -269,7 +273,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
@@ -324,7 +328,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
@@ -371,7 +375,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
@@ -424,7 +428,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
@@ -473,7 +477,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
