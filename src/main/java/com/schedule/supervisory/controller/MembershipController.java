@@ -1,0 +1,35 @@
+package com.schedule.supervisory.controller;
+
+import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.entity.Membership;
+import com.schedule.supervisory.service.IMembershipService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/membership")
+public class MembershipController {
+
+    @Autowired
+    private IMembershipService membershipService;
+
+    @PostMapping("/add")
+    public BaseResponse addMembership(@RequestBody Membership membership) {
+        boolean add = membershipService.addMembership(membership);
+        return new BaseResponse(HttpStatus.OK.value(), "success", add, Integer.toString(0));
+    }
+
+    @PutMapping("/update")
+    public BaseResponse updateMembership(@RequestBody Membership membership) {
+        boolean update = membershipService.updateMembership(membership);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+
+    }
+
+    @GetMapping("/get/{leadingDepartmentId}")
+    public BaseResponse getByLeadingDepartmentId(@PathVariable String leadingDepartmentId) {
+        Membership membership = membershipService.getByLeadingDepartmentId(leadingDepartmentId);
+        return new BaseResponse(HttpStatus.OK.value(), "success", membership, Integer.toString(0));
+    }
+}

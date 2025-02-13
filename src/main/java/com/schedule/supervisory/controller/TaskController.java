@@ -4,14 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.*;
-import com.schedule.supervisory.entity.Field;
-import com.schedule.supervisory.entity.ProgressReport;
-import com.schedule.supervisory.entity.StageNode;
-import com.schedule.supervisory.entity.Task;
-import com.schedule.supervisory.service.IFieldService;
-import com.schedule.supervisory.service.IProgressReportService;
-import com.schedule.supervisory.service.IStageNodeService;
-import com.schedule.supervisory.service.ITaskService;
+import com.schedule.supervisory.entity.*;
+import com.schedule.supervisory.service.*;
 import com.schedule.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +32,10 @@ public class TaskController {
     private IFieldService fieldService;
 
     @Autowired
+    private IMembershipService membershipService;
+
+
+    @Autowired
     private ParameterDTO parameterDTO;
 
     @PostMapping
@@ -55,6 +53,21 @@ public class TaskController {
                 if (id == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
                 }
+
+                if (task.getLeadingDepartmentId() == null || task.getResponsiblePerson() == null) {
+                    return new BaseResponse(HttpStatus.NO_CONTENT.value(), "未填写牵头单位和责任人", id, Integer.toString(0));
+                }
+                String[] departmentIds = task.getLeadingDepartmentId().split(",");
+                String[] person = task.getResponsiblePerson().split(",");
+                for (int i = 0; i < departmentIds.length; i++) {
+                    Membership membership = new Membership();
+                    membership.setLeadingDepartmentId(departmentIds[i]);
+                    membership.setResponsiblePerson(person[i]);
+
+                    membershipService.addOrUpdateMembership(membership);
+                }
+
+
                 for (StageNode stageNode : taskDTO.getStageNodes()) {
                     stageNode.setTaskId((int) id.longValue());
                 }
