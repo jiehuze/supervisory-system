@@ -91,19 +91,23 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
 
         List<Task> tasks = taskMapper.selectBatchIds(taskIds);
         for (Task task : tasks) {
-            report.setReportName(task.getSourceDate().format(formatter) + task.getSource());
-            //进行中
-            if (!task.getStatus().equals(6) && task.getStatus().equals(9)) {
-                report.setInProgressCount(report.getInProgressCount() + 1);
-            }
-            //超期任务
-            if (task.getStatus() == 3) {
-                report.setOverdueCount(report.getOverdueCount() + 1);
-            }
             //按期完成和完成数
             LocalDateTime deadlineDateTime = task.getDeadline().atStartOfDay();
+            LocalDateTime currentDateTime = LocalDateTime.now();
+
+            report.setReportName(task.getSourceDate().format(formatter) + task.getSource());
+            //进行中
+            if (!task.getStatus().equals(6) || !task.getStatus().equals(9)) {
+                if (deadlineDateTime.isBefore(currentDateTime)) {//超期进行任务
+                    report.setOverdueCount(report.getOverdueCount() + 1);
+                } else {//正常进行任务
+                    report.setInProgressCount(report.getInProgressCount() + 1);
+                }
+            }
+            //完成任务
             if (task.getStatus().equals(6)) {
                 report.setCompleteCount(report.getCompleteCount() + 1);
+                //按期完成任务
                 if (deadlineDateTime.isAfter(task.getUpdatedAt())) {
                     report.setCompleteOnTimeCount(report.getCompleteOnTimeCount() + 1);
                 }

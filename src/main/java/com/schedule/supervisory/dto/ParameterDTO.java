@@ -11,4 +11,6 @@ public class ParameterDTO {
     private String permissionUrl;
     @Value("${duban.upload}")
     private String uploadUrl;
+    @Value("${duban.message}")
+    private String messageUrl;
 }

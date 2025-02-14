@@ -2,8 +2,6 @@ package com.schedule.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
-import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.DeptResponseDTO;
 import okhttp3.*;
 
@@ -17,9 +15,8 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 
 public class HttpUtil {
     public String get(String uri) {
@@ -195,19 +192,58 @@ public class HttpUtil {
         return null;
     }
 
+    public String oauthen2() {
+        // API endpoint URL
+        String url = "http://113.207.111.33:48770/api/admin/oauth2/token";
+
+        // Parameters
+        String grantType = "client_credentials";
+        String clientId = "pig";
+        String clientSecret = "pig";
+
+        // Build the request body
+        String requestBody = "grant_type=" + grantType +
+                "&client_id=" + clientId +
+                "&client_secret=" + clientSecret;
+
+        // Create HttpClient and HttpRequest
+        HttpClient httpClient = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+                .build();
+
+        // Send the request and get the response
+        HttpResponse<String> response = null;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Status Code: " + response.statusCode());
+            System.out.println("Response Body: " + response.body());
+
+            return response.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) {
         HttpUtil httpUtil = new HttpUtil();
-//        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
-
-//        httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", "Bearer 9dadc78f-6fd5-4a09-8de7-d6fa181c7b06", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
-
-        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", "Bearer 255c2cbb-d36c-442c-9fc7-651e980ea8d6", "1877665103373783042");
-        System.out.println("++++++++ " + deptJson);
-        if (deptJson != null) {
-            List<DeptDTO> deptDTOS = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("------------ size: " + deptDTOS.size());
-        }
+////        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
+//
+////        httpUtil.upload("http://113.207.111.33:48770/api/admin/sys-file/upload", "Bearer 9dadc78f-6fd5-4a09-8de7-d6fa181c7b06", "1877665103373783042", "/Users/jiehu/works/test/replacefile/templete.doc");
+//
+//        String deptJson = httpUtil.get("http://113.207.111.33:48770/api/admin/dept/permission-list", "Bearer 255c2cbb-d36c-442c-9fc7-651e980ea8d6", "1877665103373783042");
+//        System.out.println("++++++++ " + deptJson);
+//        if (deptJson != null) {
+//            List<DeptDTO> deptDTOS = JSON.parseArray(deptJson, DeptDTO.class);
+//            System.out.println("------------ size: " + deptDTOS.size());
+//        }
 //
 //        System.out.println("------------- " + deptDTOs);
+        httpUtil.oauthen2();
+
     }
 }
