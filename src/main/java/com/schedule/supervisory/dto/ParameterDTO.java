@@ -13,4 +13,9 @@ public class ParameterDTO {
     private String uploadUrl;
     @Value("${duban.message}")
     private String messageUrl;
+    @Value("${duban.oauth2}")
+    private String authUrl;
+
+    @Value("${duban.users}")
+    private String usersUrl;
 }

@@ -16,13 +16,13 @@ import java.util.List;
 public class YkbMessage {
     private TokenRespDTO tokenRespDTO;
 
-    public YkbMessage() {
+    public YkbMessage(String url) {
         HttpUtil httpUtil = new HttpUtil();
-        this.tokenRespDTO = httpUtil.oauthen2();
+        this.tokenRespDTO = httpUtil.oauthen2(url);
         log("getRoleUserId oauthen2 token: " + tokenRespDTO.toString());
     }
 
-    public ArrayList<String> getRoleUserId(List<String> roleList, List<String> deptList) {
+    public ArrayList<String> getRoleUserId(String url, List<String> roleList, List<String> deptList) {
         HttpUtil httpUtil = new HttpUtil();
         ArrayList<String> userIdList = new ArrayList<>();
         RoleDeptRequestDTO requestDTO = new RoleDeptRequestDTO();
@@ -33,7 +33,7 @@ public class YkbMessage {
         String jsonString = JSON.toJSONString(requestDTO);
         log("getUserListByRoleCodeList request json: " + jsonString);
 
-        String userListData = httpUtil.post("http://113.207.111.33:48770/api/admin/user/getUserListByRoleCodeList",
+        String userListData = httpUtil.post(url,
                 String.format("%s %s", tokenRespDTO.getToken_type(), tokenRespDTO.getAccess_token()),
                 "1877665103373783042",
                 jsonString);
@@ -52,7 +52,7 @@ public class YkbMessage {
         return userIdList;
     }
 
-    public boolean sendYkbMessage(ArrayList<String> userIds, String msg, String msgUrl) {
+    public boolean sendYkbMessage(String url, ArrayList<String> userIds, String msg, String msgUrl) {
 //        log("userdid: " + userIds);
 //        log("message: " + msg);
 //        log("msgUrl: " + msgUrl);
@@ -77,7 +77,7 @@ public class YkbMessage {
         log(jsonString);
 
         HttpUtil httpUtil = new HttpUtil();
-        String userListData = httpUtil.post("http://113.207.111.33:48770/api/admin/sysMessage/workNotification",
+        String userListData = httpUtil.post(url,
                 String.format("%s %s", this.getTokenRespDTO().getToken_type(), this.getTokenRespDTO().getAccess_token()),
                 "1877665103373783042",
                 jsonString);

@@ -130,6 +130,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getDeadline() != null) {
             queryWrapper.eq(Task::getDeadline, queryTask.getDeadline());
         }
+        if (queryTask.getTaskPeriod() != null) {
+            queryWrapper.eq(Task::getTaskPeriod, queryTask.getTaskPeriod());
+        }
 
         if (queryTask.getStatus() != null) {
             if (queryTask.getStatus() == 3) {

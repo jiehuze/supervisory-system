@@ -236,9 +236,9 @@ public class HttpUtil {
         return null;
     }
 
-    public TokenRespDTO oauthen2() {
+    public TokenRespDTO oauthen2(String url) {
         // API endpoint URL
-        String url = "http://113.207.111.33:48770/api/admin/oauth2/token";
+//        String url = "http://113.207.111.33:48770/api/admin/oauth2/token";
 
         // Parameters
         String grantType = "client_credentials";
@@ -281,6 +281,7 @@ public class HttpUtil {
     }
 
     public static void main(String[] args) {
+
         HttpUtil httpUtil = new HttpUtil();
 ////        String s = httpUtil.uploadFile("http://113.207.111.33:48770/admin/sys-file/upload", "f4bf7edc-4220-40e3-8187-d99c56425776", "1877665103373783042");
 //
@@ -294,7 +295,7 @@ public class HttpUtil {
 //        }
 //
 //        System.out.println("------------- " + deptDTOs);
-        TokenRespDTO tokenRespDTO = httpUtil.oauthen2();
+        TokenRespDTO tokenRespDTO = httpUtil.oauthen2("http://113.207.111.33:48770/api/admin/oauth2/token");
         System.out.println("++++++ token: " + tokenRespDTO.toString());
 
         RoleDeptRequestDTO requestDTO = new RoleDeptRequestDTO();

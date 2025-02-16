@@ -1,8 +1,10 @@
 package com.schedule.supervisory.service.impl;
 
 import com.schedule.common.YkbMessage;
+import com.schedule.supervisory.dto.ParameterDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IYkbMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,29 +12,32 @@ import java.util.List;
 
 @Service
 public class YkbMessageServiceImpl implements IYkbMessageService {
+    @Autowired
+    private ParameterDTO parameterDTO;
+
     @Override
     public boolean sendMessageForOverdue(Task task, int hour) {
-        YkbMessage ykbMessage = new YkbMessage();
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = "您的任务【" + task.getSource() + "】将于" + hour + "小时之后逾期，请及时处理。";
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> userIds = ykbMessage.getRoleUserId(List.of("CBR"), List.of(deptIds));//承办人
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), List.of(deptIds));//承办人
 
-        ykbMessage.sendYkbMessage(userIds, message, "");
+        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
         return true;
     }
 
     @Override
     public boolean sendMessageForOverdueWarn(Task task) {
-        YkbMessage ykbMessage = new YkbMessage();
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = "您的任务【" + task.getSource() + "已逾期，请及时处理。";
 
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
+        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
         userIds.addAll(roleUserIdList);
 
-        ykbMessage.sendYkbMessage(userIds, message, "");
+        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
         return true;
     }
 
@@ -44,7 +49,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
      */
     @Override
     public boolean sendMessageForCheck(Task task, int role, int type) {
-        YkbMessage ykbMessage = new YkbMessage();
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = null;
         if (type == 1) {
             message = "有一条办结申请任务需要您审核，请及时处理。";
@@ -58,14 +63,14 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             System.out.println("========deptIds: " + List.of(deptIds));
             System.out.println("========role: " + "CBLD");
 
-            ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(List.of("CBLD"), List.of(deptIds));
+            ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
             if (roleUserIdList.size() > 0) {
-                ykbMessage.sendYkbMessage(roleUserIdList, message, "");
+                ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), roleUserIdList, message, "");
             }
         } else {
             ArrayList<String> userIds = new ArrayList<>();
             userIds.add(task.getAssignerId());
-            ykbMessage.sendYkbMessage(userIds, message, "");
+            ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
         }
 
         return false;
@@ -73,26 +78,26 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
 
     @Override
     public boolean sendMessageForInstruction(Task task) {
-        YkbMessage ykbMessage = new YkbMessage();
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = "您的任务【" + task.getSource() + "】被领导批示，请及时查看。";
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
+        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
         userIds.addAll(roleUserIdList);
 
-        ykbMessage.sendYkbMessage(userIds, message, "");
+        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
         return true;
     }
 
     @Override
     public boolean sendMessageForNewTask(Task task) {
-        YkbMessage ykbMessage = new YkbMessage();
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = "您有一个新任务需要接收，请及时处理。";
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> userIds = ykbMessage.getRoleUserId(List.of("CBR"), List.of(deptIds));//承办人
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), List.of(deptIds));//承办人
 
-        ykbMessage.sendYkbMessage(userIds, message, "");
+        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
         return true;
     }
 }
