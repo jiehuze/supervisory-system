@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Licence {
     private static Random random = new Random();
-    private static LocalDate freeUntilDate = LocalDate.of(2025, 6, 30);
+    private static LocalDate freeUntilDate = LocalDate.of(2025, 6, 1);
 
     /**
      * 检查当前日期是否在免费期内。

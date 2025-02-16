@@ -38,6 +38,9 @@ public class TaskController {
     private IYkbMessageService ykbMessageService;
 
     @Autowired
+    private IConfigService configService;
+
+    @Autowired
     private ParameterDTO parameterDTO;
 
     @PostMapping
@@ -47,9 +50,14 @@ public class TaskController {
     }
 
     @PostMapping("/batchadd")
-    public BaseResponse saveOrUpdateTasks(@RequestBody List<TaskDTO> taskDTOList) {
+    public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                          @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                          @RequestBody List<TaskDTO> taskDTOList) {
         if (!Licence.getLicence()) {
-            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+            String tenantIdex = configService.getTenantId();
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (TaskDTO taskDTO : taskDTOList) {
             Task task = taskDTO.getTask();
@@ -164,7 +172,10 @@ public class TaskController {
         }
 
         if (!Licence.getLicence()) {
-            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+            String tenantIdex = configService.getTenantId();
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         System.out.println("searchTasks token：" + authorizationHeader);

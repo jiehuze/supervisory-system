@@ -6,10 +6,7 @@ import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
-import com.schedule.supervisory.service.IBzFormService;
-import com.schedule.supervisory.service.IBzFormTargetService;
-import com.schedule.supervisory.service.IBzIssueService;
-import com.schedule.supervisory.service.IBzIssueTargetService;
+import com.schedule.supervisory.service.*;
 import com.schedule.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +32,9 @@ public class BzFormController {
     @Autowired
     private IBzIssueTargetService bzIssueTargetService;
 
+    @Autowired
+    private IConfigService configService;
+
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
@@ -42,7 +42,10 @@ public class BzFormController {
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
-            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+            String tenantIdex = configService.getTenantId();
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzForm, pageNum, pageSize);
 
@@ -61,14 +64,19 @@ public class BzFormController {
     }
 
     @PostMapping("/add")
-    public BaseResponse saveOrUpdateTasks(@RequestBody BzFormDTO bzFromDTO) {
+    public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                          @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                          @RequestBody BzFormDTO bzFromDTO) {
         BzForm bzForm = bzFromDTO.getBzForm();
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
         }
         if (!Licence.getLicence()) {
-            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+            String tenantIdex = configService.getTenantId();
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
             bzFormTarget.setBzFormId(id);

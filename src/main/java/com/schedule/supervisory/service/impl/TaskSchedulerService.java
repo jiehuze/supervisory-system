@@ -60,11 +60,11 @@ public class TaskSchedulerService {
     public void executeTaskAt10AM() {
         logTime("09:00 定时任务");
         //10点检查填报状态
-        List<TaskWithProgressReportDTO> tasks = progressReportService.checkFileCycle();
-        for (TaskWithProgressReportDTO task : tasks) {
-            //todo 发送消息，不到24小时消息
-            logTime(task.getSource() + "不到24小时消息");
-        }
+//        List<TaskWithProgressReportDTO> tasks = progressReportService.checkFileCycle();
+//        for (TaskWithProgressReportDTO task : tasks) {
+//            //todo 发送消息，不到24小时消息
+//            logTime(task.getSource() + "不到24小时消息");
+//        }
 
         //查询是否有快超期的任务，并做提醒
     }

@@ -8,6 +8,7 @@ import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.supervisory.service.IBzIssueTargetService;
+import com.schedule.supervisory.service.IConfigService;
 import com.schedule.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,9 @@ public class BzIssueController {
     @Autowired
     private IBzIssueTargetService bzIssueTargetService;
 
+    @Autowired
+    private IConfigService configService;
+
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
@@ -35,7 +39,10 @@ public class BzIssueController {
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
-            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+            String tenantIdex = configService.getTenantId();
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzIssue, pageNum, pageSize);
 
@@ -54,14 +61,19 @@ public class BzIssueController {
     }
 
     @PostMapping("/add")
-    public BaseResponse saveOrUpdateTasks(@RequestBody BzIssueDTO bzFromDTO) {
+    public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                          @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                          @RequestBody BzIssueDTO bzFromDTO) {
         BzIssue bzIssue = bzFromDTO.getBzIssue();
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
         }
         if (!Licence.getLicence()) {
-            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+            String tenantIdex = configService.getTenantId();
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (BzIssueTarget bzIssueTarget : bzFromDTO.getBzIssueTargetList()) {
             bzIssueTarget.setBzIssueId(id);
