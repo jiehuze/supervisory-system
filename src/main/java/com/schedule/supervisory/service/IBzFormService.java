@@ -24,7 +24,9 @@ public interface IBzFormService extends IService<BzForm> {
 
     List<EffectiveGearCount> countGearCollect();
 
-    List<EffectiveGearCount> countGearCollectByQuarter(LocalDateTime startTime, LocalDateTime endTime);
+    List<EffectiveGearCount> countGearCollectTargetByDate(LocalDateTime startTime, LocalDateTime endTime);
+
+    List<EffectiveGearCount> countGearCollectByDate(LocalDateTime startTime, LocalDateTime endTime);
 
     List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear);
 }

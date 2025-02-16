@@ -34,8 +34,17 @@ public interface BzIssueMapper extends BaseMapper<BzIssue> {
             "AND created_at BETWEEN #{startTime} AND #{endTime}" +
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
-    List<EffectiveGearCount> countGearCollectByQuarter(@Param("startTime") LocalDateTime startTime,
-                                                       @Param("endTime") LocalDateTime endTime);
+    List<EffectiveGearCount> countGearCollectTargetByDate(@Param("startTime") LocalDateTime startTime,
+                                                          @Param("endTime") LocalDateTime endTime);
+
+    @Select("SELECT COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
+            "FROM public.bz_issue " +
+            "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 5 " +
+            "AND created_at BETWEEN #{startTime} AND #{endTime}" +
+            "GROUP BY COALESCE(actual_gear, predicted_gear) " +
+            "ORDER BY effective_gear")
+    List<EffectiveGearCount> countGearCollectByDate(@Param("startTime") LocalDateTime startTime,
+                                                    @Param("endTime") LocalDateTime endTime);
 
     @Select("SELECT name, COUNT(*) AS count " +
             "FROM public.bz_issue_target " +

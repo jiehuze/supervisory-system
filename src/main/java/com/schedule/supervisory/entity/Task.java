@@ -47,6 +47,7 @@ public class Task {
     private String handlerId; //经办人id
     private String phone; // 电话 'phone'
     private LocalDateTime updatedAt; // 更新时间 'updated_at'
+    private LocalDateTime completedAt; // 办结时间 'updated_at'
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
     private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
     private String responsiblePersonId; // 责任人ID 'responsible_person_id'

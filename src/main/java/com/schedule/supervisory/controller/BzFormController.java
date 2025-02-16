@@ -182,30 +182,63 @@ public class BzFormController {
 
     @GetMapping("/collectByQuarter")
     public BaseResponse collectByQuarter(@RequestParam(value = "type", defaultValue = "quarter") String type) {
-        List<Quarter> quarters = null;
+        List<DateInfo> dataInfos = null;
         if ("quarter".equals(type)) {
-            quarters = DateUtils.getCurrentQuarters();
+            dataInfos = DateUtils.getCurrentQuarters();
         } else {
-            quarters = DateUtils.getCurrentYearQuarters();
+            dataInfos = DateUtils.getCurrentYears();
         }
         HashMap<Integer, Map<Integer, CountDTO>> collectMap = new HashMap<>();
-        for (Quarter quarter : quarters) {
-            List<EffectiveGearCount> effectiveGearCounts = bzFormService.countGearCollectByQuarter(
-                    quarter.getStartTime(),
-                    quarter.getEndTime());
+        for (DateInfo di : dataInfos) {
+            List<EffectiveGearCount> effectiveGearCounts = bzFormService.countGearCollectTargetByDate(
+                    di.getStartTime(),
+                    di.getEndTime());
 
-            //初始化5个档位
+            //初始化4个档位
             Map<Integer, CountDTO> countMap = new HashMap<>();
             for (int level = 1; level <= 4; level++) {
                 CountDTO countDTO = new CountDTO(0, "");
                 countMap.put(level, countDTO);
             }
-            collectMap.put(quarter.getQuarterNumber(), countMap);
+            collectMap.put(di.getNumber(), countMap);
 
             for (EffectiveGearCount effectiveGearCount : effectiveGearCounts) {
                 CountDTO countDTO = new CountDTO(effectiveGearCount.getCountEffectiveGear().intValue(), "");
 
-                collectMap.get(quarter.getQuarterNumber()).put(effectiveGearCount.getEffectiveGear(), countDTO);
+                collectMap.get(di.getNumber()).put(effectiveGearCount.getEffectiveGear(), countDTO);
+            }
+
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", collectMap, Integer.toString(0));
+    }
+
+    @GetMapping("/collectFormByDate")
+    public BaseResponse collectFormByDate(@RequestParam(value = "type", defaultValue = "quarter") String type) {
+        List<DateInfo> dataInfos = null;
+        if ("quarter".equals(type)) {
+            dataInfos = DateUtils.getCurrentQuarters();
+        } else {
+            dataInfos = DateUtils.getCurrentYears();
+        }
+        HashMap<Integer, Map<Integer, CountDTO>> collectMap = new HashMap<>();
+        for (DateInfo di : dataInfos) {
+            List<EffectiveGearCount> effectiveGearCounts = bzFormService.countGearCollectByDate(
+                    di.getStartTime(),
+                    di.getEndTime());
+
+            //初始化5个档位
+            Map<Integer, CountDTO> countMap = new HashMap<>();
+            for (int level = 1; level <= 5; level++) {
+                CountDTO countDTO = new CountDTO(0, "");
+                countMap.put(level, countDTO);
+            }
+            collectMap.put(di.getNumber(), countMap);
+
+            for (EffectiveGearCount effectiveGearCount : effectiveGearCounts) {
+                CountDTO countDTO = new CountDTO(effectiveGearCount.getCountEffectiveGear().intValue(), "");
+
+                collectMap.get(di.getNumber()).put(effectiveGearCount.getEffectiveGear(), countDTO);
             }
 
         }
@@ -216,27 +249,32 @@ public class BzFormController {
     /**
      * 根据指定的类型（季度或全年）和档位获取统计数据
      *
-     * @param quarter 类型（0: 全年, 1-4: 季度）
-     * @param gear    档位
+     * @param type 类型（大于2025: 为全年, 1-4: 季度）
+     * @param gear 档位
      * @return 统计结果列表
      */
     @GetMapping("/gearTargetCount")
-    public BaseResponse getStatsByQuarterAndGear(@RequestParam(value = "type", defaultValue = "0") int quarter,
+    public BaseResponse getStatsByQuarterAndGear(@RequestParam(value = "type", defaultValue = "0") int type,
+                                                 @RequestParam(value = "year", defaultValue = "0") int year,
+                                                 @RequestParam(value = "quarter", defaultValue = "0") int quarter,
                                                  @RequestParam("gear") Integer gear) {
-        Quarter quarterSearch = null;
-        List<Quarter> quarters = null;
-        if (quarter == 0) {
-            quarters = DateUtils.getCurrentYearQuarters();
-        } else {
-            quarters = DateUtils.getCurrentQuarters();
+        int number = 0;
+        DateInfo dateInfo = null;
+        List<DateInfo> dateInfos = null;
+        if (year >= 2025) {
+            dateInfos = DateUtils.getCurrentYears();
+            number = year;
+        } else if (quarter >= 1 && quarter <= 4) {
+            dateInfos = DateUtils.getCurrentQuarters();
+            number = quarter;
         }
-        for (Quarter quarterNode : quarters) {
-            if (quarterNode.getQuarterNumber() == quarter) {
-                quarterSearch = quarterNode;
+        for (DateInfo di : dateInfos) {
+            if (di.getNumber() == number) {
+                dateInfo = di;
                 break;
             }
         }
-        List<BzFromTargetNameCount> bzFromTargetNameCounts = bzFormService.selectByTimeAndGear(quarterSearch.getStartTime(), quarterSearch.getEndTime(), gear);
+        List<BzFromTargetNameCount> bzFromTargetNameCounts = bzFormService.selectByTimeAndGear(dateInfo.getStartTime(), dateInfo.getEndTime(), gear);
 
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFromTargetNameCounts, Integer.toString(0));

@@ -159,6 +159,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, taskId)
                 .set(Task::getStatus, newStatus);
+        if (newStatus == 6 || newStatus == 9) {
+            updateWrapper.set(Task::getCompletedAt, LocalDateTime.now());
+        }
         return update(updateWrapper);
     }
 

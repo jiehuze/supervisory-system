@@ -90,8 +90,13 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
-    public List<EffectiveGearCount> countGearCollectByQuarter(LocalDateTime startTime, LocalDateTime endTime) {
-        return bzIssueMapper.countGearCollectByQuarter(startTime, endTime);
+    public List<EffectiveGearCount> countGearCollectTargetByDate(LocalDateTime startTime, LocalDateTime endTime) {
+        return bzIssueMapper.countGearCollectTargetByDate(startTime, endTime);
+    }
+
+    @Override
+    public List<EffectiveGearCount> countGearCollectByDate(LocalDateTime startTime, LocalDateTime endTime) {
+        return bzIssueMapper.countGearCollectByDate(startTime, endTime);
     }
 
     @Override

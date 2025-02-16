@@ -89,8 +89,13 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public List<EffectiveGearCount> countGearCollectByQuarter(LocalDateTime startTime, LocalDateTime endTime) {
-        return bzFormMapper.countGearCollectByQuarter(startTime, endTime);
+    public List<EffectiveGearCount> countGearCollectTargetByDate(LocalDateTime startTime, LocalDateTime endTime) {
+        return bzFormMapper.countGearCollectTargetByDate(startTime, endTime);
+    }
+
+    @Override
+    public List<EffectiveGearCount> countGearCollectByDate(LocalDateTime startTime, LocalDateTime endTime) {
+        return bzFormMapper.countGearCollectByDate(startTime, endTime);
     }
 
     @Override

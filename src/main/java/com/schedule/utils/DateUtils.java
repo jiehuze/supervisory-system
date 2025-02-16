@@ -8,7 +8,7 @@
 
 package com.schedule.utils;
 
-import com.schedule.supervisory.dto.Quarter;
+import com.schedule.supervisory.dto.DateInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
@@ -97,13 +97,13 @@ public class DateUtils {
         return twoLetterString;
     }
 
-    public static List<Quarter> getCurrentQuarters() {
+    public static List<DateInfo> getCurrentQuarters() {
         LocalDate now = LocalDate.now();
         int currentMonth = now.getMonthValue();
         int currentYear = now.getYear();
         int currentQuarter = (currentMonth - 1) / 3 + 1; // 计算当前季度
 
-        List<Quarter> quarters = new ArrayList<>();
+        List<DateInfo> quarters = new ArrayList<>();
 
         for (int i = 1; i <= currentQuarter; i++) {
             int startMonth = (i - 1) * 3 + 1;
@@ -118,7 +118,7 @@ public class DateUtils {
 
             String quarterName = "第" + i + "季度"; // 根据需要格式化季度名称
 
-            quarters.add(new Quarter(
+            quarters.add(new DateInfo(
                     quarterStart.atStartOfDay(),
                     quarterEnd.atTime(23, 59, 59, 999999),
                     quarterName,
@@ -129,33 +129,36 @@ public class DateUtils {
     }
 
     // 生成当前年份的时间段
-    public static List<Quarter> getCurrentYearQuarters() {
-        List<Quarter> quarters = new ArrayList<>();
+    public static List<DateInfo> getCurrentYears() {
+        List<DateInfo> dateInfos = new ArrayList<>();
 
         LocalDate now = LocalDate.now();
         int currentYear = now.getYear();
 
-        LocalDateTime yearStart = LocalDate.of(currentYear, 1, 1).atStartOfDay();
-        LocalDateTime yearEnd = LocalDateTime.now(); // 当前时间为结束时间
+        for (int year = 2025; year <= currentYear; year++) {
+            LocalDateTime yearStart = LocalDate.of(year, 1, 1).atStartOfDay();
+            LocalDateTime yearEnd = year < currentYear ?
+                    LocalDate.of(year, 12, 31).atTime(23, 59, 59, 999999) :
+                    LocalDateTime.now(); // 当前年的结束时间为现在
 
-        quarters.add(new Quarter(
-                yearStart,
-                yearEnd,
-                String.valueOf(currentYear), // 年份作为名称
-                0)); // quarterNumber设为0
-
-        return quarters;
+            dateInfos.add(new DateInfo(
+                    yearStart,
+                    yearEnd,
+                    String.valueOf(year), // 使用年份作为名称
+                    year)); // 设置num为年
+        }
+        return dateInfos;
     }
 
 
     public static void main(String[] args) {
-        List<Quarter> currentQuarters = DateUtils.getCurrentQuarters();
-        for (Quarter currentQuarter : currentQuarters) {
+        List<DateInfo> currentQuarters = DateUtils.getCurrentQuarters();
+        for (DateInfo currentQuarter : currentQuarters) {
             System.out.println(currentQuarter.toString());
         }
 
-        List<Quarter> currentYearQuarters = DateUtils.getCurrentYearQuarters();
-        for (Quarter currentYearQuarter : currentYearQuarters) {
+        List<DateInfo> currentYearQuarters = DateUtils.getCurrentYears();
+        for (DateInfo currentYearQuarter : currentYearQuarters) {
             System.out.println(currentYearQuarter.toString());
         }
 
