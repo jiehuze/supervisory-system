@@ -262,10 +262,17 @@ public interface TaskMapper extends BaseMapper<Task> {
             "WHERE status = 6 AND updated_at <= deadline")
     int countTasksCompleteOmTime();
 
+//    @Update("UPDATE task " +
+//            "SET overdue_days = GREATEST((CURRENT_DATE - deadline), 0) " +
+//            "WHERE status NOT IN (6, 9) " +
+//            "AND updated_at > deadline " +
+//            "AND deadline IS NOT NULL")
+//    void updateOverdueDays();
+
     @Update("UPDATE task " +
             "SET overdue_days = GREATEST((CURRENT_DATE - deadline), 0) " +
             "WHERE status NOT IN (6, 9) " +
-            "AND updated_at > deadline " +
+            "AND CURRENT_DATE > deadline " + // 修改这里使用CURRENT_DATE代替updated_at
             "AND deadline IS NOT NULL")
     void updateOverdueDays();
 }

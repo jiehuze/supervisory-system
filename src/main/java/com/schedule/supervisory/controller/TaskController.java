@@ -3,6 +3,7 @@ package com.schedule.supervisory.controller;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
+import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
@@ -33,6 +34,8 @@ public class TaskController {
     @Autowired
     private IMembershipService membershipService;
 
+    @Autowired
+    private IYkbMessageService ykbMessageService;
 
     @Autowired
     private ParameterDTO parameterDTO;
@@ -45,6 +48,9 @@ public class TaskController {
 
     @PostMapping("/batchadd")
     public BaseResponse saveOrUpdateTasks(@RequestBody List<TaskDTO> taskDTOList) {
+        if (!Licence.getLicence()) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
         for (TaskDTO taskDTO : taskDTOList) {
             Task task = taskDTO.getTask();
             if (task.getId() == null) {
@@ -52,6 +58,8 @@ public class TaskController {
                 if (id == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
                 }
+
+                ykbMessageService.sendMessageForNewTask(task); // 发送消息
 
                 if (task.getLeadingDepartmentId() == null || task.getResponsiblePerson() == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "未填写牵头单位和责任人", id, Integer.toString(0));
@@ -75,13 +83,6 @@ public class TaskController {
         }
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
-
-//    @PostMapping("/batch")
-//    public BaseResponse createBatchTasks(@RequestBody List<Task> tasks) {
-//        taskService.batchInsertTasks(tasks);
-//
-//        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
-//    }
 
     @PutMapping("/update/{id}")
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody Task task) {
@@ -162,6 +163,10 @@ public class TaskController {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
+        if (!Licence.getLicence()) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
         System.out.println("searchTasks token：" + authorizationHeader);
         IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
 
@@ -172,6 +177,14 @@ public class TaskController {
     public BaseResponse updateTaskStatus(@PathVariable Long taskId,
                                          @RequestParam Integer newStatus) {
         boolean modify = taskService.updateStatusById(taskId, newStatus);
+
+        if (newStatus == 5) {
+            Task messageTask = taskService.getById(taskId);
+            ykbMessageService.sendMessageForCheck(messageTask, 2, 1); //办结申请
+        } else if (newStatus == 8) {
+            Task messageTask = taskService.getById(taskId);
+            ykbMessageService.sendMessageForCheck(messageTask, 2, 2); //终结申请
+        }
         return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
     }
 
@@ -186,6 +199,10 @@ public class TaskController {
     @PutMapping("/cbapply")
     public BaseResponse partialUpdate(@RequestBody Task task) {
         boolean update = taskService.updateCbApplyDone(task);
+
+        Task messageTask = taskService.getTaskById(task.getId());
+        ykbMessageService.sendMessageForCheck(messageTask, 1, 1);
+
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
@@ -199,6 +216,10 @@ public class TaskController {
     @PutMapping("/updateCancelInfo")
     public BaseResponse updateCancelInfo(@RequestBody Task task) {
         boolean update = taskService.updateCancelInfo(task);
+
+        Task messageTask = taskService.getTaskById(task.getId());
+        ykbMessageService.sendMessageForCheck(messageTask, 1, 2);  //终止申请
+
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
@@ -245,9 +266,9 @@ public class TaskController {
     /**
      * 短，中，长期统计
      *
-     * @param createdAtStart
-     * @param createdAtEnd
-     * @param coOrganizerId
+     * @param authorizationHeader
+     * @param tenantId
+     * @param queryTask
      * @return
      */
     @GetMapping("/statistics_period")
@@ -301,9 +322,9 @@ public class TaskController {
     /**
      * 按照所属领域统计
      *
-     * @param createdAtStart
-     * @param createdAtEnd
-     * @param coOrganizerId
+     * @param authorizationHeader
+     * @param tenantId
+     * @param queryTask
      * @return
      */
     @GetMapping("/statistics_fields")

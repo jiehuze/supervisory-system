@@ -2,6 +2,7 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
+import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssueTarget;
@@ -33,7 +34,9 @@ public class BzIssueController {
                              @ModelAttribute BzIssue bzIssue,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
-//        Page<BzIssue> bzIssuePage = bzIssueService.page(new Page<>(pageNum, pageSize));
+        if (!Licence.getLicence()) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
         IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzIssue, pageNum, pageSize);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueByConditions, Integer.toString(0));
@@ -56,6 +59,9 @@ public class BzIssueController {
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
+        }
+        if (!Licence.getLicence()) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (BzIssueTarget bzIssueTarget : bzFromDTO.getBzIssueTargetList()) {
             bzIssueTarget.setBzIssueId(id);

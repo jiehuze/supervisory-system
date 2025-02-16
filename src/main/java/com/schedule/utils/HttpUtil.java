@@ -3,6 +3,9 @@ package com.schedule.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.schedule.supervisory.dto.DeptResponseDTO;
+import com.schedule.supervisory.dto.RoleDeptRequestDTO;
+import com.schedule.supervisory.dto.TokenRespDTO;
+import com.schedule.supervisory.dto.UserDataDTO;
 import okhttp3.*;
 
 import java.io.BufferedReader;
@@ -17,6 +20,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpUtil {
     public String get(String uri) {
@@ -87,6 +92,45 @@ public class HttpUtil {
             // 打印响应状态码和响应体
             System.out.println("Response Code: " + response.statusCode());
             System.out.println("Response Body: " + response.body());
+
+            DeptResponseDTO deptResponseDTO = JSON.parseObject(response.body(), DeptResponseDTO.class);
+            if (deptResponseDTO.getCode() == 0) {
+                return deptResponseDTO.getData().toString();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String post(String url, String token, String tenantId, String requestBodyJson) {
+        try {
+            // 创建HttpClient实例
+            HttpClient client = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_2) // 可选，指定HTTP协议版本
+                    .connectTimeout(Duration.ofSeconds(10)) // 设置连接超时时间
+                    .build();
+
+            // 将请求体转换为JSON字符串
+//            String requestBodyJson = JSON.toJSONString(requestBody);
+
+            // 创建HttpRequest，设置请求方法为POST，并在Headers中添加Authorization和tenant-id
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .header("Authorization", token) // 在这里添加token
+                    .header("tenant-id", tenantId) // 设置tenant-id头部
+                    .header("Content-Type", "application/json") // 指定请求体的内容类型为JSON
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBodyJson)) // 设置POST请求及其body
+                    .build();
+
+            // 发送请求并接收响应
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // 打印响应状态码和响应体
+            System.out.println("Post Response Code: " + response.statusCode() + "  Body: " + response.body());
 
             DeptResponseDTO deptResponseDTO = JSON.parseObject(response.body(), DeptResponseDTO.class);
             if (deptResponseDTO.getCode() == 0) {
@@ -192,7 +236,7 @@ public class HttpUtil {
         return null;
     }
 
-    public String oauthen2() {
+    public TokenRespDTO oauthen2() {
         // API endpoint URL
         String url = "http://113.207.111.33:48770/api/admin/oauth2/token";
 
@@ -211,6 +255,7 @@ public class HttpUtil {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("tenant-id", "1877665103373783042")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
                 .build();
 
@@ -218,10 +263,16 @@ public class HttpUtil {
         HttpResponse<String> response = null;
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Status Code: " + response.statusCode());
-            System.out.println("Response Body: " + response.body());
+            System.out.println("Oauth2 Code: " + response.statusCode() + " Body: " + response.body());
+            if (response.statusCode() == 200) {
+                String jsonResponse = response.body();
+//                System.out.println("Response Body: " + jsonResponse);
+                TokenRespDTO tokenRespDTO = JSON.parseObject(jsonResponse, TokenRespDTO.class);
+                return tokenRespDTO;
+            }
+            // 使用FastJSON将JSON字符串转换为Java对象
 
-            return response.body();
+            return null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
@@ -243,7 +294,31 @@ public class HttpUtil {
 //        }
 //
 //        System.out.println("------------- " + deptDTOs);
-        httpUtil.oauthen2();
+        TokenRespDTO tokenRespDTO = httpUtil.oauthen2();
+        System.out.println("++++++ token: " + tokenRespDTO.toString());
+
+        RoleDeptRequestDTO requestDTO = new RoleDeptRequestDTO();
+        requestDTO.setRoleCodes(List.of("CBLD"));
+        requestDTO.setDeptIds(List.of());
+
+        String jsonString = JSON.toJSONString(requestDTO);
+
+        String userListData = httpUtil.post("http://113.207.111.33:48770/api/admin/user/getUserListByRoleCodeList",
+                String.format("%s %s", tokenRespDTO.getToken_type(), tokenRespDTO.getAccess_token()),
+                "1877665103373783042",
+                jsonString);
+        System.out.println("****** listdata: " + userListData);
+
+
+        if (userListData != null) {
+
+            // 当code为0时，将data解析为List<UserDataDTO>
+            List<UserDataDTO> userDataList = JSON.parseArray(userListData, UserDataDTO.class);
+
+            for (UserDataDTO userData : userDataList) {
+                System.out.println("user  =  " + userData.toString());
+            }
+        }
 
     }
 }

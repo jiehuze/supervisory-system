@@ -62,6 +62,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
+    public List<Task> ListTasksOverdue() {
+        LocalDateTime now = LocalDateTime.now();
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .isNotNull(Task::getDeadline)  // 确保 deadline 不是 null
+                .gt(Task::getDeadline, now)   // deadline 在当前时间之后
+                .ne(Task::getStatus, 6)  // 排除状态 6
+                .ne(Task::getStatus, 9); // 排除状态 9
+        return taskMapper.selectList(queryWrapper);
+    }
+
+    @Override
     public IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
 
         //todo 读取用户的权限，根据权限判断要读取什么样的数据
@@ -120,8 +132,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
 
         if (queryTask.getStatus() != null) {
-            queryWrapper.eq(Task::getStatus, queryTask.getStatus());
-        } else if (queryTask.getUnfinished() != null && queryTask.getUnfinished()) {
+            if (queryTask.getStatus() == 3) {
+                queryWrapper.ne(Task::getStatus, 6);
+                queryWrapper.ne(Task::getStatus, 9);
+//                queryWrapper.apply("updated_at > deadline");
+                queryWrapper.ge(Task::getOverdueDays, 0); //超期时间大于0
+
+            } else {
+                queryWrapper.eq(Task::getStatus, queryTask.getStatus());
+            }
+        } else if (queryTask.getUnfinished() != null && queryTask.getUnfinished()) { //未完成任务
             queryWrapper.ne(Task::getStatus, 6);
             queryWrapper.ne(Task::getStatus, 9);
         }
@@ -300,6 +320,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
     @Override
     public Long countTasksCompleteOnTime(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        System.out.println("++++++++= countTasksCompleteOnTime");
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
 
         // 添加 status 为 6 的条件
@@ -307,7 +328,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         // 添加 updated_at 小于等于 deadline 的条件
         // 添加 updated_at 小于等于 deadline 的条件
-        queryWrapper.apply("updated_at <= deadline");
+//        queryWrapper.apply("updated_at <= deadline");
+        queryWrapper.eq(Task::getOverdueDays, 0); //超期时间为0
 
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
@@ -368,8 +390,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
 
-        queryWrapper.ne(Task::getStatus, 6);
-        queryWrapper.ne(Task::getStatus, 9);
+//        queryWrapper.ne(Task::getStatus, 6);
+//        queryWrapper.ne(Task::getStatus, 9);
+        queryWrapper.eq(Task::getStatus, 2); //正常推进中
 
         // 处理leadingOfficialId模糊查询的情况
         if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -401,7 +424,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.apply("updated_at > deadline");
+//        queryWrapper.apply("updated_at > deadline");
+        queryWrapper.ge(Task::getOverdueDays, 0); //当超时时间>0,并且status不为6或者9
 
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
@@ -520,10 +544,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     /**
      * 计算根据fieldId分组的所有任务总数。
      *
-     * @param coOrganizerId  协办单位ID
-     * @param createdAtStart 创建时间起始范围
-     * @param createdAtEnd   创建时间结束范围
-     * @return 符合条件的任务数量列表
+     * @param queryTask
+     * @param leadingDepartmentIds
+     * @return
      */
     @Override
     public List<Map<String, Object>> countTasksByFieldId(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
@@ -533,10 +556,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     /**
      * 计算根据fieldId分组且状态status为6的任务数。
      *
-     * @param coOrganizerId  协办单位ID
-     * @param createdAtStart 创建时间起始范围
-     * @param createdAtEnd   创建时间结束范围
-     * @return 符合条件的任务数量列表
+     * @param queryTask
+     * @param leadingDepartmentIds
+     * @return
      */
     @Override
     public List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {

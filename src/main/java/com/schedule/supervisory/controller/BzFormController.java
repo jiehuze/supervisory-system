@@ -2,6 +2,7 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
+import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
@@ -10,12 +11,10 @@ import com.schedule.supervisory.service.IBzFormTargetService;
 import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.supervisory.service.IBzIssueTargetService;
 import com.schedule.utils.DateUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +41,9 @@ public class BzFormController {
                              @ModelAttribute BzForm bzForm,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
-//        Page<BzForm> bzFormPage = bzFormService.page(new Page<>(pageNum, pageSize));
+        if (!Licence.getLicence()) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
         IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzForm, pageNum, pageSize);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormByConditions, Integer.toString(0));
@@ -65,6 +66,9 @@ public class BzFormController {
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
+        }
+        if (!Licence.getLicence()) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
             bzFormTarget.setBzFormId(id);
@@ -204,8 +208,8 @@ public class BzFormController {
     /**
      * 根据指定的类型（季度或全年）和档位获取统计数据
      *
-     * @param type 类型（0: 全年, 1-4: 季度）
-     * @param gear 档位
+     * @param quarter 类型（0: 全年, 1-4: 季度）
+     * @param gear    档位
      * @return 统计结果列表
      */
     @GetMapping("/gearTargetCount")

@@ -4,6 +4,7 @@ import com.schedule.supervisory.dto.TaskWithProgressReportDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.ITaskService;
+import com.schedule.supervisory.service.IYkbMessageService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +17,16 @@ public class TaskSchedulerService {
 
     private final ITaskService taskService;
     private final IProgressReportService progressReportService;
+    private final IYkbMessageService ykbMessageService;
 
-    public TaskSchedulerService(ITaskService taskService, IProgressReportService progressReportService) {
+    public TaskSchedulerService(ITaskService taskService, IProgressReportService progressReportService, IYkbMessageService ykbMessageService) {
         this.taskService = taskService;
         this.progressReportService = progressReportService;
+        this.ykbMessageService = ykbMessageService;
     }
 
     // 任务1：每天 01:00 执行
-    @Scheduled(cron = "0 0 1 * * ?")
+    @Scheduled(cron = "0 34 8 * * ?")
     public void executeTaskAt1AM() {
         logTime("01:00 定时任务");
         //每天1点更新下过期时间
@@ -38,7 +41,16 @@ public class TaskSchedulerService {
         for (Task task : tasks) {
             //todo 发送消息，不到24小时消息
             logTime(task.getSource() + "不到24小时消息");
+            ykbMessageService.sendMessageForOverdue(task, 24);
         }
+
+        List<Task> overdueTasks = taskService.ListTasksOverdue();
+        for (Task task : overdueTasks) {
+            //发送逾期提醒
+            logTime(task.getSource() + "逾期提醒");
+            ykbMessageService.sendMessageForOverdueWarn(task);
+        }
+
 
         //查询是否有快超期的任务，并做提醒
     }
@@ -65,6 +77,7 @@ public class TaskSchedulerService {
         for (Task task : tasks) {
             //todo 发送消息，不到12小时消息
             logTime(task.getSource() + "不到12小时消息");
+            ykbMessageService.sendMessageForOverdue(task, 12); //逾期12小时提醒
         }
         //查询是否有快超级的任务，并做提醒
     }
