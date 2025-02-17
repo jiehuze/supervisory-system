@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormMapper;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,7 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public IPage<BzForm> getBzFormByConditions(BzForm queryBzform, int pageNum, int pageSize) {
+    public IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize) {
         //todo 读取用户的权限，根据权限判断要读取什么样的数据
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
@@ -60,9 +62,49 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
             queryWrapper.eq(BzForm::getPredictedGear, queryBzform.getPredictedGear());
         }
 
+        if (queryBzform.getActualGear() != null) {
+            queryWrapper.eq(BzForm::getActualGear, queryBzform.getActualGear());
+        }
+
+        // 添加创建时间范围的筛选条件
+        if (queryBzform.getCreatedAtStart() != null && queryBzform.getCreatedAtEnd() != null) {
+            queryWrapper.between(BzForm::getCreatedAt, queryBzform.getCreatedAtStart(), queryBzform.getCreatedAtEnd());
+        }
+
+        if (queryBzform.getDateType() != null) {
+            queryWrapper.eq(BzForm::getDateType, queryBzform.getDateType());
+            if (queryBzform.getYear() != null) {
+                queryWrapper.eq(BzForm::getYear, queryBzform.getYear());
+            }
+            if (queryBzform.getQuarter() != null) {
+                queryWrapper.eq(BzForm::getQuarter, queryBzform.getQuarter());
+            }
+        }
+
         queryWrapper.orderByDesc(BzForm::getId);
 
         return page(page, queryWrapper);
+    }
+
+    @Override
+    public long countBzForm(BzForm queryBzform) {
+        LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryBzform.getTypeId() != null) {
+            queryWrapper.eq(BzForm::getTypeId, queryBzform.getTypeId());
+        } else {
+//            return -1;
+        }
+        //如果为1
+        if (queryBzform.getDateType() == 1) {
+            queryWrapper.eq(BzForm::getDateType, queryBzform.getDateType());
+            queryWrapper.eq(BzForm::getYear, queryBzform.getYear());
+        } else if (queryBzform.getDateType() == 2) {
+            queryWrapper.eq(BzForm::getDateType, queryBzform.getDateType());
+            queryWrapper.eq(BzForm::getYear, queryBzform.getYear());
+            queryWrapper.eq(BzForm::getQuarter, queryBzform.getQuarter());
+        }
+
+        return count(queryWrapper);
     }
 
     @Override

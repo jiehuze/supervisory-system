@@ -35,7 +35,7 @@ public class BzIssueController {
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                             @ModelAttribute BzIssue bzIssue,
+                             @ModelAttribute BzSearchDTO bzIssue,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
@@ -65,6 +65,12 @@ public class BzIssueController {
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzIssueDTO bzFromDTO) {
         BzIssue bzIssue = bzFromDTO.getBzIssue();
+        long count = bzIssueService.countBzIssue(bzIssue);
+        if (count == -1) {
+            return new BaseResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "参数错误", null, Integer.toString(0));
+        } else if (count > 0) {
+            return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
+        }
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
@@ -87,7 +93,7 @@ public class BzIssueController {
 
     @PutMapping("/update")
     public BaseResponse updateBzIssue(@RequestBody BzIssue bzIssue) {
-        boolean upate = bzIssueService.updateBzFrom(bzIssue);
+        boolean upate = bzIssueService.updateBzIssue(bzIssue);
         return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
     }
 

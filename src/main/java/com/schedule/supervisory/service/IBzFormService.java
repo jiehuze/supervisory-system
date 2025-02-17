@@ -3,9 +3,9 @@ package com.schedule.supervisory.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
-import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +16,9 @@ public interface IBzFormService extends IService<BzForm> {
 
     Long insertBzForm(BzForm bzForm);
 
-    IPage<BzForm> getBzFormByConditions(BzForm queryBzform, int pageNum, int pageSize);
+    IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize);
+
+    long countBzForm(BzForm queryBzform);
 
     boolean updateBzFrom(BzForm bzForm);
 

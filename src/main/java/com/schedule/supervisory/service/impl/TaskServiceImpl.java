@@ -431,7 +431,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
 
 //        queryWrapper.apply("updated_at > deadline");
-        queryWrapper.ge(Task::getOverdueDays, 0); //当超时时间>0,并且status不为6或者9
+        queryWrapper.gt(Task::getOverdueDays, 0); //当超时时间>0,并且status不为6或者9
 
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {

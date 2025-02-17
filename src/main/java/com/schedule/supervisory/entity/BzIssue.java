@@ -17,6 +17,9 @@ public class BzIssue {
     private Integer predictedGear; //预估档位
     private String creator; // 创建人
     private String creatorId; // 创建人id
+    private Integer dateType; // 时间类型
+    private Integer year; // 年份
+    private Integer quarter; // 季度
     private java.sql.Timestamp createdAt; // 创建时间
     private java.sql.Timestamp updatedAt; // 更新时间
 }

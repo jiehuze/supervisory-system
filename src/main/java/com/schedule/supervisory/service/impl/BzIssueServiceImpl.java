@@ -7,7 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueMapper;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
+import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzIssueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +42,7 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
-    public IPage<BzIssue> getBzIssueByConditions(BzIssue queryBzIssue, int pageNum, int pageSize) {
+    public IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize) {
         //todo 读取用户的权限，根据权限判断要读取什么样的数据
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
@@ -61,13 +64,53 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
             queryWrapper.eq(BzIssue::getPredictedGear, queryBzIssue.getPredictedGear());
         }
 
+        if (queryBzIssue.getActualGear() != null) {
+            queryWrapper.eq(BzIssue::getActualGear, queryBzIssue.getActualGear());
+        }
+
+        // 添加创建时间范围的筛选条件
+        if (queryBzIssue.getCreatedAtStart() != null && queryBzIssue.getCreatedAtEnd() != null) {
+            queryWrapper.between(BzIssue::getCreatedAt, queryBzIssue.getCreatedAtStart(), queryBzIssue.getCreatedAtEnd());
+        }
+
+        if (queryBzIssue.getDateType() != null) {
+            queryWrapper.eq(BzIssue::getDateType, queryBzIssue.getDateType());
+            if (queryBzIssue.getYear() != null) {
+                queryWrapper.eq(BzIssue::getYear, queryBzIssue.getYear());
+            }
+            if (queryBzIssue.getQuarter() != null) {
+                queryWrapper.eq(BzIssue::getQuarter, queryBzIssue.getQuarter());
+            }
+        }
+
         queryWrapper.orderByDesc(BzIssue::getId);
 
         return page(page, queryWrapper);
     }
 
     @Override
-    public boolean updateBzFrom(BzIssue bzIssue) {
+    public long countBzIssue(BzIssue queryBzIssue) {
+        LambdaQueryWrapper<BzIssue> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryBzIssue.getTypeId() != null) {
+            queryWrapper.eq(BzIssue::getTypeId, queryBzIssue.getTypeId());
+        } else {
+//            return -1;
+        }
+        //如果为1
+        if (queryBzIssue.getDateType() == 1) {
+            queryWrapper.eq(BzIssue::getDateType, queryBzIssue.getDateType());
+            queryWrapper.eq(BzIssue::getYear, queryBzIssue.getYear());
+        } else if (queryBzIssue.getDateType() == 2) {
+            queryWrapper.eq(BzIssue::getDateType, queryBzIssue.getDateType());
+            queryWrapper.eq(BzIssue::getYear, queryBzIssue.getYear());
+            queryWrapper.eq(BzIssue::getQuarter, queryBzIssue.getQuarter());
+        }
+
+        return count(queryWrapper);
+    }
+
+    @Override
+    public boolean updateBzIssue(BzIssue bzIssue) {
         LambdaUpdateWrapper<BzIssue> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzIssue::getId, bzIssue.getId())
                 .set(BzIssue::getActualGear, bzIssue.getActualGear())

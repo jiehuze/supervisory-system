@@ -38,7 +38,7 @@ public class BzFormController {
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                             @ModelAttribute BzForm bzForm,
+                             @ModelAttribute BzSearchDTO bzForm,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
@@ -68,6 +68,13 @@ public class BzFormController {
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzFormDTO bzFromDTO) {
         BzForm bzForm = bzFromDTO.getBzForm();
+        long count = bzFormService.countBzForm(bzForm);
+        if (count == -1) {
+            return new BaseResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "参数错误", null, Integer.toString(0));
+        } else if (count > 0) {
+            return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
+        }
+
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
