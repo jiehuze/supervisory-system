@@ -18,6 +18,8 @@ public interface IBzIssueService extends IService<BzIssue> {
 
     IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize);
 
+    List<BzIssue> getGearsByConditions(BzSearchDTO queryBzIssue);
+
     public long countBzIssue(BzIssue queryBzIssue);
 
     boolean updateBzIssue(BzIssue bzIssue);

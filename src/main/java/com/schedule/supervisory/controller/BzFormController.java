@@ -6,12 +6,14 @@ import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
+import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,7 +107,7 @@ public class BzFormController {
     public BaseResponse statisticalType() {
         ArrayList<DataTypeDTO> dataList = new ArrayList<>();
         // 初始化数据
-        for (int type = 1; type <= 8; type++) {
+        for (int type = 0; type <= 8; type++) {
             DataTypeDTO dataTypeDTO = new DataTypeDTO();
             dataTypeDTO.setTypeId(type);
             dataTypeDTO.setTotal(0);
@@ -119,6 +121,14 @@ public class BzFormController {
             dataList.add(dataTypeDTO);
         }
 
+        List<EffectiveGearCount> bzFormGearCounts = bzFormService.countGearCollect();
+        for (EffectiveGearCount bzFormGearCount : bzFormGearCounts) {
+            DataTypeDTO dataType = dataList.get(0);
+            CountDTO levelData = new CountDTO(bzFormGearCount.getCountEffectiveGear().intValue(), String.format("%d%%", 0));
+            dataType.getCountDTOMap().put(bzFormGearCount.getEffectiveGear(), levelData);
+            dataType.setTotal(dataType.getTotal() + bzFormGearCount.getCountEffectiveGear().intValue());
+        }
+
         List<Map<String, Object>> countList = bzFormService.countEffectiveGear();
 
         for (Map<String, Object> map : countList) {
@@ -129,14 +139,14 @@ public class BzFormController {
                 continue;
             }
 
-            DataTypeDTO dataType = dataList.get((Integer) map.get("type_id") - 1);
+            DataTypeDTO dataType = dataList.get((Integer) map.get("type_id"));
             CountDTO levelData = new CountDTO(((Long) map.get("count_effective_gear")).intValue(), String.format("%d%%", 0));
             dataType.getCountDTOMap().put((Integer) map.get("effective_gear"), levelData);
             dataType.setTotal(dataType.getTotal() + ((Long) map.get("count_effective_gear")).intValue());
         }
 
-        for (int type = 1; type <= 8; type++) {
-            DataTypeDTO dataTypeDTO = dataList.get(type - 1);
+        for (int type = 0; type <= 8; type++) {
+            DataTypeDTO dataTypeDTO = dataList.get(type);
             int total = dataTypeDTO.getTotal();
             if (total == 0) continue;
             for (int level = 1; level <= 5; level++) {
@@ -248,6 +258,53 @@ public class BzFormController {
                 collectMap.get(di.getNumber()).put(effectiveGearCount.getEffectiveGear(), countDTO);
             }
 
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", collectMap, Integer.toString(0));
+    }
+
+    @GetMapping("/grearsByDate")
+    public BaseResponse grearsByDate(@ModelAttribute BzSearchDTO bzSearch) {
+        LocalDate now = LocalDate.now();
+        List<DateInfo> dateInfos = null;
+        if (bzSearch.getDateType() == 2) {
+            dateInfos = DateUtils.getCurrentQuarters();
+        } else {
+            dateInfos = DateUtils.getCurrentYears();
+        }
+
+        List<BzForm> gearsByConditions = bzFormService.getGearsByConditions(bzSearch);
+        // 第一层：季度或者年；第二层：八层表；值为1-5（A-E）
+        HashMap<Integer, Map<Integer, Integer>> collectMap = new HashMap<>();
+
+        for (DateInfo dateInfo : dateInfos) {
+            Map<Integer, Integer> dateMap = new HashMap<>();
+            for (int i = 1; i <= 8; i++) {
+                dateMap.put(i, 0);
+            }
+            collectMap.put(dateInfo.getNumber(), dateMap);
+        }
+
+        for (BzForm bzForm : gearsByConditions) {
+
+            Map<Integer, Integer> typeIdS = null;
+            if (bzSearch.getDateType() == 1) { //按照年
+//                if (bzForm.getYear() > now.getYear()) {
+//                    continue;
+//                }
+                typeIdS = collectMap.get(bzForm.getYear());
+            } else {
+//                if (bzForm.getQuarter() > ((now.getMonthValue() - 1) / 3 + 1)) {
+//                    continue;
+//                }
+                typeIdS = collectMap.get(bzForm.getQuarter());
+            }
+
+            Integer gear = bzForm.getActualGear();
+            if (bzForm.getActualGear() == null) {
+                gear = bzForm.getPredictedGear();
+            }
+            typeIdS.put(bzForm.getTypeId(), gear);
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", collectMap, Integer.toString(0));

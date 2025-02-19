@@ -101,7 +101,8 @@ public class DateUtils {
         LocalDate now = LocalDate.now();
         int currentMonth = now.getMonthValue();
         int currentYear = now.getYear();
-        int currentQuarter = (currentMonth - 1) / 3 + 1; // 计算当前季度
+//        int currentQuarter = (currentMonth - 1) / 3 + 1; // 计算当前季度
+        int currentQuarter = 4; // 计算当前季度
 
         List<DateInfo> quarters = new ArrayList<>();
 
@@ -133,7 +134,8 @@ public class DateUtils {
         List<DateInfo> dateInfos = new ArrayList<>();
 
         LocalDate now = LocalDate.now();
-        int currentYear = now.getYear();
+//        int currentYear = now.getYear();
+        int currentYear = 2027;
 
         for (int year = 2025; year <= currentYear; year++) {
             LocalDateTime yearStart = LocalDate.of(year, 1, 1).atStartOfDay();

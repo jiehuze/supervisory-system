@@ -11,7 +11,6 @@ import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzIssue;
-import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzIssueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,9 +51,9 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
 
         // 构建查询条件
         LambdaQueryWrapper<BzIssue> queryWrapper = new LambdaQueryWrapper<>();
-        if (queryBzIssue.getName() != null && !queryBzIssue.getName().isEmpty()) {
-            queryWrapper.like(BzIssue::getName, queryBzIssue.getName());
-        }
+//        if (queryBzIssue.getName() != null && !queryBzIssue.getName().isEmpty()) {
+//            queryWrapper.like(BzIssue::getName, queryBzIssue.getName());
+//        }
 
         if (queryBzIssue.getTypeId() != null) {
             queryWrapper.eq(BzIssue::getTypeId, queryBzIssue.getTypeId());
@@ -89,6 +88,21 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
+    public List<BzIssue> getGearsByConditions(BzSearchDTO queryBzIssue) {
+        LambdaQueryWrapper<BzIssue> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryBzIssue.getDateType() != null) {
+            queryWrapper.eq(BzIssue::getDateType, queryBzIssue.getDateType());
+            if (queryBzIssue.getYear() != null) {
+                queryWrapper.eq(BzIssue::getYear, queryBzIssue.getYear());
+            }
+            if (queryBzIssue.getQuarter() != null) {
+                queryWrapper.eq(BzIssue::getQuarter, queryBzIssue.getQuarter());
+            }
+        }
+        return list(queryWrapper);
+    }
+
+    @Override
     public long countBzIssue(BzIssue queryBzIssue) {
         LambdaQueryWrapper<BzIssue> queryWrapper = new LambdaQueryWrapper<>();
         if (queryBzIssue.getTypeId() != null) {
@@ -116,8 +130,11 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
                 .set(BzIssue::getActualGear, bzIssue.getActualGear())
                 .set(BzIssue::getPredictedGear, bzIssue.getPredictedGear())
                 .set(BzIssue::getType, bzIssue.getType())
-                .set(BzIssue::getName, bzIssue.getName())
+//                .set(BzIssue::getName, bzIssue.getName())
                 .set(BzIssue::getFillCycle, bzIssue.getFillCycle())
+                .set(BzIssue::getDateType, bzIssue.getDateType())
+                .set(BzIssue::getYear, bzIssue.getYear())
+                .set(BzIssue::getQuarter, bzIssue.getQuarter())
                 .set(BzIssue::getTypeId, bzIssue.getTypeId());
         return update(updateWrapper);
     }

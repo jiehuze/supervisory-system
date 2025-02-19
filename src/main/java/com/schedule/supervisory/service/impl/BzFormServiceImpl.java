@@ -10,7 +10,6 @@ import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
-import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,9 +49,9 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
 
         // 构建查询条件
         LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
-        if (queryBzform.getName() != null && !queryBzform.getName().isEmpty()) {
-            queryWrapper.like(BzForm::getName, queryBzform.getName());
-        }
+//        if (queryBzform.getName() != null && !queryBzform.getName().isEmpty()) {
+//            queryWrapper.like(BzForm::getName, queryBzform.getName());
+//        }
 
         if (queryBzform.getTypeId() != null) {
             queryWrapper.eq(BzForm::getTypeId, queryBzform.getTypeId());
@@ -87,6 +86,21 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
+    public List<BzForm> getGearsByConditions(BzSearchDTO queryBzSearch) {
+        LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryBzSearch.getDateType() != null) {
+            queryWrapper.eq(BzForm::getDateType, queryBzSearch.getDateType());
+            if (queryBzSearch.getYear() != null) {
+                queryWrapper.eq(BzForm::getYear, queryBzSearch.getYear());
+            }
+            if (queryBzSearch.getQuarter() != null) {
+                queryWrapper.eq(BzForm::getQuarter, queryBzSearch.getQuarter());
+            }
+        }
+        return list(queryWrapper);
+    }
+
+    @Override
     public long countBzForm(BzForm queryBzform) {
         LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
         if (queryBzform.getTypeId() != null) {
@@ -114,8 +128,11 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
                 .set(BzForm::getActualGear, bzForm.getActualGear())
                 .set(BzForm::getPredictedGear, bzForm.getPredictedGear())
                 .set(BzForm::getType, bzForm.getType())
-                .set(BzForm::getName, bzForm.getName())
+//                .set(BzForm::getName, bzForm.getName())
                 .set(BzForm::getFillCycle, bzForm.getFillCycle())
+                .set(BzForm::getDateType, bzForm.getDateType())
+                .set(BzForm::getYear, bzForm.getYear())
+                .set(BzForm::getQuarter, bzForm.getQuarter())
                 .set(BzForm::getTypeId, bzForm.getTypeId());
         return update(updateWrapper);
     }
