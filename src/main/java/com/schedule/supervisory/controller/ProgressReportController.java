@@ -2,7 +2,9 @@ package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.ProgressReport;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
+import com.schedule.supervisory.service.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ public class ProgressReportController {
 
     @Autowired
     private IProgressReportService progressReportService;
+
+    @Autowired
+    private ITaskService taskService;
 
     @GetMapping
     public List<ProgressReport> getAllProgressReports() {
@@ -62,6 +67,25 @@ public class ProgressReportController {
     @PutMapping("/{id}/revoke")
     public BaseResponse revoke(@PathVariable Integer id, @RequestBody ProgressReport progressReport) {
         boolean update = progressReportService.revoke(id, progressReport.getStatus(), progressReport.getRevokeDesc());
+
+        ProgressReport report = progressReportService.getById(id);
+        if (report.getStatus() == 1) {
+            ProgressReport newProgressReportByTaskId = progressReportService.getNewProgressReportByTaskId(report.getTaskId());
+            if (newProgressReportByTaskId == null)
+                newProgressReportByTaskId = new ProgressReport();
+
+            Task task = taskService.getById(report.getTaskId());
+            task.setProgress(newProgressReportByTaskId.getProgress() != null ? newProgressReportByTaskId.getProgress() : "");
+            task.setIssuesAndChallenges(newProgressReportByTaskId.getIssuesAndChallenges() != null ? newProgressReportByTaskId.getIssuesAndChallenges() : "");
+            task.setRequiresCoordination(newProgressReportByTaskId.getRequiresCoordination() == null ? false : newProgressReportByTaskId.getRequiresCoordination());
+            task.setNextSteps(newProgressReportByTaskId.getNextSteps() != null ? newProgressReportByTaskId.getNextSteps() : "");
+            task.setHandler(newProgressReportByTaskId.getHandler() != null ? newProgressReportByTaskId.getHandler() : "");
+            task.setPhone(newProgressReportByTaskId.getPhone() != null ? newProgressReportByTaskId.getPhone() : "");
+            task.setTbFileUrl(newProgressReportByTaskId.getTbFileUrl() != null ? newProgressReportByTaskId.getTbFileUrl() : "");
+
+            taskService.updateCbReport(task);
+        }
+
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 }

@@ -139,7 +139,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 queryWrapper.ne(Task::getStatus, 6);
                 queryWrapper.ne(Task::getStatus, 9);
 //                queryWrapper.apply("updated_at > deadline");
-                queryWrapper.ge(Task::getOverdueDays, 0); //超期时间大于0
+                queryWrapper.gt(Task::getOverdueDays, 0); //超期时间大于0
 
             } else {
                 queryWrapper.eq(Task::getStatus, queryTask.getStatus());
@@ -449,11 +449,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
 
-        queryWrapper.and(wrapper -> wrapper
-                .ne(Task::getStatus, 6)
-                .or()
-                .ne(Task::getStatus, 9)
-        );
+//        queryWrapper.and(wrapper -> wrapper
+//                .ne(Task::getStatus, 6)
+//                .or()
+//                .ne(Task::getStatus, 9)
+//        );
+        queryWrapper.ne(Task::getStatus, 6);
+        queryWrapper.ne(Task::getStatus, 9);
         // 处理leadingOfficialId模糊查询的情况
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {

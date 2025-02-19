@@ -1,6 +1,7 @@
 package com.schedule.supervisory.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.ProgressReportMapper;
@@ -60,6 +61,17 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
     @Override
     public List<ProgressReport> getProgressReportsByTaskId(Long taskId) {
         return baseMapper.selectByTaskIdOrderByCreatedAtDesc(taskId);
+    }
+
+    @Override
+    public ProgressReport getNewProgressReportByTaskId(Long taskId) {
+        LambdaQueryWrapper<ProgressReport> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ProgressReport::getTaskId, taskId) // 替换 yourTaskId 为实际的 task_id 值
+                .eq(ProgressReport::getStatus, 3) //不为3的
+                .orderByDesc(ProgressReport::getId)
+                .last("LIMIT 1");
+
+        return getOne(queryWrapper);
     }
 
     @Override

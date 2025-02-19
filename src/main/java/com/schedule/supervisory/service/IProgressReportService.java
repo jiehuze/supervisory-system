@@ -18,6 +18,7 @@ public interface IProgressReportService extends IService<ProgressReport> {
     void deleteProgressReport(Long id);
 
     List<ProgressReport> getProgressReportsByTaskId(Long taskId);
+    ProgressReport getNewProgressReportByTaskId(Long taskId);
 
     boolean updateStatus(Integer id, Integer status);
 
