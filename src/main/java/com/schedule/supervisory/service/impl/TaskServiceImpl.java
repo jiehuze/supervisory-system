@@ -62,6 +62,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
+    public List<Task> listTasksBySource(String source) {
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(Task::getSource, source);
+        return taskMapper.selectList(queryWrapper);
+    }
+
+    @Override
     public List<Task> ListTasksOverdue() {
         LocalDateTime now = LocalDateTime.now();
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
@@ -107,7 +114,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (deptDTOs != null && deptDTOs.size() > 0) {
             queryWrapper.and(wrapper -> {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
+                    wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId())); //牵头单位
+                    wrapper.or(w -> w.like(Task::getCoOrganizerId, deptDTO.getDeptId())); //增加协办单位查询
                 }
             });
         } else if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
@@ -150,6 +158,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
 
         queryWrapper.orderByDesc(Task::getId);
+        // 使用 CASE WHEN 实现自定义排序
+//        queryWrapper.orderByAsc(Task::getStatus,
+//                "CASE " +
+//                        "WHEN status = 3 THEN 1 " +
+//                        "WHEN status = 4 THEN 2 " +
+//                        "WHEN status = 1 THEN 3 " +
+//                        "WHEN status = 2 THEN 4 " +
+//                        "WHEN status = 6 THEN 5 " +
+//                        "WHEN status = 7 THEN 6 " +
+//                        "WHEN status = 8 THEN 7 " +
+//                        "ELSE 8 END");
 
         return page(page, queryWrapper);
     }
@@ -594,5 +613,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         return taskMapper.selectList(queryWrapper);
     }
+
+//    @Override
+//    public List<String> getDistinctSources() {
+//        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.select(Task::getSource).groupBy(Task::getSource);
+//        return this.listObjs(queryWrapper, obj -> obj != null ? obj.toString() : null);
+//    }
 
 }

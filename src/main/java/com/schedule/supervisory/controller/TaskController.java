@@ -400,4 +400,19 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksDueInHours, Integer.toString(0));
 
     }
+
+    @GetMapping("/getAutoReportInfo")
+    public BaseResponse getAutoReportInfo(@ModelAttribute TaskSearchDTO taskSearchDTO) {
+
+        List<Task> tasks = taskService.listTasksBySource(taskSearchDTO.getSource());
+        List<Long> taskIds = new ArrayList<>();
+        for (Task task : tasks) {
+            taskIds.add(task.getId());
+        }
+        List<ProgressReport> progressReports = progressReportService.getProgressReportByTaskIds(taskIds);
+        progressReports.get(0);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", progressReports.get(0), Integer.toString(0));
+
+    }
 }

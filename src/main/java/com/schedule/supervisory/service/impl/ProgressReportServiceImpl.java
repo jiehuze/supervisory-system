@@ -75,6 +75,19 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
     }
 
     @Override
+    public List<ProgressReport> getProgressReportByTaskIds(List<Long> taskIds) {
+        LambdaQueryWrapper<ProgressReport> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ProgressReport::getTaskId, taskIds) // 替换 yourTaskId 为实际的 task_id 值
+//                .eq(ProgressReport::getStatus, 3) //不为3的
+                .isNotNull(ProgressReport::getHandler)
+                .isNotNull(ProgressReport::getPhone)
+                .orderByDesc(ProgressReport::getId)
+                .last("LIMIT 1");
+
+        return list(queryWrapper);
+    }
+
+    @Override
     public boolean updateStatus(Integer id, Integer status) {
         LambdaUpdateWrapper<ProgressReport> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(ProgressReport::getId, id)

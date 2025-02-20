@@ -49,6 +49,7 @@ public interface ITaskService extends IService<Task> {
      * @return 符合条件的任务列表
      */
     List<Task> listTasksByStatus(Integer status);
+    List<Task> listTasksBySource(String source);
 
     List<Task> ListTasksOverdue();
 
@@ -99,4 +100,7 @@ public interface ITaskService extends IService<Task> {
     void updateOverdueDays();
 
     public List<Task> getTasksDueInHours(int hours);
+
+    //获取去重的source
+//    public List<String> getDistinctSources();
 }
