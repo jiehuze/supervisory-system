@@ -242,8 +242,8 @@ public class HttpUtil {
 
         // Parameters
         String grantType = "client_credentials";
-        String clientId = "pig";
-        String clientSecret = "pig";
+        String clientId = "wYMbSytEeKF4hEa833fB0xr63JRfDe9C";
+        String clientSecret = "17f9znWjY0TfSJi1f8EtC8nwXhJsDC7F6X6pnJ8HJNDAYP3DnB5YzWQhhjCxP23JwD0WH5MwNB5ycpP4xaZGBrAhsNFmnj2wXsn1Y0S0XRnQAf5JW0hhNB7MrTbe4zaz";
 
         // Build the request body
         String requestBody = "grant_type=" + grantType +

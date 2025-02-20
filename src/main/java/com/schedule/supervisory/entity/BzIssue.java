@@ -20,6 +20,8 @@ public class BzIssue {
     private Integer dateType; // 时间类型
     private Integer year; // 年份
     private Integer quarter; // 季度
+    private String leadingDepartment; // 牵头单位 'leading_department'
+    private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
     private java.sql.Timestamp createdAt; // 创建时间
     private java.sql.Timestamp updatedAt; // 更新时间
 }

@@ -19,4 +19,5 @@ public class BzSearchDTO implements Serializable {
     private Integer dateType; // 新增的日期类型字段
     private Integer year; // 年份
     private Integer quarter; // 季度
+    private String userId;
 }
