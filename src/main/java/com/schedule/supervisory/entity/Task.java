@@ -39,6 +39,7 @@ public class Task {
      * 9：已取消
      * */
     private Integer status; // 任务状态 'status'
+    private Integer checkStatus;
     private Integer overdueDays; // 新增逾期天数字段，当状态为3时，计算超期天数
     private Boolean isUrgent; //  是否催办 'is_urgent'
     private Boolean isReview; // 是否需要承办领导审核 'is_review'

@@ -19,7 +19,7 @@ public class BzFormTarget {
     private Integer actualGear;
     private String workProgress;
     private String issues;
-    // 审核状态：0：未提交；1：通过；2：退回；
+    // 审核状态：0：提交；1：通过；2：退回；
     private Integer reviewStatus;
     private String reviewerId;
     private String operator;

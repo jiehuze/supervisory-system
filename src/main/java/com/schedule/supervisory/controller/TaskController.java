@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class TaskController {
 
     @Autowired
     private ParameterDTO parameterDTO;
+    @Autowired
+    private ICheckService checkService;
 
     @PostMapping
     public BaseResponse createTask(@RequestBody Task task) {
@@ -181,7 +184,21 @@ public class TaskController {
         System.out.println("searchTasks token：" + authorizationHeader);
         IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
 
-        return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
+        ArrayList<Check> checks = new ArrayList<>();
+        for (Task task : tasksByConditions.getRecords()) {
+            Check check = new Check();
+            check.setTaskId(task.getId().intValue());
+            check = checkService.getByOnlyId(check);
+            if (check != null) {
+                checks.add(check);
+            }
+        }
+
+        HashMap<String, Object> resultData = new HashMap<>();
+        resultData.put("pages", tasksByConditions);
+        resultData.put("checks", checks);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", resultData, Integer.toString(0));
     }
 
     @PutMapping("/{taskId}/status")

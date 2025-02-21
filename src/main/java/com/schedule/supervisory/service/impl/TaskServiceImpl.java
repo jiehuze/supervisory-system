@@ -83,12 +83,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
 
-        //todo 读取用户的权限，根据权限判断要读取什么样的数据
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
         //所以看获取的人员部门数组；如果数组为空：判断创建人或者责任人；如果不为空，需要查询包含部门的数据
         // 创建分页对象
-        System.out.println("---------------pagenum:" + pageNum);
         Page<Task> page = new Page<>(pageNum, pageSize);
 
         // 构建查询条件
@@ -157,18 +155,25 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.ne(Task::getStatus, 9);
         }
 
-        queryWrapper.orderByDesc(Task::getId);
         // 使用 CASE WHEN 实现自定义排序
-//        queryWrapper.orderByAsc(Task::getStatus,
-//                "CASE " +
-//                        "WHEN status = 3 THEN 1 " +
-//                        "WHEN status = 4 THEN 2 " +
-//                        "WHEN status = 1 THEN 3 " +
-//                        "WHEN status = 2 THEN 4 " +
-//                        "WHEN status = 6 THEN 5 " +
-//                        "WHEN status = 7 THEN 6 " +
-//                        "WHEN status = 8 THEN 7 " +
-//                        "ELSE 8 END");
+        // 使用 CASE 语句来按照特定顺序排序
+        String caseSortSql = "CASE status " +
+                "WHEN 3 THEN 1 " +
+                "WHEN 2 THEN 2 " +
+                "WHEN 1 THEN 3 " +
+                "WHEN 4 THEN 4 " +
+                "WHEN 5 THEN 5 " +
+                "WHEN 7 THEN 6 " +
+                "WHEN 8 THEN 7 " +
+                "WHEN 10 THEN 8 " +
+                "WHEN 11 THEN 9 " +
+                "WHEN 6 THEN 10 " +
+                "WHEN 9 THEN 11 " +
+                "END, " + " overdue_days DESC, id DESC";
+//        queryWrapper.orderByDesc(Task::getOverdueDays);
+        queryWrapper.last("ORDER BY " + caseSortSql);
+        // 使用 CASE 语句按 status 排序
+//        queryWrapper.orderByDesc(Task::getId);
 
         return page(page, queryWrapper);
     }
