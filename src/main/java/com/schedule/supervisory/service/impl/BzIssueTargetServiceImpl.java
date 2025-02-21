@@ -13,13 +13,52 @@ import java.util.List;
 @Service
 public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, BzIssueTarget> implements IBzIssueTargetService {
     @Override
+    public boolean updateProgressById(BzIssueTarget bzIssueTarget) {
+        LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssueTarget::getId, bzIssueTarget.getId());
+        if (bzIssueTarget.getBzIssueId() != null) {
+            updateWrapper.set(BzIssueTarget::getBzIssueId, bzIssueTarget.getBzIssueId());
+        }
+        if (bzIssueTarget.getDept() != null) {
+            updateWrapper.set(BzIssueTarget::getDept, bzIssueTarget.getDept());
+        }
+        if (bzIssueTarget.getDeptId() != null) {
+            updateWrapper.set(BzIssueTarget::getDeptId, bzIssueTarget.getDeptId());
+        }
+        if (bzIssueTarget.getName() != null) {
+            updateWrapper.set(BzIssueTarget::getName, bzIssueTarget.getName());
+        }
+        if (bzIssueTarget.getActualGear() != null) {
+            updateWrapper.set(BzIssueTarget::getActualGear, bzIssueTarget.getActualGear());
+        }
+        if (bzIssueTarget.getPredictedGear() != null) {
+            updateWrapper.set(BzIssueTarget::getPredictedGear, bzIssueTarget.getPredictedGear());
+        }
+        if (bzIssueTarget.getIssues() != null) {
+            updateWrapper.set(BzIssueTarget::getIssues, bzIssueTarget.getIssues());
+        }
+        if (bzIssueTarget.getWorkProgress() != null) {
+            updateWrapper.set(BzIssueTarget::getWorkProgress, bzIssueTarget.getWorkProgress());
+        }
+        return update(updateWrapper);
+    }
+
+    @Override
     public boolean updateProgress(BzIssueTarget bzIssueTarget) {
         LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(BzIssueTarget::getId, bzIssueTarget.getId())
-                .set(BzIssueTarget::getActualGear, bzIssueTarget.getActualGear())
-                .set(BzIssueTarget::getPredictedGear, bzIssueTarget.getPredictedGear())
-                .set(BzIssueTarget::getIssues, bzIssueTarget.getIssues())
-                .set(BzIssueTarget::getWorkProgress, bzIssueTarget.getWorkProgress());
+        updateWrapper.eq(BzIssueTarget::getId, bzIssueTarget.getId());
+        if (bzIssueTarget.getActualGear() != null) {
+            updateWrapper.set(BzIssueTarget::getActualGear, bzIssueTarget.getActualGear());
+        }
+        if (bzIssueTarget.getPredictedGear() != null) {
+            updateWrapper.set(BzIssueTarget::getPredictedGear, bzIssueTarget.getPredictedGear());
+        }
+        if (bzIssueTarget.getIssues() != null) {
+            updateWrapper.set(BzIssueTarget::getIssues, bzIssueTarget.getIssues());
+        }
+        if (bzIssueTarget.getWorkProgress() != null) {
+            updateWrapper.set(BzIssueTarget::getWorkProgress, bzIssueTarget.getWorkProgress());
+        }
         return update(updateWrapper);
     }
 

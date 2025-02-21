@@ -51,7 +51,7 @@ public class BzFormTargetController {
     // 更新数据
     @PutMapping("/update")
     public BaseResponse update(@RequestBody BzFormTarget bzFormTarget) {
-        boolean update = bzFormTargetService.updateById(bzFormTarget);
+        boolean update = bzFormTargetService.updateProgressById(bzFormTarget);
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 

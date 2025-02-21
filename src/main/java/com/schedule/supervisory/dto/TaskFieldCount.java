@@ -8,6 +8,6 @@ import java.io.Serializable;
 public class TaskFieldCount implements Serializable {
     private int total;
     private int complete;
-    private int fieldId;
+    private Long fieldId;
     private String fieldName;
 }

@@ -77,6 +77,8 @@ public class BzFormController {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
 
+        bzForm.setAssigner(bzForm.getOperator());
+        bzForm.setAssignerId(bzForm.getOperatorId());
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));

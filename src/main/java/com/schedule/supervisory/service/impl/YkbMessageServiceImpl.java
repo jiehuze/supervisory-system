@@ -95,7 +95,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = "您有一个新任务需要接收，请及时处理。";
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), List.of(deptIds));//承办人
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR", "XBLD", "XBLD"), List.of(deptIds));//承办人
 
         ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
         return true;

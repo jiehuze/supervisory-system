@@ -43,8 +43,9 @@ public class BzTypeController {
     }
 
     @DeleteMapping("/{id}")
-    public BaseResponse delete(@PathVariable Integer id) {
-        boolean result = bzTypeService.removeById(id);
+    public BaseResponse delete(@PathVariable Long id) {
+//        boolean result = bzTypeService.removeById(id);
+        boolean result = bzTypeService.deleteById(id);
         return new BaseResponse(HttpStatus.OK.value(), "success", result, Integer.toString(0));
     }
 }

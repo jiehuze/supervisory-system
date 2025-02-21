@@ -50,7 +50,7 @@ public class BzIssueTargetController {
     // 更新数据
     @PutMapping("/update")
     public BaseResponse update(@RequestBody BzIssueTarget bzIssueTarget) {
-        boolean update = bzIssueTargetService.updateById(bzIssueTarget);
+        boolean update = bzIssueTargetService.updateProgressById(bzIssueTarget);
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 

@@ -1,8 +1,17 @@
 package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.entity.BzType;
 import com.schedule.supervisory.entity.Field;
 
+import java.util.List;
+
 public interface IFieldService extends IService<Field> {
-    // 如果有特殊需求可以在这里定义更多方法
+    List<Field> getFields();
+
+    Field getFieldByName(String name);
+
+    boolean deleteById(Long id);
+
+    boolean recover(Long id);
 }

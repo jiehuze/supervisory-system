@@ -14,6 +14,8 @@ public class BzFormTargetRecord {
     private Long targetId;
     private String workProgress;
     private String issue;
+    private String operator;
+    private String operatorId;
     private LocalDateTime createdAt;
     private String updatedBy;
 }

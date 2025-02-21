@@ -66,12 +66,12 @@ public class TaskController {
                 if (id == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
                 }
-
-                ykbMessageService.sendMessageForNewTask(task); // 发送消息
-
                 if (task.getLeadingDepartmentId() == null || task.getResponsiblePerson() == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "未填写牵头单位和责任人", id, Integer.toString(0));
                 }
+
+                ykbMessageService.sendMessageForNewTask(task); // 发送消息
+
                 String[] departmentIds = task.getLeadingDepartmentId().split(",");
                 String[] person = task.getResponsiblePerson().split(",");
                 for (int i = 0; i < departmentIds.length; i++) {

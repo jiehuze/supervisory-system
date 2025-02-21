@@ -6,6 +6,7 @@ import com.schedule.supervisory.entity.BzFormTarget;
 import java.util.List;
 
 public interface IBzFormTargetService extends IService<BzFormTarget> {
+    boolean updateProgressById(BzFormTarget bzFormTarget);
     boolean updateProgress(BzFormTarget bzFormTarget);
 
     boolean reviewProgress(BzFormTarget bzFormTarget);

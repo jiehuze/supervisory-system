@@ -20,6 +20,8 @@ public class BzType {
 
     private Integer typeId;
 
+    private boolean delete;
+
     private Date createdAt;
 
 }

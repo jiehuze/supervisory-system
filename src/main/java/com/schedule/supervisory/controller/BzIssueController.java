@@ -72,6 +72,8 @@ public class BzIssueController {
         } else if (count > 0) {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
+        bzIssue.setAssigner(bzIssue.getOperator());
+        bzIssue.setAssignerId(bzIssue.getOperatorId());
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));

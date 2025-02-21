@@ -129,6 +129,8 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
         updateWrapper.eq(BzIssue::getId, bzIssue.getId())
                 .set(BzIssue::getActualGear, bzIssue.getActualGear())
                 .set(BzIssue::getPredictedGear, bzIssue.getPredictedGear())
+                .set(BzIssue::getOperator, bzIssue.getOperator())
+                .set(BzIssue::getOperatorId, bzIssue.getOperatorId())
                 .set(BzIssue::getType, bzIssue.getType())
 //                .set(BzIssue::getName, bzIssue.getName())
                 .set(BzIssue::getFillCycle, bzIssue.getFillCycle())

@@ -14,13 +14,52 @@ import java.util.List;
 @Service
 public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzFormTarget> implements IBzFormTargetService {
     @Override
+    public boolean updateProgressById(BzFormTarget bzFormTarget) {
+        LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzFormTarget::getId, bzFormTarget.getId());
+        if (bzFormTarget.getBzFormId() != null) {
+            updateWrapper.set(BzFormTarget::getBzFormId, bzFormTarget.getBzFormId());
+        }
+        if (bzFormTarget.getDept() != null) {
+            updateWrapper.set(BzFormTarget::getDept, bzFormTarget.getDept());
+        }
+        if (bzFormTarget.getDeptId() != null) {
+            updateWrapper.set(BzFormTarget::getDeptId, bzFormTarget.getDeptId());
+        }
+        if (bzFormTarget.getName() != null) {
+            updateWrapper.set(BzFormTarget::getName, bzFormTarget.getName());
+        }
+        if (bzFormTarget.getActualGear() != null) {
+            updateWrapper.set(BzFormTarget::getActualGear, bzFormTarget.getActualGear());
+        }
+        if (bzFormTarget.getPredictedGear() != null) {
+            updateWrapper.set(BzFormTarget::getPredictedGear, bzFormTarget.getPredictedGear());
+        }
+        if (bzFormTarget.getIssues() != null) {
+            updateWrapper.set(BzFormTarget::getIssues, bzFormTarget.getIssues());
+        }
+        if (bzFormTarget.getWorkProgress() != null) {
+            updateWrapper.set(BzFormTarget::getWorkProgress, bzFormTarget.getWorkProgress());
+        }
+        return update(updateWrapper);
+    }
+
+    @Override
     public boolean updateProgress(BzFormTarget bzFormTarget) {
         LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(BzFormTarget::getId, bzFormTarget.getId())
-                .set(BzFormTarget::getActualGear, bzFormTarget.getActualGear())
-                .set(BzFormTarget::getPredictedGear, bzFormTarget.getPredictedGear())
-                .set(BzFormTarget::getIssues, bzFormTarget.getIssues())
-                .set(BzFormTarget::getWorkProgress, bzFormTarget.getWorkProgress());
+        updateWrapper.eq(BzFormTarget::getId, bzFormTarget.getId());
+        if (bzFormTarget.getActualGear() != null) {
+            updateWrapper.set(BzFormTarget::getActualGear, bzFormTarget.getActualGear());
+        }
+        if (bzFormTarget.getPredictedGear() != null) {
+            updateWrapper.set(BzFormTarget::getPredictedGear, bzFormTarget.getPredictedGear());
+        }
+        if (bzFormTarget.getIssues() != null) {
+            updateWrapper.set(BzFormTarget::getIssues, bzFormTarget.getIssues());
+        }
+        if (bzFormTarget.getWorkProgress() != null) {
+            updateWrapper.set(BzFormTarget::getWorkProgress, bzFormTarget.getWorkProgress());
+        }
         return update(updateWrapper);
     }
 

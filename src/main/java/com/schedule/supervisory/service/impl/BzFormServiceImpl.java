@@ -127,6 +127,8 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
         updateWrapper.eq(BzForm::getId, bzForm.getId())
                 .set(BzForm::getActualGear, bzForm.getActualGear())
                 .set(BzForm::getPredictedGear, bzForm.getPredictedGear())
+                .set(BzForm::getOperator, bzForm.getOperator())
+                .set(BzForm::getOperatorId, bzForm.getOperatorId())
                 .set(BzForm::getType, bzForm.getType())
 //                .set(BzForm::getName, bzForm.getName())
                 .set(BzForm::getFillCycle, bzForm.getFillCycle())

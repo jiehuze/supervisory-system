@@ -24,6 +24,10 @@ public class BzIssue {
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
     private String responsibleDept; // 责任部门
     private String responsibleDeptId; // 责任部门id
+    private String operator;
+    private String operatorId;
+    private String assigner; //交办人
+    private String assignerId; //交办人Id
     private java.sql.Timestamp createdAt; // 创建时间
     private java.sql.Timestamp updatedAt; // 更新时间
 }
