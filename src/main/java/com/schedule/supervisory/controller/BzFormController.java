@@ -10,6 +10,7 @@ import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.DateUtils;
 import com.schedule.utils.HttpUtil;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,7 @@ public class BzFormController {
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                             @ModelAttribute BzSearchDTO bzForm,
+                             @ModelAttribute BzSearchDTO bzSearchDTO,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
@@ -61,7 +62,17 @@ public class BzFormController {
         } else {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
-        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzForm, pageNum, pageSize, deptDTOs);
+        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzSearchDTO, pageNum, pageSize, deptDTOs);
+        for (BzForm bzForm : bzFormByConditions.getRecords()) {
+            System.out.println("============bzForm: " + bzForm);
+            bzSearchDTO.setBzFormId(bzForm.getId());
+            bzSearchDTO.setCheckStatus("4");
+            System.out.println("============bzSearchDTO: " + bzSearchDTO);
+            List<BzFormTarget> bzFormTargets = bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs);
+            if (bzFormTargets != null && bzFormTargets.size() > 0) {
+                bzForm.setCheckStatus(util.joinString(bzForm.getCheckStatus(), "4"));
+            }
+        }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormByConditions, Integer.toString(0));
     }
@@ -83,6 +94,7 @@ public class BzFormController {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
+        bzSearchDTO.setBzFormId(bzSearchDTO.getId());
         bzFormDTO.setBzFormTargetList(bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormDTO, Integer.toString(0));

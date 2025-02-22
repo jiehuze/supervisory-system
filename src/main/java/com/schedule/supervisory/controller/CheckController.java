@@ -18,6 +18,9 @@ public class CheckController {
     private ITaskService taskService;
 
     @Autowired
+    private IStageNodeService stageNodeService;
+
+    @Autowired
     private IBzFormService bzFormService;
 
     @Autowired
@@ -37,6 +40,7 @@ public class CheckController {
             if (check.getTaskId() != null) {
                 if (check.getStageId() != null) {
                     taskService.updateCheckById(check.getTaskId(), 2, 0);
+                    stageNodeService.updateStatusById(check.getStageId().intValue(), 4); //审核中
                 } else {
                     taskService.updateCheckById(check.getTaskId(), 1, 0);
                 }
@@ -44,7 +48,7 @@ public class CheckController {
             //报表牵头人提交审核 3；承办人指标审核 4
             if (check.getBzFormId() != null) {
                 if (check.getBzFormTargetId() != null) {
-                    bzFormService.updateCheckById(check.getBzFormId(), 4, 0);
+//                    bzFormService.updateCheckById(check.getBzFormId(), 4, 0); //不需要写数据库，实时读取
                     bzFormTargetService.updateCheckById(check.getBzFormTargetId(), 4, null);
                 } else {
                     bzFormService.updateCheckById(check.getBzFormId(), 3, 0);
@@ -53,7 +57,7 @@ public class CheckController {
             //报表牵头人提交审核 3；承办人指标审核 4
             if (check.getBzIssueId() != null) {
                 if (check.getBzIssueTargetId() != null) {
-                    bzIssueService.updateCheckById(check.getBzIssueId(), 4, 0);
+//                    bzIssueService.updateCheckById(check.getBzIssueId(), 4, 0);//不需要写数据库，实时读取
                     bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), 4, null);
                 } else {
                     bzIssueService.updateCheckById(check.getBzIssueId(), 3, 0);
@@ -77,6 +81,7 @@ public class CheckController {
             if (updatedCheck.getTaskId() != null) {
                 if (updatedCheck.getStageId() != null && updatedCheck.getCheckType() == 2) {
                     taskService.updateCheckById(updatedCheck.getTaskId(), null, 2);
+
                 } else if (updatedCheck.getCheckType() == 1) {
                     taskService.updateCheckById(updatedCheck.getTaskId(), null, 1);
                 }

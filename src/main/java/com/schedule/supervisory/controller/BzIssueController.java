@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
+import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueService;
@@ -12,6 +14,7 @@ import com.schedule.supervisory.service.IBzIssueTargetService;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.utils.DateUtils;
 import com.schedule.utils.HttpUtil;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +44,7 @@ public class BzIssueController {
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                             @ModelAttribute BzSearchDTO bzIssue,
+                             @ModelAttribute BzSearchDTO bzSearchDTO,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
@@ -59,8 +62,16 @@ public class BzIssueController {
         } else {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
-        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzIssue, pageNum, pageSize, deptDTOs);
-
+        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzSearchDTO, pageNum, pageSize, deptDTOs);
+        for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
+            bzSearchDTO.setBzFormId(bzIssue.getId());
+            bzSearchDTO.setCheckStatus("4");
+            System.out.println("============bzSearchDTO: " + bzSearchDTO);
+            List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs);
+            if (bzIssueTargets != null && bzIssueTargets.size() > 0) {
+                bzIssue.setCheckStatus(util.joinString(bzIssue.getCheckStatus(), "4"));
+            }
+        }
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueByConditions, Integer.toString(0));
     }
 

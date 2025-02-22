@@ -81,7 +81,7 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
             updateWrapper.set(BzFormTarget::getCheckStatus, addStatus);
         }
         if (removeStatus != null) {
-            updateWrapper.set(BzFormTarget::getCheckStatus, removeStatus);
+            updateWrapper.set(BzFormTarget::getCheckStatus, 0);
         }
 
         return update(updateWrapper);
@@ -90,19 +90,27 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
     @Override
     public List<BzFormTarget> getByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzFormTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzFormTarget::getBzFormId, bzSearchDTO.getId());
-        // 处理leadingOfficialId模糊查询的情况
-        queryWrapper.and(wrapper -> {
-            if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
-                wrapper.or(w -> w.like(BzFormTarget::getAssignerId, bzSearchDTO.getUserId()));
-            }
+        queryWrapper.eq(BzFormTarget::getBzFormId, bzSearchDTO.getBzFormId());
 
-            if (deptDTOs != null && deptDTOs.size() > 0) {
-                for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId()));
+        if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
+            queryWrapper.like(BzFormTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
+        }
+
+        if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
+                || (deptDTOs != null && deptDTOs.size() > 0)) {
+            // 处理leadingOfficialId模糊查询的情况
+            queryWrapper.and(wrapper -> {
+                if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
+                    wrapper.or(w -> w.like(BzFormTarget::getAssignerId, bzSearchDTO.getUserId()));
                 }
-            }
-        });
+
+                if (deptDTOs != null && deptDTOs.size() > 0) {
+                    for (DeptDTO deptDTO : deptDTOs) {
+                        wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId()));
+                    }
+                }
+            });
+        }
 
         queryWrapper.orderByAsc(BzFormTarget::getId);
         return list(queryWrapper);

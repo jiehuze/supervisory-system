@@ -13,6 +13,7 @@ import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormService;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -154,29 +155,10 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
 
     @Override
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
-        List<String> list = null;
         BzForm bzForm = getById(taskId);
-        String checkStatus = bzForm.getCheckStatus();
-        if (checkStatus == null) {
-            list = new ArrayList<>();
-        } else {
-            String[] splitStatus = checkStatus.split(",");
-            list = new ArrayList<>(Arrays.asList(splitStatus));
-        }
 
-//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
-//        System.out.println("++++++++++++ list size: " + list.size());
-
-        if (addStatus != null && list.contains(addStatus.toString()) == false) {
-            list.add(addStatus.toString());
-        }
-        if (removeStatus != null) {
-            list.remove(removeStatus.toString());
-        }
-
-        checkStatus = String.join(",", list);
-
-//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+        //拼接字符串，使用逗号分割
+        String checkStatus = util.joinString(bzForm.getCheckStatus(), addStatus.toString());
 
         LambdaUpdateWrapper<BzForm> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzForm::getId, bzForm.getId());

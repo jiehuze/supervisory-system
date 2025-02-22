@@ -73,7 +73,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
             updateWrapper.set(BzIssueTarget::getCheckStatus, addStatus);
         }
         if (removeStatus != null) {
-            updateWrapper.set(BzIssueTarget::getCheckStatus, removeStatus);
+            updateWrapper.set(BzIssueTarget::getCheckStatus, "");
         }
 
         return update(updateWrapper);
@@ -92,17 +92,23 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     public List<BzIssueTarget> getByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getId());
-        queryWrapper.and(wrapper -> {
-            if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
-                wrapper.or(w -> w.like(BzIssueTarget::getAssignerId, bzSearchDTO.getUserId()));
-            }
-
-            if (deptDTOs != null && deptDTOs.size() > 0) {
-                for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId()));
+        if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
+            queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
+        }
+        if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
+                || (deptDTOs != null && deptDTOs.size() > 0)) {
+            queryWrapper.and(wrapper -> {
+                if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
+                    wrapper.or(w -> w.like(BzIssueTarget::getAssignerId, bzSearchDTO.getUserId()));
                 }
-            }
-        });
+
+                if (deptDTOs != null && deptDTOs.size() > 0) {
+                    for (DeptDTO deptDTO : deptDTOs) {
+                        wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId()));
+                    }
+                }
+            });
+        }
         queryWrapper.orderByAsc(BzIssueTarget::getId);
         return list(queryWrapper);
     }

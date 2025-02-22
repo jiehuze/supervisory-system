@@ -23,18 +23,27 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
         LambdaQueryWrapper<Check> queryWrapper = new LambdaQueryWrapper<>();
         if (check.getId() != null) {
             queryWrapper.eq(Check::getId, check.getId()); // 查询没有删除
-        } else if (check.getTaskId() != null) {
+        }
+        if (check.getTaskId() != null) {
             queryWrapper.eq(Check::getTaskId, check.getTaskId());
-        } else if (check.getStageId() != null) {
+        }
+        if (check.getStageId() != null) {
             queryWrapper.eq(Check::getStageId, check.getStageId());
-        } else if (check.getBzFormId() != null) {
+        }
+        if (check.getBzFormId() != null) {
             queryWrapper.eq(Check::getBzFormId, check.getBzFormId());
-        } else if (check.getBzIssueId() != null) {
+        }
+        if (check.getBzIssueId() != null) {
             queryWrapper.eq(Check::getBzIssueId, check.getBzIssueId());
-        } else if (check.getBzFormTargetId() != null) {
+        }
+        if (check.getBzFormTargetId() != null) {
             queryWrapper.eq(Check::getBzFormTargetId, check.getBzFormTargetId());
-        } else if (check.getBzIssueTargetId() != null) {
+        }
+        if (check.getBzIssueTargetId() != null) {
             queryWrapper.eq(Check::getBzIssueTargetId, check.getBzIssueTargetId());
+        }
+        if (check.getCheckType() != null) {
+            queryWrapper.eq(Check::getCheckType, check.getCheckType());
         }
         queryWrapper.orderByDesc(Check::getId);
         queryWrapper.last("LIMIT 1");

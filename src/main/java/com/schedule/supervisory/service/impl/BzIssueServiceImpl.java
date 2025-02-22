@@ -13,6 +13,7 @@ import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzIssueService;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -160,29 +161,9 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
 
     @Override
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
-        List<String> list = null;
         BzIssue bzIssue = getById(taskId);
-        String checkStatus = bzIssue.getCheckStatus();
-        if (checkStatus == null) {
-            list = new ArrayList<>();
-        } else {
-            String[] splitStatus = checkStatus.split(",");
-            list = new ArrayList<>(Arrays.asList(splitStatus));
-        }
-
-//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
-//        System.out.println("++++++++++++ list size: " + list.size());
-
-        if (addStatus != null && list.contains(addStatus.toString()) == false) {
-            list.add(addStatus.toString());
-        }
-        if (removeStatus != null) {
-            list.remove(removeStatus.toString());
-        }
-
-        checkStatus = String.join(",", list);
-
-//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+        //拼接字符串，使用逗号分割
+        String checkStatus = util.joinString(bzIssue.getCheckStatus(), addStatus.toString());
 
         LambdaUpdateWrapper<BzIssue> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzIssue::getId, bzIssue.getId());

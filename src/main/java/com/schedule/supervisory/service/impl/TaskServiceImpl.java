@@ -10,6 +10,7 @@ import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.ITaskService;
+import com.schedule.utils.util;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -249,27 +250,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
         List<String> list = null;
         Task task = getTaskById(taskId);
-        String checkStatus = task.getCheckStatus();
-        if (checkStatus == null) {
-            list = new ArrayList<>();
-        } else {
-            String[] splitStatus = checkStatus.split(",");
-            list = new ArrayList<>(Arrays.asList(splitStatus));
-        }
+//        String checkStatus = util.joinString(task.getCheckStatus(), addStatus.toString());
+        String checkStatus = util.removeString(util.joinString(task.getCheckStatus(), addStatus.toString()), removeStatus.toString());
 
-//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
-//        System.out.println("++++++++++++ list size: " + list.size());
-
-        if (addStatus != null && list.contains(addStatus.toString()) == false) {
-            list.add(addStatus.toString());
-        }
-        if (removeStatus != null) {
-            list.remove(removeStatus.toString());
-        }
-
-        checkStatus = String.join(",", list);
-
-//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
 
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, task.getId());

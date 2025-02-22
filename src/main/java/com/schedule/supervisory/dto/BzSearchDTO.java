@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 @Data
 public class BzSearchDTO implements Serializable {
     private Long id; // 表id
+    private Long bzFormId;
+    private Long bzIssuedId;
+    private Long bzFormTargetId;
+    private Long bzIssueTargetId;
     private String name; // 名称
     private String type; // 类型
     private Integer typeId; // 类型id
@@ -20,4 +24,5 @@ public class BzSearchDTO implements Serializable {
     private Integer year; // 年份
     private Integer quarter; // 季度
     private String userId;
+    private String checkStatus;
 }
