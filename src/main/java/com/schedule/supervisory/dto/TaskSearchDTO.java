@@ -27,5 +27,5 @@ public class TaskSearchDTO implements Serializable {
     private LocalDateTime createdAtStart;
     private LocalDateTime createdAtEnd;
     private Boolean unfinished;
-    private Boolean unAuth;
+    private Boolean unAuth; //不需要权限，可以全部查看
 }
