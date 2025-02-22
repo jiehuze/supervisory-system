@@ -49,6 +49,7 @@ public interface ITaskService extends IService<Task> {
      * @return 符合条件的任务列表
      */
     List<Task> listTasksByStatus(Integer status);
+
     List<Task> listTasksBySource(String source);
 
     List<Task> ListTasksOverdue();
@@ -58,6 +59,8 @@ public interface ITaskService extends IService<Task> {
     boolean updateStatusById(Long taskId, Integer newStatus);
 
     boolean updateIsUrgentById(Long taskId, Boolean isUrgent);
+
+    boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
 
     boolean updateInstructionById(Long taskId, String instrunction);
 

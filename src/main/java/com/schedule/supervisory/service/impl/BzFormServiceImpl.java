@@ -8,13 +8,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormMapper;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.BzSearchDTO;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +43,7 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize) {
-        //todo 读取用户的权限，根据权限判断要读取什么样的数据
+    public IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
         //所以看获取的人员部门数组；如果数组为空：判断创建人或者责任人；如果不为空，需要查询包含部门的数据
@@ -49,10 +52,6 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
 
         // 构建查询条件
         LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
-//        if (queryBzform.getName() != null && !queryBzform.getName().isEmpty()) {
-//            queryWrapper.like(BzForm::getName, queryBzform.getName());
-//        }
-
         if (queryBzform.getTypeId() != null) {
             queryWrapper.eq(BzForm::getTypeId, queryBzform.getTypeId());
         }
@@ -78,6 +77,21 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
             if (queryBzform.getQuarter() != null) {
                 queryWrapper.eq(BzForm::getQuarter, queryBzform.getQuarter());
             }
+        }
+
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(BzForm::getLeadingDepartmentId, deptDTO.getDeptId())); //牵头单位
+                    wrapper.or(w -> w.like(BzForm::getResponsibleDeptId, deptDTO.getDeptId())); //责任单位
+                }
+            });
+        } else if (queryBzform.getUserId() != null && !queryBzform.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(BzForm::getAssignerId, queryBzform.getUserId())
+            );
         }
 
         queryWrapper.orderByDesc(BzForm::getId);
@@ -136,6 +150,39 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
                 .set(BzForm::getYear, bzForm.getYear())
                 .set(BzForm::getQuarter, bzForm.getQuarter())
                 .set(BzForm::getTypeId, bzForm.getTypeId());
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
+        List<String> list = null;
+        BzForm bzForm = getById(taskId);
+        String checkStatus = bzForm.getCheckStatus();
+        if (checkStatus == null) {
+            list = new ArrayList<>();
+        } else {
+            String[] splitStatus = checkStatus.split(",");
+            list = new ArrayList<>(Arrays.asList(splitStatus));
+        }
+
+//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+//        System.out.println("++++++++++++ list size: " + list.size());
+
+        if (addStatus != null && list.contains(addStatus.toString()) == false) {
+            list.add(addStatus.toString());
+        }
+        if (removeStatus != null) {
+            list.remove(removeStatus.toString());
+        }
+
+        checkStatus = String.join(",", list);
+
+//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+
+        LambdaUpdateWrapper<BzForm> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzForm::getId, bzForm.getId());
+        updateWrapper.set(BzForm::getCheckStatus, checkStatus);
+
         return update(updateWrapper);
     }
 

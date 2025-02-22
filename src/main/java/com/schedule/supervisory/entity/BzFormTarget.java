@@ -24,6 +24,7 @@ public class BzFormTarget {
     private String reviewerId;
     private String operator;
     private String operatorId;
+    private String checkStatus; //审核状态 1: 任务审核；2：阶段性审核；3：报表审核；4：指标审核，用逗号分割
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

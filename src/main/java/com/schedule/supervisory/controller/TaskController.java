@@ -96,10 +96,19 @@ public class TaskController {
     }
 
     @PutMapping("/update/{id}")
-    public BaseResponse updateTask(@PathVariable Long id, @RequestBody Task task) {
-        System.out.println(task);
-        task.setId(id);
+    public BaseResponse updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
+//        System.out.println(task);
+//        task.setId(id);
+        Task task = taskDTO.getTask();
         taskService.updateTask(task);
+
+        for (StageNode stageNode : taskDTO.getStageNodes()) {
+            stageNode.setTaskId((int) id.longValue());
+            if (stageNode.getId() != null) {
+                stageNodeService.removeById(stageNode.getId());
+            }
+        }
+//        stageNodeService.batchCreateStageNodes(taskDTO.getStageNodes());
 
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
@@ -184,21 +193,7 @@ public class TaskController {
         System.out.println("searchTasks token：" + authorizationHeader);
         IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
 
-        ArrayList<Check> checks = new ArrayList<>();
-        for (Task task : tasksByConditions.getRecords()) {
-            Check check = new Check();
-            check.setTaskId(task.getId().intValue());
-            check = checkService.getByOnlyId(check);
-            if (check != null) {
-                checks.add(check);
-            }
-        }
-
-        HashMap<String, Object> resultData = new HashMap<>();
-        resultData.put("pages", tasksByConditions);
-        resultData.put("checks", checks);
-
-        return new BaseResponse(HttpStatus.OK.value(), "success", resultData, Integer.toString(0));
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
     }
 
     @PutMapping("/{taskId}/status")
@@ -213,6 +208,14 @@ public class TaskController {
             Task messageTask = taskService.getById(taskId);
             ykbMessageService.sendMessageForCheck(messageTask, 2, 2); //终结申请
         }
+        return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
+    }
+
+    @PutMapping("/{taskId}/check")
+    public BaseResponse updateTaskCheck(@PathVariable Long taskId,
+                                        @RequestParam Integer addStatus,
+                                        @RequestParam Integer removeStatus) {
+        boolean modify = taskService.updateCheckById(taskId, addStatus, removeStatus);
         return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
     }
 
@@ -324,9 +327,10 @@ public class TaskController {
         List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus(queryTask, leadingDepartmentIds);
 
         ArrayList<TaskPeriodCount> taskPeriodCounts = new ArrayList<>();
-        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 1, "短期"));
-        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 2, "中期"));
-        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 3, "长期"));
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 1, "一个月内任务"));
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 2, "三个月内任务"));
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 3, "六个月内任务"));
+        taskPeriodCounts.add(new TaskPeriodCount(0, 0, 4, "长期任务"));
 
         for (TaskPeriodCount taskPeriodCount : taskPeriodCounts) {
             for (Map<String, Object> total : totals) {

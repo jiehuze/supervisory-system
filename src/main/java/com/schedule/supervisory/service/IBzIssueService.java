@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.BzSearchDTO;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzIssue;
 
@@ -16,13 +17,15 @@ public interface IBzIssueService extends IService<BzIssue> {
 
     Long insertBzIssue(BzIssue bzIssue);
 
-    IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize);
+    IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     List<BzIssue> getGearsByConditions(BzSearchDTO queryBzIssue);
 
     public long countBzIssue(BzIssue queryBzIssue);
 
     boolean updateBzIssue(BzIssue bzIssue);
+
+    boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
 
     List<Map<String, Object>> countEffectiveGear();
 

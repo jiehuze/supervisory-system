@@ -1,14 +1,15 @@
 package com.schedule.supervisory.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
-import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.DateUtils;
+import com.schedule.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,8 @@ public class BzFormController {
 
     @Autowired
     private IConfigService configService;
+    @Autowired
+    private ParameterDTO parameterDTO;
 
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
@@ -49,7 +52,16 @@ public class BzFormController {
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
-        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzForm, pageNum, pageSize);
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzForm, pageNum, pageSize, deptDTOs);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormByConditions, Integer.toString(0));
     }
@@ -60,7 +72,18 @@ public class BzFormController {
                                @PathVariable Long id) {
         BzFormDTO bzFormDTO = new BzFormDTO();
         bzFormDTO.setBzForm(bzFormService.getById(id));
-        bzFormDTO.setBzFormTargetList(bzFormTargetService.getByFormId(id));
+
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+
+        bzFormDTO.setBzFormTargetList(bzFormTargetService.getByFormId(id, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormDTO, Integer.toString(0));
     }
@@ -115,7 +138,7 @@ public class BzFormController {
             dataTypeDTO.setTotal(0);
             Map<Integer, CountDTO> countDTOMap = new HashMap<>();
             dataTypeDTO.setCountDTOMap(countDTOMap);
-            for (int level = 1; level <= 5; level++) {
+            for (int level = 1; level <= 4; level++) {
                 CountDTO countDTO = new CountDTO(0, "0%");
                 dataTypeDTO.getCountDTOMap().put(level, countDTO);
             }
@@ -151,7 +174,7 @@ public class BzFormController {
             DataTypeDTO dataTypeDTO = dataList.get(type);
             int total = dataTypeDTO.getTotal();
             if (total == 0) continue;
-            for (int level = 1; level <= 5; level++) {
+            for (int level = 1; level <= 4; level++) {
                 CountDTO countDTO = dataTypeDTO.getCountDTOMap().get(level);
                 int rate = countDTO.getCount() * 100 / total;
                 countDTO.setPercentage(String.format("%d%%", rate));

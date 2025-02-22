@@ -1,5 +1,6 @@
 package com.schedule.supervisory.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
@@ -10,6 +11,7 @@ import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.supervisory.service.IBzIssueTargetService;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.utils.DateUtils;
+import com.schedule.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,9 @@ public class BzIssueController {
     @Autowired
     private IConfigService configService;
 
+    @Autowired
+    private ParameterDTO parameterDTO;
+
     @GetMapping("/search")
     public BaseResponse list(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
@@ -45,7 +50,16 @@ public class BzIssueController {
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
-        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzIssue, pageNum, pageSize);
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzIssue, pageNum, pageSize, deptDTOs);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueByConditions, Integer.toString(0));
     }
@@ -56,7 +70,17 @@ public class BzIssueController {
                                @PathVariable Long id) {
         BzIssueDTO bzIssueDTO = new BzIssueDTO();
         bzIssueDTO.setBzIssue(bzIssueService.getById(id));
-        bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(id));
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+
+        bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(id, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueDTO, Integer.toString(0));
     }

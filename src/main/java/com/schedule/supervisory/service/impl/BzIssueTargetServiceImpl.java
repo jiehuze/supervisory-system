@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueTargetMapper;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueTargetService;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,20 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     }
 
     @Override
+    public boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus) {
+        LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssueTarget::getId, id);
+        if (addStatus != null) {
+            updateWrapper.set(BzIssueTarget::getCheckStatus, addStatus);
+        }
+        if (removeStatus != null) {
+            updateWrapper.set(BzIssueTarget::getCheckStatus, removeStatus);
+        }
+
+        return update(updateWrapper);
+    }
+
+    @Override
     public boolean reviewProgress(BzIssueTarget bzIssueTarget) {
         LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzIssueTarget::getId, bzIssueTarget.getId())
@@ -72,10 +87,17 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     }
 
     @Override
-    public List<BzIssueTarget> getByIssueId(Long issueId) {
+    public List<BzIssueTarget> getByIssueId(Long issueId, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzIssueTarget::getBzIssueId, issueId)
-                .orderByAsc(BzIssueTarget::getId);
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, issueId);
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId())); //责任单位
+                }
+            });
+        }
+        queryWrapper.orderByAsc(BzIssueTarget::getId);
         return list(queryWrapper);
     }
 }

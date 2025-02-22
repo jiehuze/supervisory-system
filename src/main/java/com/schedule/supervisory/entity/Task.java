@@ -39,7 +39,7 @@ public class Task {
      * 9：已取消
      * */
     private Integer status; // 任务状态 'status'
-    private Integer checkStatus;
+    //    private String check;
     private Integer overdueDays; // 新增逾期天数字段，当状态为3时，计算超期天数
     private Boolean isUrgent; //  是否催办 'is_urgent'
     private Boolean isReview; // 是否需要承办领导审核 'is_review'
@@ -52,7 +52,7 @@ public class Task {
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
     private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
     private String responsiblePersonId; // 责任人ID 'responsible_person_id'
-    //1:短期；2：中期；3：长期
+    //1:短期；2：中期；3：长期；4：大于6个月
     private Integer taskPeriod; // 任务周期（int类型）对应数据库列 'task_period'
     private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
     private String coOrganizer; // 协办单位对应数据库列 'co_organizer'
@@ -68,4 +68,5 @@ public class Task {
     private String assignerId; //交办人Id
     private String tbFileUrl; //同步文件url
     private Integer fillCycle; //填报周期
+    private String checkStatus; //审核状态 1: 任务审核；2：阶段性审核；3：报表审核；4：指标审核，用逗号分割
 }

@@ -126,7 +126,7 @@ public interface TaskMapper extends BaseMapper<Task> {
 
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
-            "WHERE task_period IN (1, 2, 3) " +
+            "WHERE task_period IN (1, 2, 3, 4) " +
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
@@ -158,7 +158,7 @@ public interface TaskMapper extends BaseMapper<Task> {
 
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
-            "WHERE status = 6 AND task_period IN (1, 2, 3) " +
+            "WHERE status = 6 AND task_period IN (1, 2, 3, 4) " +
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +

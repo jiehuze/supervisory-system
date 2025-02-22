@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormTargetMapper;
+import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzFormTargetRecord;
+import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.service.IBzFormTargetService;
 import org.springframework.stereotype.Service;
 
@@ -73,10 +76,32 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
     }
 
     @Override
-    public List<BzFormTarget> getByFormId(Long formId) {
+    public boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus) {
+        LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzFormTarget::getId, id);
+        if (addStatus != null) {
+            updateWrapper.set(BzFormTarget::getCheckStatus, addStatus);
+        }
+        if (removeStatus != null) {
+            updateWrapper.set(BzFormTarget::getCheckStatus, removeStatus);
+        }
+
+        return update(updateWrapper);
+    }
+
+    @Override
+    public List<BzFormTarget> getByFormId(Long formId, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzFormTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzFormTarget::getBzFormId, formId)
-                .orderByAsc(BzFormTarget::getId);
+        queryWrapper.eq(BzFormTarget::getBzFormId, formId);
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId())); //责任单位
+                }
+            });
+        }
+        queryWrapper.orderByAsc(BzFormTarget::getId);
         return list(queryWrapper);
     }
 }

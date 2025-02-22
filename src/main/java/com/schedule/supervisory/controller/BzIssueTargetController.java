@@ -2,6 +2,7 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.entity.BzIssueTargetRecord;
 import com.schedule.supervisory.service.IBzIssueTargetRecordService;
@@ -43,7 +44,14 @@ public class BzIssueTargetController {
     // 批量插入数据
     @PostMapping("/batch")
     public BaseResponse batchInsert(@RequestBody List<BzIssueTarget> bzIssueTargets) {
-        boolean saveBatch = bzIssueTargetService.saveBatch(bzIssueTargets);
+        boolean saveBatch = false;
+        if (bzIssueTargets.size() > 0) {
+            List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzIssueTargets.get(0).getBzIssueId(), null);
+            for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
+                bzIssueTargetService.removeById(bzIssueTarget.getId());
+            }
+            saveBatch = bzIssueTargetService.saveBatch(bzIssueTargets);
+        }
         return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }
 

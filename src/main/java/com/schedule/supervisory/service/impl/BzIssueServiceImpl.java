@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueMapper;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.BzSearchDTO;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzIssue;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +44,7 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
-    public IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize) {
+    public IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
         //todo 读取用户的权限，根据权限判断要读取什么样的数据
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
@@ -80,6 +83,21 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
             if (queryBzIssue.getQuarter() != null) {
                 queryWrapper.eq(BzIssue::getQuarter, queryBzIssue.getQuarter());
             }
+        }
+
+        // 处理leadingOfficialId模糊查询的情况
+        if (deptDTOs != null && deptDTOs.size() > 0) {
+            queryWrapper.and(wrapper -> {
+                for (DeptDTO deptDTO : deptDTOs) {
+                    wrapper.or(w -> w.like(BzIssue::getLeadingDepartmentId, deptDTO.getDeptId())); //牵头单位
+                    wrapper.or(w -> w.like(BzIssue::getResponsibleDeptId, deptDTO.getDeptId())); //责任单位
+                }
+            });
+        } else if (queryBzIssue.getUserId() != null && !queryBzIssue.getUserId().isEmpty()) {
+            // 使用apply方法添加复杂的OR条件
+            queryWrapper.and(wrapper -> wrapper
+                    .like(BzIssue::getAssignerId, queryBzIssue.getUserId())
+            );
         }
 
         queryWrapper.orderByDesc(BzIssue::getId);
@@ -138,6 +156,39 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
                 .set(BzIssue::getYear, bzIssue.getYear())
                 .set(BzIssue::getQuarter, bzIssue.getQuarter())
                 .set(BzIssue::getTypeId, bzIssue.getTypeId());
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
+        List<String> list = null;
+        BzIssue bzIssue = getById(taskId);
+        String checkStatus = bzIssue.getCheckStatus();
+        if (checkStatus == null) {
+            list = new ArrayList<>();
+        } else {
+            String[] splitStatus = checkStatus.split(",");
+            list = new ArrayList<>(Arrays.asList(splitStatus));
+        }
+
+//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+//        System.out.println("++++++++++++ list size: " + list.size());
+
+        if (addStatus != null && list.contains(addStatus.toString()) == false) {
+            list.add(addStatus.toString());
+        }
+        if (removeStatus != null) {
+            list.remove(removeStatus.toString());
+        }
+
+        checkStatus = String.join(",", list);
+
+//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+
+        LambdaUpdateWrapper<BzIssue> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssue::getId, bzIssue.getId());
+        updateWrapper.set(BzIssue::getCheckStatus, checkStatus);
+
         return update(updateWrapper);
     }
 

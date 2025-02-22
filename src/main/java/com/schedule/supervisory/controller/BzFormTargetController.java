@@ -44,7 +44,14 @@ public class BzFormTargetController {
     // 批量插入数据
     @PostMapping("/batch")
     public BaseResponse batchInsert(@RequestBody List<BzFormTarget> bzFormTargets) {
-        boolean saveBatch = bzFormTargetService.saveBatch(bzFormTargets);
+        boolean saveBatch = false;
+        if (bzFormTargets.size() > 0) {
+            List<BzFormTarget> bzFormTargetList = bzFormTargetService.getByFormId(bzFormTargets.get(0).getBzFormId(), null);
+            for (BzFormTarget bzformTarget : bzFormTargetList) {
+                bzFormTargetService.removeById(bzformTarget.getId());
+            }
+            saveBatch = bzFormTargetService.saveBatch(bzFormTargets);
+        }
         return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }
 

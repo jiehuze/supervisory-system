@@ -14,15 +14,23 @@ import java.util.Map;
 
 @Mapper
 public interface BzFormMapper extends BaseMapper<BzForm> {
-    @Select("SELECT type_id, COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
-            "FROM public.bz_form " +
-            "GROUP BY type_id, COALESCE(actual_gear, predicted_gear) " +
-            "ORDER BY type_id, effective_gear")
+    //    @Select("SELECT type_id, COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
+//            "FROM public.bz_form " +
+//            "GROUP BY type_id, COALESCE(actual_gear, predicted_gear) " +
+//            "ORDER BY type_id, effective_gear")
+    @Select("SELECT bf.type_id, \n" +
+            "       COALESCE(bft.actual_gear, bft.predicted_gear) AS effective_gear, \n" +
+            "       COUNT(*) AS count_effective_gear \n" +
+            "FROM public.bz_form bf\n" +
+            "LEFT JOIN public.bz_form_target bft ON bf.id = bft.bz_form_id\n" +
+            "WHERE COALESCE(bft.actual_gear, bft.predicted_gear) BETWEEN 1 AND 4\n" +
+            "GROUP BY bf.type_id, COALESCE(bft.actual_gear, bft.predicted_gear)\n" +
+            "ORDER BY bf.type_id, effective_gear;")
     List<Map<String, Object>> countEffectiveGear();
 
     @Select("SELECT COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
-            "FROM public.bz_form " +
-            "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 5 " +
+            "FROM public.bz_form_target " +
+            "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 4 " +
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
     List<EffectiveGearCount> countGearCollect();
@@ -34,7 +42,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
     List<EffectiveGearCount> countGearCollectTargetByDate(@Param("startTime") LocalDateTime startTime,
-                                                       @Param("endTime") LocalDateTime endTime);
+                                                          @Param("endTime") LocalDateTime endTime);
 
     @Select("SELECT COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
             "FROM public.bz_form " +
@@ -43,7 +51,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
     List<EffectiveGearCount> countGearCollectByDate(@Param("startTime") LocalDateTime startTime,
-                                                       @Param("endTime") LocalDateTime endTime);
+                                                    @Param("endTime") LocalDateTime endTime);
 
     @Select("SELECT name, COUNT(*) AS count " +
             "FROM public.bz_form_target " +

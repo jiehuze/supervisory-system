@@ -13,6 +13,8 @@ import com.schedule.supervisory.service.ITaskService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +45,55 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
     @Override
     public void updateTask(Task task) {
-        taskMapper.updateTask(task);
+//        taskMapper.updateTask(task);
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, task.getId());
+
+        if (task.getSource() != null && !task.getSource().isEmpty()) {
+            updateWrapper.set(Task::getSource, task.getSource());
+        }
+
+        if (task.getSourceDate() != null) {
+            updateWrapper.set(Task::getSourceDate, task.getSourceDate());
+        }
+        if (task.getContent() != null && !task.getContent().isEmpty()) {
+            updateWrapper.set(Task::getContent, task.getContent());
+        }
+        if (task.getLeadingDepartment() != null && !task.getLeadingDepartment().isEmpty()) {
+            updateWrapper.set(Task::getLeadingDepartment, task.getLeadingDepartment());
+        }
+        if (task.getLeadingDepartmentId() != null && !task.getLeadingDepartmentId().isEmpty()) {
+            updateWrapper.set(Task::getLeadingDepartmentId, task.getLeadingDepartmentId());
+        }
+        if (task.getLeadingOfficialId() != null && !task.getLeadingOfficialId().isEmpty()) {
+            updateWrapper.set(Task::getLeadingOfficialId, task.getLeadingOfficialId());
+        }
+        if (task.getLeadingOfficial() != null && !task.getLeadingOfficial().isEmpty()) {
+            updateWrapper.set(Task::getLeadingOfficial, task.getLeadingOfficial());
+        }
+        if (task.getResponsiblePerson() != null && !task.getResponsiblePerson().isEmpty()) {
+            updateWrapper.set(Task::getResponsiblePerson, task.getResponsiblePerson());
+        }
+        if (task.getResponsiblePersonId() != null && !task.getResponsiblePersonId().isEmpty()) {
+            updateWrapper.set(Task::getResponsiblePersonId, task.getResponsiblePersonId());
+        }
+        if (task.getCoOrganizer() != null && !task.getCoOrganizer().isEmpty()) {
+            updateWrapper.set(Task::getCoOrganizer, task.getCoOrganizer());
+        }
+        if (task.getCoOrganizerId() != null && !task.getCoOrganizerId().isEmpty()) {
+            updateWrapper.set(Task::getCoOrganizerId, task.getCoOrganizerId());
+        }
+        if (task.getTaskPeriod() != null) {
+            updateWrapper.set(Task::getTaskPeriod, task.getTaskPeriod());
+        }
+        if (task.getFieldId() != null) {
+            updateWrapper.set(Task::getFieldId, task.getFieldId());
+        }
+        if (task.getDeadline() != null) {
+            updateWrapper.set(Task::getDeadline, task.getDeadline());
+        }
+
+        update(updateWrapper);
     }
 
     @Override
@@ -194,6 +244,39 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, taskId)
                 .set(Task::getIsUrgent, isUrgent);
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
+        List<String> list = null;
+        Task task = getTaskById(taskId);
+        String checkStatus = task.getCheckStatus();
+        if (checkStatus == null) {
+            list = new ArrayList<>();
+        } else {
+            String[] splitStatus = checkStatus.split(",");
+            list = new ArrayList<>(Arrays.asList(splitStatus));
+        }
+
+//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+//        System.out.println("++++++++++++ list size: " + list.size());
+
+        if (addStatus != null && list.contains(addStatus.toString()) == false) {
+            list.add(addStatus.toString());
+        }
+        if (removeStatus != null) {
+            list.remove(removeStatus.toString());
+        }
+
+        checkStatus = String.join(",", list);
+
+//        System.out.println("++++++++++++ checkStatus: " + checkStatus);
+
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, task.getId());
+        updateWrapper.set(Task::getCheckStatus, checkStatus);
+
         return update(updateWrapper);
     }
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.BzSearchDTO;
+import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzIssue;
@@ -17,12 +18,15 @@ public interface IBzFormService extends IService<BzForm> {
 
     Long insertBzForm(BzForm bzForm);
 
-    IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize);
+    IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
+
     List<BzForm> getGearsByConditions(BzSearchDTO queryBzSearch);
 
     long countBzForm(BzForm queryBzform);
 
     boolean updateBzFrom(BzForm bzForm);
+
+    boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
 
     List<Map<String, Object>> countEffectiveGear();
 
