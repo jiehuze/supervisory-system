@@ -1,6 +1,7 @@
 package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
@@ -16,5 +17,5 @@ public interface IBzIssueTargetService extends IService<BzIssueTarget> {
 
     boolean reviewProgress(BzIssueTarget bzIssueTarget);
 
-    List<BzIssueTarget> getByIssueId(Long issueId, List<DeptDTO> deptDTOs);
+    List<BzIssueTarget> getByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs);
 }

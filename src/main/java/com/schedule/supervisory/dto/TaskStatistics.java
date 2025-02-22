@@ -14,5 +14,5 @@ public class TaskStatistics implements Serializable {
     private Long completeNums;
     private Long completeOnTimesNums; //按时办结
     private Long completeShortNums; //短期办结
-    private Long cancleNums; //短期办结
+    private Long cancleNums; //终止办结数
 }

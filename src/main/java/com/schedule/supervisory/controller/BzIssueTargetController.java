@@ -2,6 +2,7 @@ package com.schedule.supervisory.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.entity.BzIssueTargetRecord;
@@ -46,7 +47,9 @@ public class BzIssueTargetController {
     public BaseResponse batchInsert(@RequestBody List<BzIssueTarget> bzIssueTargets) {
         boolean saveBatch = false;
         if (bzIssueTargets.size() > 0) {
-            List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzIssueTargets.get(0).getBzIssueId(), null);
+            BzSearchDTO bzSearchDTO = new BzSearchDTO();
+            bzSearchDTO.setId(bzIssueTargets.get(0).getBzIssueId());
+            List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
                 bzIssueTargetService.removeById(bzIssueTarget.getId());
             }

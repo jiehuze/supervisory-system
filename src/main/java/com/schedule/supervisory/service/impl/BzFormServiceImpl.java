@@ -80,19 +80,18 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
         }
 
         // 处理leadingOfficialId模糊查询的情况
-        if (deptDTOs != null && deptDTOs.size() > 0) {
-            queryWrapper.and(wrapper -> {
+        queryWrapper.and(wrapper -> {
+            if (queryBzform.getUserId() != null && !queryBzform.getUserId().isEmpty()) {
+                wrapper.or(w -> w.like(BzForm::getAssignerId, queryBzform.getUserId()));
+            }
+
+            if (deptDTOs != null && deptDTOs.size() > 0) {
                 for (DeptDTO deptDTO : deptDTOs) {
                     wrapper.or(w -> w.like(BzForm::getLeadingDepartmentId, deptDTO.getDeptId())); //牵头单位
                     wrapper.or(w -> w.like(BzForm::getResponsibleDeptId, deptDTO.getDeptId())); //责任单位
                 }
-            });
-        } else if (queryBzform.getUserId() != null && !queryBzform.getUserId().isEmpty()) {
-            // 使用apply方法添加复杂的OR条件
-            queryWrapper.and(wrapper -> wrapper
-                    .like(BzForm::getAssignerId, queryBzform.getUserId())
-            );
-        }
+            }
+        });
 
         queryWrapper.orderByDesc(BzForm::getId);
 

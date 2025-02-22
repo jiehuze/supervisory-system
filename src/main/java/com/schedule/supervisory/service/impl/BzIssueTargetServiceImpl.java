@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueTargetMapper;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueTargetService;
 import org.springframework.stereotype.Service;
@@ -87,16 +89,20 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     }
 
     @Override
-    public List<BzIssueTarget> getByIssueId(Long issueId, List<DeptDTO> deptDTOs) {
+    public List<BzIssueTarget> getByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzIssueTarget::getBzIssueId, issueId);
-        if (deptDTOs != null && deptDTOs.size() > 0) {
-            queryWrapper.and(wrapper -> {
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getId());
+        queryWrapper.and(wrapper -> {
+            if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
+                wrapper.or(w -> w.like(BzIssueTarget::getAssignerId, bzSearchDTO.getUserId()));
+            }
+
+            if (deptDTOs != null && deptDTOs.size() > 0) {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId())); //责任单位
+                    wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId()));
                 }
-            });
-        }
+            }
+        });
         queryWrapper.orderByAsc(BzIssueTarget::getId);
         return list(queryWrapper);
     }

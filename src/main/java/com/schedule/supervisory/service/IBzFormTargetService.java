@@ -1,6 +1,7 @@
 package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.entity.BzFormTarget;
 
@@ -15,5 +16,5 @@ public interface IBzFormTargetService extends IService<BzFormTarget> {
 
     boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus);
 
-    List<BzFormTarget> getByFormId(Long formId, List<DeptDTO> deptDTOs);
+    List<BzFormTarget> getByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs);
 }

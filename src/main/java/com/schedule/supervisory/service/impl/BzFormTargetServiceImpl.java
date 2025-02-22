@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormTargetMapper;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
-import com.schedule.supervisory.entity.BzForm;
-import com.schedule.supervisory.entity.BzFormTarget;
-import com.schedule.supervisory.entity.BzFormTargetRecord;
-import com.schedule.supervisory.entity.BzIssue;
+import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.IBzFormTargetService;
 import org.springframework.stereotype.Service;
 
@@ -90,17 +88,22 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
     }
 
     @Override
-    public List<BzFormTarget> getByFormId(Long formId, List<DeptDTO> deptDTOs) {
+    public List<BzFormTarget> getByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzFormTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzFormTarget::getBzFormId, formId);
+        queryWrapper.eq(BzFormTarget::getBzFormId, bzSearchDTO.getId());
         // 处理leadingOfficialId模糊查询的情况
-        if (deptDTOs != null && deptDTOs.size() > 0) {
-            queryWrapper.and(wrapper -> {
+        queryWrapper.and(wrapper -> {
+            if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
+                wrapper.or(w -> w.like(BzFormTarget::getAssignerId, bzSearchDTO.getUserId()));
+            }
+
+            if (deptDTOs != null && deptDTOs.size() > 0) {
                 for (DeptDTO deptDTO : deptDTOs) {
-                    wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId())); //责任单位
+                    wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId()));
                 }
-            });
-        }
+            }
+        });
+
         queryWrapper.orderByAsc(BzFormTarget::getId);
         return list(queryWrapper);
     }

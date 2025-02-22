@@ -67,9 +67,9 @@ public class BzIssueController {
     @GetMapping("/detail/{id}")
     public BaseResponse detail(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                               @PathVariable Long id) {
+                               @ModelAttribute BzSearchDTO bzSearchDTO) {
         BzIssueDTO bzIssueDTO = new BzIssueDTO();
-        bzIssueDTO.setBzIssue(bzIssueService.getById(id));
+        bzIssueDTO.setBzIssue(bzIssueService.getById(bzSearchDTO.getId()));
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
         String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
@@ -80,7 +80,7 @@ public class BzIssueController {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
-        bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(id, deptDTOs));
+        bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueDTO, Integer.toString(0));
     }
@@ -96,6 +96,7 @@ public class BzIssueController {
         } else if (count > 0) {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
+
         bzIssue.setAssigner(bzIssue.getOperator());
         bzIssue.setAssignerId(bzIssue.getOperatorId());
         Long id = bzIssueService.insertBzIssue(bzIssue);
@@ -110,6 +111,8 @@ public class BzIssueController {
         }
         for (BzIssueTarget bzIssueTarget : bzFromDTO.getBzIssueTargetList()) {
             bzIssueTarget.setBzIssueId(id);
+            bzIssueTarget.setAssigner(bzIssue.getAssigner());
+            bzIssueTarget.setAssignerId(bzIssue.getAssignerId());
         }
         if (bzFromDTO.getBzIssueTargetList().size() != 0) {
             bzIssueTargetService.saveBatch(bzFromDTO.getBzIssueTargetList());

@@ -69,9 +69,9 @@ public class BzFormController {
     @GetMapping("/detail/{id}")
     public BaseResponse detail(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                               @PathVariable Long id) {
+                               @ModelAttribute BzSearchDTO bzSearchDTO) {
         BzFormDTO bzFormDTO = new BzFormDTO();
-        bzFormDTO.setBzForm(bzFormService.getById(id));
+        bzFormDTO.setBzForm(bzFormService.getById(bzSearchDTO.getId()));
 
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
@@ -83,7 +83,7 @@ public class BzFormController {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
 
-        bzFormDTO.setBzFormTargetList(bzFormTargetService.getByFormId(id, deptDTOs));
+        bzFormDTO.setBzFormTargetList(bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormDTO, Integer.toString(0));
     }
@@ -93,6 +93,8 @@ public class BzFormController {
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzFormDTO bzFromDTO) {
         BzForm bzForm = bzFromDTO.getBzForm();
+        bzForm.setAssigner(bzForm.getOperator());
+        bzForm.setAssignerId(bzForm.getOperatorId());
         long count = bzFormService.countBzForm(bzForm);
         if (count == -1) {
             return new BaseResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "参数错误", null, Integer.toString(0));
@@ -114,6 +116,8 @@ public class BzFormController {
         }
         for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
             bzFormTarget.setBzFormId(id);
+            bzFormTarget.setAssigner(bzForm.getAssigner());
+            bzFormTarget.setAssignerId(bzForm.getAssignerId());
         }
         if (bzFromDTO.getBzFormTargetList().size() != 0) {
             bzFormTargetService.saveBatch(bzFromDTO.getBzFormTargetList());

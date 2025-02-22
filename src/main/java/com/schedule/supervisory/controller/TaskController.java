@@ -8,6 +8,7 @@ import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.HttpUtil;
+import com.schedule.utils.TaskStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -97,8 +98,6 @@ public class TaskController {
 
     @PutMapping("/update/{id}")
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
-//        System.out.println(task);
-//        task.setId(id);
         Task task = taskDTO.getTask();
         taskService.updateTask(task);
 
@@ -108,7 +107,7 @@ public class TaskController {
                 stageNodeService.removeById(stageNode.getId());
             }
         }
-//        stageNodeService.batchCreateStageNodes(taskDTO.getStageNodes());
+        stageNodeService.batchCreateStageNodes(taskDTO.getStageNodes());
 
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
@@ -267,27 +266,29 @@ public class TaskController {
                                                 @ModelAttribute TaskSearchDTO queryTask) {
         System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
         List<DeptDTO> deptDTOs = null;
-        HttpUtil httpUtil = new HttpUtil();
-        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
-        if (deptJson != null) {
-            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("Dept list size: " + deptDTOs.size());
-        } else {
-            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        if (queryTask.getUnAuth() == null || (queryTask.getUnAuth() != null && queryTask.getUnAuth() == false)) {
+            HttpUtil httpUtil = new HttpUtil();
+            String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+            if (deptJson != null) {
+                deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+                System.out.println("Dept list size: " + deptDTOs.size());
+            } else {
+                return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+            }
         }
 
         System.out.println("----------" + queryTask.toString());
         //统计：已办结，未超期的任务数
         TaskStatistics taskStatistics = new TaskStatistics();
-        queryTask.setStatus(6);
+        queryTask.setStatus(TaskStatus.TASKSTATUS_COMPLETED.getCode());
         taskStatistics.setTotals(taskService.countTasksNums(queryTask, deptDTOs));
         taskStatistics.setInprogressNums(taskService.countTasksInProgress(queryTask, deptDTOs));
         taskStatistics.setOverdueNums(taskService.countTasksOverdue(queryTask, deptDTOs));
         taskStatistics.setCompleteNums(taskService.countTasksComplete(queryTask, deptDTOs, false));
         taskStatistics.setCompleteOnTimesNums(taskService.countTasksCompleteOnTime(queryTask, deptDTOs));
         taskStatistics.setCompleteShortNums(taskService.countTasksComplete(queryTask, deptDTOs, true));
-        queryTask.setStatus(9);
-        taskStatistics.setCancleNums(taskService.countTasksComplete(queryTask, deptDTOs, true));
+        queryTask.setStatus(TaskStatus.TASKSTATUS_CANCELLED.getCode());
+        taskStatistics.setCancleNums(taskService.countTasksComplete(queryTask, deptDTOs, false));
 
 
         return new BaseResponse(HttpStatus.OK.value(), "success", taskStatistics, Integer.toString(0));

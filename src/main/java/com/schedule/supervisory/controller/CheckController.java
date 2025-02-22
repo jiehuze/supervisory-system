@@ -36,7 +36,7 @@ public class CheckController {
             //进度填报 1；阶段性目标办结申请审核 2
             if (check.getTaskId() != null) {
                 if (check.getStageId() != null) {
-                    taskService.updateCheckById(check.getTaskId(), 2, 3);
+                    taskService.updateCheckById(check.getTaskId(), 2, 0);
                 } else {
                     taskService.updateCheckById(check.getTaskId(), 1, 0);
                 }
@@ -106,6 +106,7 @@ public class CheckController {
 
     @GetMapping("/get")
     public BaseResponse getByTaskIdAndStageId(@ModelAttribute Check check) {
+        System.out.println("============ check: " + check.toString());
         Check checkInfo = checkService.getByOnlyId(check);
         return new BaseResponse(HttpStatus.OK.value(), "success", checkInfo, Integer.toString(0));
     }

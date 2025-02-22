@@ -27,4 +27,5 @@ public class TaskSearchDTO implements Serializable {
     private LocalDateTime createdAtStart;
     private LocalDateTime createdAtEnd;
     private Boolean unfinished;
+    private Boolean unAuth;
 }

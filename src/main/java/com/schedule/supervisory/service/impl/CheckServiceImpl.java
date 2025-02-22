@@ -37,6 +37,7 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
             queryWrapper.eq(Check::getBzIssueTargetId, check.getBzIssueTargetId());
         }
         queryWrapper.orderByDesc(Check::getId);
+        queryWrapper.last("LIMIT 1");
         return getOne(queryWrapper);
     }
 }
