@@ -78,9 +78,9 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = null;
         if (type == 1) {
-            message = "有一条办结申请任务需要您审核，请及时处理。";
+            message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
         } else {
-            message = "有一条终止申请任务需要您审核，请及时处理。";
+            message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
         }
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
         if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
