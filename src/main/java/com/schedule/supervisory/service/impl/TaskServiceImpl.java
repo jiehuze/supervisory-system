@@ -255,7 +255,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         List<String> list = null;
         Task task = getTaskById(taskId);
 //        String checkStatus = util.joinString(task.getCheckStatus(), addStatus.toString());
-        String checkStatus = util.removeString(util.joinString(task.getCheckStatus(), addStatus.toString()), removeStatus.toString());
+
+        String checkStatus = util.removeString(addStatus != null ? util.joinString(task.getCheckStatus(), addStatus.toString()) : null,
+                removeStatus != null ? removeStatus.toString() : null);
 
 
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
