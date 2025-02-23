@@ -58,7 +58,8 @@ public class TaskController {
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody List<TaskDTO> taskDTOList) {
         if (!Licence.getLicence()) {
-            String tenantIdex = configService.getTenantId();
+//            String tenantIdex = configService.getTenantId();
+            String tenantIdex = configService.getExternConfig("tenant.id");
             System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
@@ -183,7 +184,8 @@ public class TaskController {
         }
 
         if (!Licence.getLicence()) {
-            String tenantIdex = configService.getTenantId();
+//            String tenantIdex = configService.getTenantId();
+            String tenantIdex = configService.getExternConfig("tenant.id");
             System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));

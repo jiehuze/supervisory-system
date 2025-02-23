@@ -1,5 +1,7 @@
 package com.schedule.config;
 
+import com.schedule.supervisory.service.IConfigService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -13,6 +15,7 @@ import java.util.Properties;
 
 @Configuration
 public class ExternalConfig {
+
     @Bean
     public static PropertySourcesPlaceholderConfigurer properties() {
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
@@ -41,6 +44,8 @@ public class ExternalConfig {
     private static void createDefaultConfigFile(String filePath) throws IOException {
         Properties defaultProps = new Properties();
         defaultProps.setProperty("tenant.id", "default-tenant-id-value"); // 设置默认值
+//        defaultProps.setProperty("pc.messge.url", "https://23.99.209.93:43658");
+//        defaultProps.setProperty("phone.message.url", "https://113.207.111.33:9443");
 
         try (FileOutputStream fos = new FileOutputStream(filePath)) {
             defaultProps.store(fos, "Default Configuration");

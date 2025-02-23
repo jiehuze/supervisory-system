@@ -13,6 +13,10 @@ public class ParameterDTO {
     private String uploadUrl;
     @Value("${duban.message}")
     private String messageUrl;
+    @Value("${duban.message.phone}")
+    private String phoneMessageUrl;
+    @Value("${duban.message.pc}")
+    private String pcMessageUrl;
     @Value("${duban.oauth2}")
     private String authUrl;
 

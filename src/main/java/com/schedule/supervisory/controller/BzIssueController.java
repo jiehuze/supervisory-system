@@ -48,7 +48,8 @@ public class BzIssueController {
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
         if (!Licence.getLicence()) {
-            String tenantIdex = configService.getTenantId();
+//            String tenantIdex = configService.getTenantId();
+            String tenantIdex = configService.getExternConfig("tenant.id");
             System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
@@ -115,7 +116,8 @@ public class BzIssueController {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
         }
         if (!Licence.getLicence()) {
-            String tenantIdex = configService.getTenantId();
+//            String tenantIdex = configService.getTenantId();
+            String tenantIdex = configService.getExternConfig("tenant.id");
             System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));

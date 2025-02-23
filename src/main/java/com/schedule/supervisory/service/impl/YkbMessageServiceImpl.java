@@ -3,6 +3,7 @@ package com.schedule.supervisory.service.impl;
 import com.schedule.common.YkbMessage;
 import com.schedule.supervisory.dto.ParameterDTO;
 import com.schedule.supervisory.entity.Task;
+import com.schedule.supervisory.service.IConfigService;
 import com.schedule.supervisory.service.IYkbMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,9 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Autowired
     private ParameterDTO parameterDTO;
 
+    @Autowired
+    private IConfigService configService;
+
     @Override
     public boolean sendMessageForOverdue(Task task, int hour) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
@@ -22,7 +26,18 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         String[] deptIds = task.getLeadingDepartmentId().split(",");
         ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), List.of(deptIds));//承办人
 
-        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
         return true;
     }
 
@@ -37,7 +52,18 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
         userIds.addAll(roleUserIdList);
 
-        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
         return true;
     }
 
@@ -56,6 +82,17 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         } else {
             message = "有一条终止申请任务需要您审核，请及时处理。";
         }
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
         //为0是承办人办结申请
         if (role == 1) {
             //获取办结领导
@@ -65,12 +102,13 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
 
             ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
             if (roleUserIdList.size() > 0) {
-                ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), roleUserIdList, message, "");
+                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdList, message, parameterDTO.getMessageUrl());
             }
         } else {
             ArrayList<String> userIds = new ArrayList<>();
             userIds.add(task.getAssignerId());
-            ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
+            ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+
         }
 
         return false;
@@ -86,7 +124,18 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
         userIds.addAll(roleUserIdList);
 
-        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
         return true;
     }
 
@@ -97,7 +146,18 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         String[] deptIds = task.getLeadingDepartmentId().split(",");
         ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR", "XBLD", "XBLD"), List.of(deptIds));//承办人
 
-        ykbMessage.sendYkbMessage(parameterDTO.getMessageUrl(), userIds, message, "");
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
         return true;
     }
 }

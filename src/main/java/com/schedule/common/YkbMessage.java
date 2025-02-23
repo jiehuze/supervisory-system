@@ -52,27 +52,28 @@ public class YkbMessage {
         return userIdList;
     }
 
-    public boolean sendYkbMessage(String url, ArrayList<String> userIds, String msg, String msgUrl) {
+    public boolean sendYkbMessage(String pcMessageUrl, String phoneMessageUrl, ArrayList<String> userIds, String msg, String url) {
 //        log("userdid: " + userIds);
 //        log("message: " + msg);
 //        log("msgUrl: " + msgUrl);
         // 定义JSON字符串模板
         String jsonTemplate = "{\n" +
                 "    \"userIds\": [%s],\n" +
-                "    \"deptIds\": [],\n" +
                 "    \"messageYzkBody\": {\n" +
-                "        \"msgtype\": \"link\",\n" +
-                "        \"link\": {\n" +
-                "            \"messageUrl\": \"%s\",\n" +
-                "            \"picUrl\": \"@lALOACZwe2Rk\",\n" +
-                "            \"title\": \"%s\",\n" +
-                "            \"text\": \"%s\"\n" +
+                "        \"msgtype\": \"oa\",\n" +
+                "        \"body\": {\n" +
+                "            \"message_url\": \"%s\",\n" +
+                "            \"pc_message_url\": \"%s\",\n" +
+                "            \"body\": {\n" +
+                "                \"title\": \"%s\",\n" +
+                "                \"content\": \"%s\"\n" +
+                "            }\n" +
                 "        }\n" +
                 "    }\n" +
                 "}";
 
         // 替换模板中的占位符
-        String jsonString = String.format(jsonTemplate, String.join(",", userIds), msgUrl, msg, msg);
+        String jsonString = String.format(jsonTemplate, String.join(",", userIds), phoneMessageUrl, pcMessageUrl, msg, msg);
         // 输出最终的JSON字符串
         log(jsonString);
 

@@ -1,7 +1,7 @@
 package com.schedule.supervisory.service;
 
 public interface IConfigService {
-    String getTenantId();
+    String getExternConfig(String name);
 
-    void setTenantId(String tenantId);
+    void setExternConfig(String name, String value);
 }
