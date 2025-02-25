@@ -3,11 +3,14 @@ package com.schedule.supervisory.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.BzSearchDTO;
+import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzFormTargetRecord;
 import com.schedule.supervisory.entity.Task;
+import com.schedule.supervisory.service.IBzFormService;
 import com.schedule.supervisory.service.IBzFormTargetRecordService;
 import com.schedule.supervisory.service.IBzFormTargetService;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/formtargets")
 public class BzFormTargetController {
-
+    @Autowired
+    private IBzFormService bzFormService;
     @Autowired
     private IBzFormTargetService bzFormTargetService;
 
@@ -49,11 +53,20 @@ public class BzFormTargetController {
         if (bzFormTargets.size() > 0) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
             bzSearchDTO.setId(bzFormTargets.get(0).getBzFormId());
+            bzSearchDTO.setBzFormId(bzFormTargets.get(0).getBzFormId());
             List<BzFormTarget> bzFormTargetList = bzFormTargetService.getByFormId(bzSearchDTO, null);
             for (BzFormTarget bzformTarget : bzFormTargetList) {
                 bzFormTargetService.removeById(bzformTarget.getId());
             }
             saveBatch = bzFormTargetService.saveBatch(bzFormTargets);
+
+            //更新时，写入责任单位
+//            BzForm bzForm = bzFormService.getById(bzSearchDTO.getBzFormId());
+//            for (BzFormTarget bzFormTarget : bzFormTargets) {
+//                bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+//                bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+//            }
+//            bzFormService.updateById(bzForm);
         }
         return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }

@@ -88,6 +88,7 @@ public class BzFormController {
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
         String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        System.out.println("====================== deptJson: " + deptJson);
         if (deptJson != null) {
             deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
             System.out.println("Dept list size: " + deptDTOs.size());
@@ -105,33 +106,37 @@ public class BzFormController {
     public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzFormDTO bzFromDTO) {
+        if (!Licence.getLicence()) {
+            String tenantIdex = configService.getExternConfig("tenant.id");
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
         BzForm bzForm = bzFromDTO.getBzForm();
-        bzForm.setAssigner(bzForm.getOperator());
-        bzForm.setAssignerId(bzForm.getOperatorId());
+//        bzForm.setAssigner(bzForm.getOperator());
+//        bzForm.setAssignerId(bzForm.getOperatorId());
         long count = bzFormService.countBzForm(bzForm);
         if (count == -1) {
             return new BaseResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "参数错误", null, Integer.toString(0));
         } else if (count > 0) {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
+//        for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
+//            bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+//            bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+//        }
 
-        bzForm.setAssigner(bzForm.getOperator());
-        bzForm.setAssignerId(bzForm.getOperatorId());
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
         }
-        if (!Licence.getLicence()) {
-//            String tenantIdex = configService.getTenantId();
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
-        }
         for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
             bzFormTarget.setBzFormId(id);
-            bzFormTarget.setAssigner(bzForm.getAssigner());
-            bzFormTarget.setAssignerId(bzForm.getAssignerId());
+//            bzFormTarget.setAssigner(bzForm.getAssigner());
+//            bzFormTarget.setAssignerId(bzForm.getAssignerId());
+//            bzFormTarget.setOperator(bzForm.getAssigner());
+//            bzFormTarget.setOperatorId(bzFormTarget.getAssignerId());
         }
         if (bzFromDTO.getBzFormTargetList().size() != 0) {
             bzFormTargetService.saveBatch(bzFromDTO.getBzFormTargetList());

@@ -91,7 +91,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     @Override
     public List<BzIssueTarget> getByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getId());
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getBzIssuedId());
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }

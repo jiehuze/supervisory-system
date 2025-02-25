@@ -9,10 +9,12 @@ import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.HttpUtil;
 import com.schedule.utils.TaskStatus;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +69,10 @@ public class TaskController {
         for (TaskDTO taskDTO : taskDTOList) {
             Task task = taskDTO.getTask();
             if (task.getId() == null) {
+                //创建超期时间的任务直接写超时时间
+                if (util.daysDifference(task.getDeadline()) > 0) {
+                    task.setOverdueDays((int) util.daysDifference(task.getDeadline()));
+                }
                 Long id = taskService.insertTask(task);
                 if (id == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));

@@ -73,7 +73,9 @@ public class YkbMessage {
                 "}";
 
         // 替换模板中的占位符
-        String jsonString = String.format(jsonTemplate, String.join(",", userIds), phoneMessageUrl, pcMessageUrl, msg, msg);
+//        String jsonString = String.format(jsonTemplate, String.join(",", userIds), phoneMessageUrl, pcMessageUrl, msg, msg);
+        String jsonString = String.format(jsonTemplate, "1889955984543158273", phoneMessageUrl, pcMessageUrl, msg, msg);
+
         // 输出最终的JSON字符串
         log(jsonString);
 

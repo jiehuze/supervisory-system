@@ -100,8 +100,8 @@ public class BzIssueController {
     @PostMapping("/add")
     public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
-                                          @RequestBody BzIssueDTO bzFromDTO) {
-        BzIssue bzIssue = bzFromDTO.getBzIssue();
+                                          @RequestBody BzIssueDTO bzIssueDTO) {
+        BzIssue bzIssue = bzIssueDTO.getBzIssue();
         long count = bzIssueService.countBzIssue(bzIssue);
         if (count == -1) {
             return new BaseResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), "参数错误", null, Integer.toString(0));
@@ -109,8 +109,12 @@ public class BzIssueController {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
 
-        bzIssue.setAssigner(bzIssue.getOperator());
-        bzIssue.setAssignerId(bzIssue.getOperatorId());
+//        bzIssue.setAssigner(bzIssue.getOperator());
+//        bzIssue.setAssignerId(bzIssue.getOperatorId());
+//        for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
+//            bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+//            bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+//        }
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
@@ -122,13 +126,15 @@ public class BzIssueController {
             if (!tenantId.equals(tenantIdex))
                 return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
-        for (BzIssueTarget bzIssueTarget : bzFromDTO.getBzIssueTargetList()) {
+        for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
             bzIssueTarget.setBzIssueId(id);
-            bzIssueTarget.setAssigner(bzIssue.getAssigner());
-            bzIssueTarget.setAssignerId(bzIssue.getAssignerId());
+//            bzIssueTarget.setAssigner(bzIssue.getAssigner());
+//            bzIssueTarget.setAssignerId(bzIssue.getAssignerId());
+//            bzIssueTarget.setOperator(bzIssue.getAssigner());
+//            bzIssueTarget.setOperatorId(bzIssue.getAssignerId());
         }
-        if (bzFromDTO.getBzIssueTargetList().size() != 0) {
-            bzIssueTargetService.saveBatch(bzFromDTO.getBzIssueTargetList());
+        if (bzIssueDTO.getBzIssueTargetList().size() != 0) {
+            bzIssueTargetService.saveBatch(bzIssueDTO.getBzIssueTargetList());
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));

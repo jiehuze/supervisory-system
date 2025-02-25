@@ -3,11 +3,11 @@ package com.schedule.supervisory.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.BzSearchDTO;
-import com.schedule.supervisory.entity.BzFormTarget;
-import com.schedule.supervisory.entity.BzIssueTarget;
-import com.schedule.supervisory.entity.BzIssueTargetRecord;
+import com.schedule.supervisory.entity.*;
+import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.supervisory.service.IBzIssueTargetRecordService;
 import com.schedule.supervisory.service.IBzIssueTargetService;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/issuetargets")
 public class BzIssueTargetController {
-
+    @Autowired
+    private IBzIssueService bzIssueService;
     @Autowired
     private IBzIssueTargetService bzIssueTargetService;
 
@@ -49,11 +50,20 @@ public class BzIssueTargetController {
         if (bzIssueTargets.size() > 0) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
             bzSearchDTO.setId(bzIssueTargets.get(0).getBzIssueId());
+            bzSearchDTO.setBzIssuedId(bzIssueTargets.get(0).getBzIssueId());
             List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
                 bzIssueTargetService.removeById(bzIssueTarget.getId());
             }
             saveBatch = bzIssueTargetService.saveBatch(bzIssueTargets);
+
+            //更新时，写入责任单位
+//            BzIssue bzIssue = bzIssueService.getById(bzSearchDTO.getBzIssuedId());
+//            for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
+//                bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+//                bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+//            }
+//            bzIssueService.updateById(bzIssue);
         }
         return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }
