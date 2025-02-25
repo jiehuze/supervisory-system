@@ -198,7 +198,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
             "</foreach>" +
             ") </if>" +
-            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%'}</if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" +
             "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "</where>" +
@@ -231,7 +231,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
             "</foreach>" +
             ") </if>" +
-            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%'}</if>" +
+            "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" +
             "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY field_id" +
