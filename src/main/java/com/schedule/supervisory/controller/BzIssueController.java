@@ -91,7 +91,7 @@ public class BzIssueController {
         } else {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
-
+        bzSearchDTO.setBzIssuedId(bzSearchDTO.getId());
         bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueDTO, Integer.toString(0));

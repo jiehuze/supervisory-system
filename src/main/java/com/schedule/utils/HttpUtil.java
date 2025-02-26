@@ -133,7 +133,7 @@ public class HttpUtil {
             System.out.println("Post Response Code: " + response.statusCode() + "  Body: " + response.body());
 
             DeptResponseDTO deptResponseDTO = JSON.parseObject(response.body(), DeptResponseDTO.class);
-            if (deptResponseDTO.getCode() == 0) {
+            if (deptResponseDTO.getCode() == 0 && deptResponseDTO.getData() != null) {
                 return deptResponseDTO.getData().toString();
             } else {
                 return null;

@@ -80,7 +80,7 @@ public interface TaskMapper extends BaseMapper<Task> {
                 ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.responsiblePersonId != null and queryTask.responsiblePersonId != \"\"'> AND responsible_person_id LIKE CONCAT('%', #{queryTask.responsiblePersonId}, '%')</if>" +
-            "<if test='queryTask.deadline != null'> AND deadline >= #{queryTask.deadline}</if>" +  // 修改为大于等于
+            "<if test='queryTask.deadline != null'> AND deadline BETWEEN '2020-01-01' AND #{queryTask.deadline}</if>" +  // 修改为大于等于
             "<if test='queryTask.taskPeriod != null'> AND task_period = #{queryTask.taskPeriod}</if>" +
             "<if test='queryTask.status != null'>" +
                 "<choose>" +
@@ -89,6 +89,7 @@ public interface TaskMapper extends BaseMapper<Task> {
                 "</choose>" +
             "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
             "ORDER BY overdue_days1 DESC, order_status DESC, source_date ASC" +
             "</script>")
