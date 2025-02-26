@@ -1,8 +1,8 @@
 package com.schedule.supervisory.service.impl;
 
-import com.schedule.supervisory.dto.TaskWithProgressReportDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
+import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
 import com.schedule.supervisory.service.IYkbMessageService;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,21 +16,24 @@ import java.util.List;
 public class TaskSchedulerService {
 
     private final ITaskService taskService;
+    private final IStageNodeService stageNodeService;
     private final IProgressReportService progressReportService;
     private final IYkbMessageService ykbMessageService;
 
-    public TaskSchedulerService(ITaskService taskService, IProgressReportService progressReportService, IYkbMessageService ykbMessageService) {
+    public TaskSchedulerService(ITaskService taskService, IStageNodeService stageNodeService, IProgressReportService progressReportService, IYkbMessageService ykbMessageService) {
         this.taskService = taskService;
+        this.stageNodeService = stageNodeService;
         this.progressReportService = progressReportService;
         this.ykbMessageService = ykbMessageService;
     }
 
     // 任务1：每天 01:00 执行
-    @Scheduled(cron = "0 34 8 * * ?")
+    @Scheduled(cron = "0 02 1 * * ?")
     public void executeTaskAt1AM() {
         logTime("01:00 定时任务");
         //每天1点更新下过期时间
         taskService.updateOverdueDays();
+        stageNodeService.updateOverdueDays();
     }
 
     // 任务2：每天 09:00 执行

@@ -5,12 +5,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.StageNodeMapper;
 import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.service.IStageNodeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class StageNodeServiceImpl extends ServiceImpl<StageNodeMapper, StageNode> implements IStageNodeService {
+    @Autowired
+    private StageNodeMapper stageNodeMapper;
 
     @Override
     public List<StageNode> getStageNodesByTaskId(Integer taskId) {
@@ -42,5 +45,10 @@ public class StageNodeServiceImpl extends ServiceImpl<StageNodeMapper, StageNode
 
         // 执行更新操作并返回是否成功
         return update(updateWrapper);
+    }
+
+    @Override
+    public void updateOverdueDays() {
+        stageNodeMapper.updateOverdueDays();
     }
 }

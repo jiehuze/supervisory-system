@@ -101,6 +101,14 @@ public class BzIssueController {
     public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzIssueDTO bzIssueDTO) {
+        if (!Licence.getLicence()) {
+//            String tenantIdex = configService.getTenantId();
+            String tenantIdex = configService.getExternConfig("tenant.id");
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
         BzIssue bzIssue = bzIssueDTO.getBzIssue();
         long count = bzIssueService.countBzIssue(bzIssue);
         if (count == -1) {
@@ -118,13 +126,6 @@ public class BzIssueController {
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
-        }
-        if (!Licence.getLicence()) {
-//            String tenantIdex = configService.getTenantId();
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
             bzIssueTarget.setBzIssueId(id);
