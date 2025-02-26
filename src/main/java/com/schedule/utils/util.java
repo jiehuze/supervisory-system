@@ -56,11 +56,36 @@ public class util {
         return ChronoUnit.DAYS.between(deadline, today);
     }
 
+    /**
+     * 对手机号进行脱敏处理。
+     * @param phoneNumber 手机号字符串
+     * @return 脱敏后的手机号
+     */
+    public static String maskPhoneNumber(String phoneNumber) {
+        // 确保手机号长度正确（假设手机号是11位）
+        if (phoneNumber == null || phoneNumber.length() != 11) {
+            throw new IllegalArgumentException("Invalid phone number");
+        }
+
+        // 获取手机号前三位和后四位
+        String start = phoneNumber.substring(0, 3);
+        String end = phoneNumber.substring(7);
+
+        // 构建并返回脱敏后的手机号
+        return new StringBuilder()
+                .append(start)
+                .append("****")
+                .append(end)
+                .toString();
+    }
+
     public static void main(String[] args) {
         String old = "remove,add";
         System.out.println("======== join: " + util.joinString(old, "add"));
         System.out.println("======== remove: " + util.removeString(old, "remove"));
         LocalDate deadlineExample = LocalDate.of(2025, 2, 25);
         System.out.println("----------- diff : "+ util.daysDifference(deadlineExample));
+
+        System.out.println("========phone: " + util.maskPhoneNumber("18631440480"));
     }
 }

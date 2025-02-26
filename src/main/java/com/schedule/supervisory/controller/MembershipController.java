@@ -3,6 +3,7 @@ package com.schedule.supervisory.controller;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.Membership;
 import com.schedule.supervisory.service.IMembershipService;
+import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,13 @@ public class MembershipController {
     @GetMapping("/get/{leadingDepartmentId}")
     public BaseResponse getByLeadingDepartmentId(@PathVariable String leadingDepartmentId) {
         Membership membership = membershipService.getByLeadingDepartmentId(leadingDepartmentId);
+        if (membership != null) {
+            String phone = membership.getPhone();
+            if (phone != null) {
+                membership.setPhone(util.maskPhoneNumber(phone));
+            }
+        }
+
         return new BaseResponse(HttpStatus.OK.value(), "success", membership, Integer.toString(0));
     }
 }

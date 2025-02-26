@@ -54,6 +54,7 @@ public interface ITaskService extends IService<Task> {
 
     List<Task> ListTasksOverdue();
 
+    IPage<Task> queryTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
     IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     boolean updateStatusById(Long taskId, Integer newStatus);

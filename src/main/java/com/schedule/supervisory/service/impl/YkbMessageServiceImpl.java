@@ -74,14 +74,22 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
      * @return
      */
     @Override
-    public boolean sendMessageForCheck(Task task, int role, int type) {
+    public boolean sendMessageForCheck(Task task, int status) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = null;
-        if (type == 1) {
-            message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
-        } else {
-            message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+        switch (status) {
+            case 4:
+            case 5:
+            case 10:
+                message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
+            case 7:
+            case 8:
+            case 11:
+                message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
         }
+
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
         if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
             phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
@@ -94,21 +102,28 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         }
 
         //为0是承办人办结申请
-        if (role == 1) {
-            //获取办结领导
-            String[] deptIds = task.getLeadingDepartmentId().split(",");
-            System.out.println("========deptIds: " + List.of(deptIds));
-            System.out.println("========role: " + "CBLD");
-
-            ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
-            if (roleUserIdList.size() > 0) {
-                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdList, message, parameterDTO.getMessageUrl());
-            }
-        } else {
-            ArrayList<String> userIds = new ArrayList<>();
-            userIds.add(task.getAssignerId());
-            ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
-
+        switch (status) {
+            case 4:
+            case 7:
+                //获取办结领导
+                String[] deptIds = task.getLeadingDepartmentId().split(",");
+                ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
+                if (roleUserIdList.size() > 0) {
+                    ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdList, message, parameterDTO.getMessageUrl());
+                }
+                break;
+            case 5:
+            case 8:
+                ArrayList<String> userIds = new ArrayList<>();
+                userIds.add(task.getAssignerId());
+                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+                break;
+            case 10:
+            case 11:
+                String[] deptzIds = task.getLeadingDepartmentId().split(",");
+                ArrayList<String> roleUserIdListz = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("JBLD"), List.of(deptzIds));
+                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdListz, message, parameterDTO.getMessageUrl());
+                break;
         }
 
         return false;

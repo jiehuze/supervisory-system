@@ -14,9 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -198,7 +196,9 @@ public class TaskController {
         }
 
         System.out.println("searchTasks token：" + authorizationHeader);
-        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
+//        IPage<Task> tasksByConditions = taskService.getTasksByConditions(queryTask, current, size, deptDTOs);
+        IPage<Task> tasksByConditions = taskService.queryTasksByConditions(queryTask, current, size, deptDTOs);
+
 
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
     }
@@ -208,13 +208,8 @@ public class TaskController {
                                          @RequestParam Integer newStatus) {
         boolean modify = taskService.updateStatusById(taskId, newStatus);
 
-        if (newStatus == 5) {
-            Task messageTask = taskService.getById(taskId);
-            ykbMessageService.sendMessageForCheck(messageTask, 2, 1); //办结申请
-        } else if (newStatus == 8) {
-            Task messageTask = taskService.getById(taskId);
-            ykbMessageService.sendMessageForCheck(messageTask, 2, 2); //终结申请
-        }
+        Task messageTask = taskService.getById(taskId);
+        ykbMessageService.sendMessageForCheck(messageTask, newStatus); //办结申请
         return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
     }
 
@@ -239,7 +234,7 @@ public class TaskController {
         boolean update = taskService.updateCbApplyDone(task);
 
         Task messageTask = taskService.getTaskById(task.getId());
-        ykbMessageService.sendMessageForCheck(messageTask, 1, 1);
+        ykbMessageService.sendMessageForCheck(messageTask, task.getStatus());
 
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
@@ -256,7 +251,7 @@ public class TaskController {
         boolean update = taskService.updateCancelInfo(task);
 
         Task messageTask = taskService.getTaskById(task.getId());
-        ykbMessageService.sendMessageForCheck(messageTask, 1, 2);  //终止申请
+        ykbMessageService.sendMessageForCheck(messageTask, task.getStatus());  //终止申请
 
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }

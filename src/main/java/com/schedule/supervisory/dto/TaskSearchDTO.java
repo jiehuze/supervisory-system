@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class TaskSearchDTO implements Serializable {
+    private Long taskId;
     private String source; // 任务来源 'source'
     private String content; // 任务内容 'content'
     private String leadingOfficial; // 牵头区领导 'leading_official'

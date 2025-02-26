@@ -14,6 +14,7 @@ public class Membership {
     private String responsiblePerson;
     private String responsiblePersonId;
     private Integer priority;
+    private String phone; // 电话 'phone'
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

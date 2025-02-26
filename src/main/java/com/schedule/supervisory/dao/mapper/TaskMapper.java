@@ -1,6 +1,9 @@
 package com.schedule.supervisory.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -52,6 +55,45 @@ public interface TaskMapper extends BaseMapper<Task> {
 
     @Select("SELECT DISTINCT source FROM public.task ORDER BY source")
     List<String> selectDistinctSources();
+
+    /**
+     * 自定义分页查询方法
+     */
+    @Select("<script>" +
+            "SELECT *, " +
+            "CASE WHEN status = 6 THEN 0 ELSE overdue_days END AS overdue_days1, " +
+            "CASE WHEN status = 6 THEN 2 WHEN status = 9 THEN 1 ELSE 3 END AS order_status " +
+            "FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "<if test='queryTask.taskId != null'> AND id = #{queryTask.taskId}</if>" +
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
+            "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+                "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+                    "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+                "</foreach> " +
+                "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+                    "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+                "</if>" +
+                ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.responsiblePersonId != null and queryTask.responsiblePersonId != \"\"'> AND responsible_person_id LIKE CONCAT('%', #{queryTask.responsiblePersonId}, '%')</if>" +
+            "<if test='queryTask.deadline != null'> AND deadline = #{queryTask.deadline}</if>" +  // 修改为小于等于
+            "<if test='queryTask.taskPeriod != null'> AND task_period = #{queryTask.taskPeriod}</if>" +
+            "<if test='queryTask.status != null'>" +
+                "<choose>" +
+                    "<when test='queryTask.status == 3'> AND status NOT IN (6, 9) AND overdue_days > 0</when>" +
+                    "<otherwise> AND status = #{queryTask.status}</otherwise>" +
+                "</choose>" +
+            "</if>" +
+            "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "</where>" +
+            "ORDER BY overdue_days1 DESC, order_status DESC, source_date ASC" +
+            "</script>")
+    Page<Task> selectTasks(Page<Task> page, @Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
+
 
     @Select("<script>" +
             "WITH status_counts AS (" +

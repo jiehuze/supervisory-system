@@ -10,7 +10,7 @@ public interface IYkbMessageService {
     public boolean sendMessageForOverdueWarn(Task task);
 
     //审核，两种审核，
-    public boolean sendMessageForCheck(Task task, int role, int type);
+    public boolean sendMessageForCheck(Task task, int status);
 
     public boolean sendMessageForInstruction(Task task);
 
