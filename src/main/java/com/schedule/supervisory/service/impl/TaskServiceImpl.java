@@ -14,8 +14,6 @@ import com.schedule.utils.util;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -175,6 +173,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
                     wrapper.or(w -> w.like(Task::getAssignerId, queryTask.getUserId()));
                     wrapper.or(w -> w.like(Task::getResponsiblePersonId, queryTask.getUserId()));
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, queryTask.getUserId()));
                 }
 
                 if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -403,6 +402,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
                     wrapper.or(w -> w.like(Task::getAssignerId, queryTask.getUserId()));
                     wrapper.or(w -> w.like(Task::getResponsiblePersonId, queryTask.getUserId()));
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, queryTask.getUserId()));
                 }
 
                 if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -460,6 +460,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
                     wrapper.or(w -> w.like(Task::getAssignerId, queryTask.getUserId()));
                     wrapper.or(w -> w.like(Task::getResponsiblePersonId, queryTask.getUserId()));
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, queryTask.getUserId()));
                 }
 
                 if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -508,6 +509,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
                     wrapper.or(w -> w.like(Task::getAssignerId, queryTask.getUserId()));
                     wrapper.or(w -> w.like(Task::getResponsiblePersonId, queryTask.getUserId()));
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, queryTask.getUserId()));
                 }
 
                 if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -564,6 +566,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
                     wrapper.or(w -> w.like(Task::getAssignerId, queryTask.getUserId()));
                     wrapper.or(w -> w.like(Task::getResponsiblePersonId, queryTask.getUserId()));
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, queryTask.getUserId()));
                 }
 
                 if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -613,6 +616,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (queryTask.getUserId() != null && !queryTask.getUserId().isEmpty()) {
                     wrapper.or(w -> w.like(Task::getAssignerId, queryTask.getUserId()));
                     wrapper.or(w -> w.like(Task::getResponsiblePersonId, queryTask.getUserId()));
+                    wrapper.or(w -> w.like(Task::getLeadingOfficialId, queryTask.getUserId()));
                 }
 
                 if (deptDTOs != null && deptDTOs.size() > 0) {

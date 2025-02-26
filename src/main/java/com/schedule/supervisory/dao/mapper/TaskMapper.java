@@ -75,7 +75,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
             "</foreach> " +
             "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
-            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
             "</if>" +
             ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
