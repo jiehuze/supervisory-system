@@ -71,22 +71,22 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
-                "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
-                    "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
-                "</foreach> " +
-                "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
-                    "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
-                "</if>" +
-                ") </if>" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.responsiblePersonId != null and queryTask.responsiblePersonId != \"\"'> AND responsible_person_id LIKE CONCAT('%', #{queryTask.responsiblePersonId}, '%')</if>" +
             "<if test='queryTask.deadline != null'> AND deadline BETWEEN '2020-01-01' AND #{queryTask.deadline}</if>" +  // 修改为大于等于
             "<if test='queryTask.taskPeriod != null'> AND task_period = #{queryTask.taskPeriod}</if>" +
             "<if test='queryTask.status != null'>" +
-                "<choose>" +
-                    "<when test='queryTask.status == 3'> AND status NOT IN (6, 9) AND overdue_days > 0</when>" +
-                    "<otherwise> AND status = #{queryTask.status}</otherwise>" +
-                "</choose>" +
+            "<choose>" +
+            "<when test='queryTask.status == 3'> AND status NOT IN (6, 9) AND overdue_days > 0</when>" +
+            "<otherwise> AND status = #{queryTask.status}</otherwise>" +
+            "</choose>" +
             "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
@@ -178,6 +178,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             ") </if>" +
             "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" +
             "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
+            "<if test='phoneUsed != null and phoneUsed'> AND status != 9</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY task_period" +
             "</script>")
@@ -185,6 +186,7 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                      @Param("leadingDepartmentId") String leadingDepartmentId,
                                                      @Param("leadingOfficialId") String leadingOfficialId,
                                                      @Param("source") String source,
+                                                     @Param("phoneUsed") Boolean phoneUsed,
                                                      @Param("createdAtStart") LocalDateTime createdAtStart,
                                                      @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
@@ -210,6 +212,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             ") </if>" +
             "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" +
             "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
+            "<if test='phoneUsed != null and phoneUsed'> AND status != 9</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY task_period" +
             "</script>")
@@ -217,6 +220,7 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                               @Param("leadingDepartmentId") String leadingDepartmentId,
                                                               @Param("leadingOfficialId") String leadingOfficialId,
                                                               @Param("source") String source,
+                                                              @Param("phoneUsed") Boolean phoneUsed,
                                                               @Param("createdAtStart") LocalDateTime createdAtStart,
                                                               @Param("createdAtEnd") LocalDateTime createdAtEnd);
 

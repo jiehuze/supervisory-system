@@ -2,8 +2,10 @@ package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.Instruction;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IInstructionService;
 import com.schedule.supervisory.service.ITaskService;
+import com.schedule.supervisory.service.IYkbMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ public class InstructionController {
     private IInstructionService instructionService;
     @Autowired
     private ITaskService taskService;
+    @Autowired
+    private IYkbMessageService ykbMessageService;
 
     @GetMapping("/all")
     public BaseResponse getAllInstructions() {
@@ -29,6 +33,10 @@ public class InstructionController {
     public BaseResponse addInstruction(@RequestBody Instruction instruction) {
         boolean save = instructionService.save(instruction);
         taskService.updateInstructionById((long) instruction.getTaskId(), instruction.getContent());
+
+        Task messageTask = taskService.getById(instruction.getTaskId());
+        ykbMessageService.sendMessageForInstruction(messageTask); //办结申请
+
         return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
 

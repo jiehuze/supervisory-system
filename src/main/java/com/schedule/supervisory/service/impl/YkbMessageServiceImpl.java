@@ -81,6 +81,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             case 4:
             case 5:
             case 10:
+            case 12:
                 message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
                 break;
             case 7:
@@ -105,6 +106,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         switch (status) {
             case 4:
             case 7:
+            case 12:
                 //获取办结领导
                 String[] deptIds = task.getLeadingDepartmentId().split(",");
                 ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
