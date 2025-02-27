@@ -64,12 +64,11 @@ public class BzIssueTargetController {
             saveBatch = bzIssueTargetService.saveBatch(bzIssueTargets);
 
             //更新时，写入责任单位
-//            BzIssue bzIssue = bzIssueService.getById(bzSearchDTO.getBzIssuedId());
-//            for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
-//                bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
-//                bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
-//            }
-//            bzIssueService.updateById(bzIssue);
+            for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
+                bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+                bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+            }
+            bzIssueService.updateById(bzIssue);
         }
         return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }

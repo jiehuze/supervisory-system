@@ -67,12 +67,11 @@ public class BzFormTargetController {
             saveBatch = bzFormTargetService.saveBatch(bzFormTargets);
 
             //更新时，写入责任单位
-//            BzForm bzForm = bzFormService.getById(bzSearchDTO.getBzFormId());
-//            for (BzFormTarget bzFormTarget : bzFormTargets) {
-//                bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
-//                bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
-//            }
-//            bzFormService.updateById(bzForm);
+            for (BzFormTarget bzFormTarget : bzFormTargets) {
+                bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+                bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+            }
+            bzFormService.updateById(bzForm);
         }
         return new BaseResponse(HttpStatus.OK.value(), "success", saveBatch, Integer.toString(0));
     }

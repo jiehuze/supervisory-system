@@ -144,12 +144,17 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
                 .set(BzForm::getOperator, bzForm.getOperator())
                 .set(BzForm::getOperatorId, bzForm.getOperatorId())
                 .set(BzForm::getType, bzForm.getType())
-//                .set(BzForm::getName, bzForm.getName())
                 .set(BzForm::getFillCycle, bzForm.getFillCycle())
                 .set(BzForm::getDateType, bzForm.getDateType())
                 .set(BzForm::getYear, bzForm.getYear())
                 .set(BzForm::getQuarter, bzForm.getQuarter())
                 .set(BzForm::getTypeId, bzForm.getTypeId());
+        if (bzForm.getResponsibleDeptId() != null) {
+            updateWrapper.set(BzForm::getResponsibleDeptId, bzForm.getResponsibleDeptId());
+        }
+        if (bzForm.getResponsibleDept() != null) {
+            updateWrapper.set(BzForm::getResponsibleDept, bzForm.getResponsibleDept());
+        }
         return update(updateWrapper);
     }
 
