@@ -188,7 +188,7 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear) {
-        return bzFormMapper.selectByTimeAndGear(startTime, endTime, gear);
+    public List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear, Integer typeId) {
+        return bzFormMapper.selectByTimeAndGear(startTime, endTime, gear, typeId);
     }
 }

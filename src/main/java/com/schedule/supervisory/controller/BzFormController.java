@@ -369,7 +369,8 @@ public class BzFormController {
     public BaseResponse getStatsByQuarterAndGear(@RequestParam(value = "type", defaultValue = "0") int type,
                                                  @RequestParam(value = "year", defaultValue = "0") int year,
                                                  @RequestParam(value = "quarter", defaultValue = "0") int quarter,
-                                                 @RequestParam("gear") Integer gear) {
+                                                 @RequestParam("gear") Integer gear,
+                                                 @RequestParam("typeId") int typeid) {
         int number = 0;
         DateInfo dateInfo = null;
         List<DateInfo> dateInfos = null;
@@ -386,7 +387,7 @@ public class BzFormController {
                 break;
             }
         }
-        List<BzFromTargetNameCount> bzFromTargetNameCounts = bzFormService.selectByTimeAndGear(dateInfo.getStartTime(), dateInfo.getEndTime(), gear);
+        List<BzFromTargetNameCount> bzFromTargetNameCounts = bzFormService.selectByTimeAndGear(dateInfo.getStartTime(), dateInfo.getEndTime(), gear, typeid);
 
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFromTargetNameCounts, Integer.toString(0));

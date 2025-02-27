@@ -408,6 +408,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(Task::getCoOrganizerId, deptDTO.getDeptId()));
                     }
                 }
             });
@@ -466,6 +467,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(Task::getCoOrganizerId, deptDTO.getDeptId()));
                     }
                 }
             });
@@ -515,6 +517,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(Task::getCoOrganizerId, deptDTO.getDeptId()));
                     }
                 }
             });
@@ -572,6 +575,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(Task::getCoOrganizerId, deptDTO.getDeptId()));
                     }
                 }
             });
@@ -622,6 +626,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(Task::getLeadingDepartmentId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(Task::getCoOrganizerId, deptDTO.getDeptId()));
                     }
                 }
             });

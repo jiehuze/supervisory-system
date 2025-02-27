@@ -61,7 +61,7 @@ public interface TaskMapper extends BaseMapper<Task> {
      */
     @Select("<script>" +
             "SELECT *, " +
-            "CASE WHEN status = 6 THEN 0 ELSE overdue_days END AS overdue_days1, " +
+            "CASE WHEN status = 6 THEN 0 WHEN status = 9 Then 0 ELSE overdue_days END AS overdue_days1, " +
             "CASE WHEN status = 9 THEN 2 WHEN status = 6 THEN 1 ELSE 3 END AS order_status " +
             "FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
@@ -173,7 +173,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
-            "leading_department_id LIKE CONCAT('%', #{id}, '%')" +
+            "(leading_department_id LIKE CONCAT('%', #{id}, '%') ) " +
             "</foreach>" +
             ") </if>" +
             "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" +

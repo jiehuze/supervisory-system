@@ -36,5 +36,5 @@ public interface IBzFormService extends IService<BzForm> {
 
     List<EffectiveGearCount> countGearCollectByDate(LocalDateTime startTime, LocalDateTime endTime);
 
-    List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear);
+    List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear, Integer typeId);
 }

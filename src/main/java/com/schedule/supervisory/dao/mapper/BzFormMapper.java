@@ -31,7 +31,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
     @Select("SELECT COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
             "FROM public.bz_form_target " +
             "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 4 " +
-            "AND created_at BETWEEN #{startTime} AND #{endTime}" +
+//            "AND created_at BETWEEN #{startTime} AND #{endTime}" +
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
     List<EffectiveGearCount> countGearCollect();
@@ -54,13 +54,12 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
     List<EffectiveGearCount> countGearCollectByDate(@Param("startTime") LocalDateTime startTime,
                                                     @Param("endTime") LocalDateTime endTime);
 
-    @Select("SELECT name, COUNT(*) AS count " +
-            "FROM public.bz_form_target " +
-            "WHERE updated_at BETWEEN #{startTime} AND #{endTime} " +
-            "AND CASE WHEN actual_gear IS NOT NULL THEN actual_gear ELSE predicted_gear END = #{gear} " +
-            "GROUP BY name " +
-            "ORDER BY name")
+    @Select("SELECT bft.name, COUNT(*) AS count " +
+            "FROM public.bz_form_target bft " +
+            "LEFT JOIN public.bz_form bf ON bf.id = bft.bz_form_id " +
+            "WHERE  bf.type_id = #{typeId} AND CASE WHEN bft.actual_gear IS NOT NULL THEN bft.actual_gear ELSE bft.predicted_gear END = #{gear} GROUP BY bft.name ORDER BY bft.name")
     List<BzFromTargetNameCount> selectByTimeAndGear(@Param("startTime") LocalDateTime startTime,
                                                     @Param("endTime") LocalDateTime endTime,
-                                                    @Param("gear") Integer gear);
+                                                    @Param("gear") Integer gear,
+                                                    @Param("typeId") Integer typeId);
 }
