@@ -2,7 +2,9 @@ package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.Check;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.*;
+import com.schedule.utils.TaskStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,9 @@ public class CheckController {
     @Autowired
     private IBzIssueTargetService bzIssueTargetService;
 
+    @Autowired
+    private IYkbMessageService ykbMessageService;
+
     @PostMapping("/add")
     public BaseResponse add(@RequestBody Check check) {
         boolean save = checkService.save(check);
@@ -44,6 +49,8 @@ public class CheckController {
                 } else {
                     taskService.updateCheckById(check.getTaskId(), 1, 0);
                 }
+                Task messageTask = taskService.getTaskById(check.getTaskId());
+                ykbMessageService.sendMessageForCheck(messageTask, TaskStatus.TASKSTATUS_REVIEW_LEADER_CB.getCode());
             }
             //报表牵头人提交审核 3；承办人指标审核 4
             if (check.getBzFormId() != null) {

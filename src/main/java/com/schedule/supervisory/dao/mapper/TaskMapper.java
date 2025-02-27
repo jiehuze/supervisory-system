@@ -91,7 +91,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
-            "ORDER BY overdue_days1 DESC, order_status DESC, source_date ASC" +
+            "ORDER BY overdue_days1 DESC, order_status DESC, source_date DESC" +
             "</script>")
     Page<Task> selectTasks(Page<Task> page, @Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
@@ -190,16 +190,28 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                      @Param("createdAtStart") LocalDateTime createdAtStart,
                                                      @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
-//    @Select("<script>" +
-//            "SELECT task_period, COUNT(*) AS count FROM task " +
-//            "WHERE status = 6 AND task_period IN (1, 2, 3) " +
-//            "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%')</if>" +
-//            "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
-//            "GROUP BY task_period" +
-//            "</script>")
-//    List<Map<String, Object>> countTasksByTaskPeriodAndStatus(@Param("coOrganizerId") String coOrganizerId,
-//                                                              @Param("createdAtStart") LocalDateTime createdAtStart,
-//                                                              @Param("createdAtEnd") LocalDateTime createdAtEnd);
+    @Select("<script>" +
+            "SELECT task_period, COUNT(*) AS count FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "task_period IN (1, 2, 3, 4) " +
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.phoneUsed != null and queryTask.phoneUsed'> AND status != 9</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "</where>" +
+            "GROUP BY task_period" +
+            "</script>")
+    List<Map<String, Object>> countTasksByTaskPeriod2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
+
 
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
@@ -212,7 +224,6 @@ public interface TaskMapper extends BaseMapper<Task> {
             ") </if>" +
             "<if test='leadingOfficialId != null and leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{leadingOfficialId}, '%')</if>" +
             "<if test='source != null and source != \"\"'> AND source LIKE CONCAT('%', #{source}, '%')</if>" +
-            "<if test='phoneUsed != null and phoneUsed'> AND status != 9</if>" +
             "<if test='createdAtStart != null and createdAtEnd != null'> AND created_at BETWEEN #{createdAtStart} AND #{createdAtEnd}</if>" +
             "GROUP BY task_period" +
             "</script>")
@@ -223,6 +234,27 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                               @Param("phoneUsed") Boolean phoneUsed,
                                                               @Param("createdAtStart") LocalDateTime createdAtStart,
                                                               @Param("createdAtEnd") LocalDateTime createdAtEnd);
+
+    @Select("<script>" +
+            "SELECT task_period, COUNT(*) AS count FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "status = 6 AND task_period IN (1, 2, 3, 4) " +
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "</where>" +
+            "GROUP BY task_period" +
+            "</script>")
+    List<Map<String, Object>> countTasksByTaskPeriodAndStatus2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
 //    @Select("<script>" +
 //            "SELECT field_id, COUNT(*) AS count FROM task " +
@@ -258,6 +290,26 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                   @Param("createdAtStart") LocalDateTime createdAtStart,
                                                   @Param("createdAtEnd") LocalDateTime createdAtEnd);
 
+    @Select("<script>" +
+            "SELECT field_id, COUNT(*) AS count FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "</where>" +
+            "GROUP BY field_id" +
+            "</script>")
+    List<Map<String, Object>> countTasksByFieldId2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
+
 //    @Select("<script>" +
 //            "SELECT field_id, COUNT(*) AS count FROM task " +
 //            "WHERE status = 6" +
@@ -289,6 +341,27 @@ public interface TaskMapper extends BaseMapper<Task> {
                                                            @Param("source") String source,
                                                            @Param("createdAtStart") LocalDateTime createdAtStart,
                                                            @Param("createdAtEnd") LocalDateTime createdAtEnd);
+
+    @Select("<script>" +
+            "SELECT field_id, COUNT(*) AS count FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "status = 6 " +
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "</where>" +
+            "GROUP BY field_id" +
+            "</script>")
+    List<Map<String, Object>> countTasksByFieldIdAndStatus2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
 //    @Update("UPDATE task SET overdue_days = EXTRACT(DAY FROM (CURRENT_DATE - deadline)) " +
 //            "WHERE status = 3 AND deadline < CURRENT_DATE")

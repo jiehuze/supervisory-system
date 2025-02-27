@@ -54,10 +54,16 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
     List<EffectiveGearCount> countGearCollectByDate(@Param("startTime") LocalDateTime startTime,
                                                     @Param("endTime") LocalDateTime endTime);
 
-    @Select("SELECT bft.name, COUNT(*) AS count " +
+    @Select("<script>" +
+            "SELECT bft.name, COUNT(*) AS count " +
             "FROM public.bz_form_target bft " +
             "LEFT JOIN public.bz_form bf ON bf.id = bft.bz_form_id " +
-            "WHERE  bf.type_id = #{typeId} AND CASE WHEN bft.actual_gear IS NOT NULL THEN bft.actual_gear ELSE bft.predicted_gear END = #{gear} GROUP BY bft.name ORDER BY bft.name")
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "<if test='typeId != null and typeId != 0'> bf.type_id = #{typeId} </if>" +
+            "AND CASE WHEN bft.actual_gear IS NOT NULL THEN bft.actual_gear ELSE bft.predicted_gear END = #{gear} " +
+            "</where>" +
+            "GROUP BY bft.name ORDER BY bft.name" +
+            "</script>")
     List<BzFromTargetNameCount> selectByTimeAndGear(@Param("startTime") LocalDateTime startTime,
                                                     @Param("endTime") LocalDateTime endTime,
                                                     @Param("gear") Integer gear,

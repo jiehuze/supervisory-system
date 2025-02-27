@@ -330,8 +330,8 @@ public class TaskController {
             }
         }
 
-        List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod(queryTask, leadingDepartmentIds);
-        List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus(queryTask, leadingDepartmentIds);
+        List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod2(queryTask, deptDTOs);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus2(queryTask, deptDTOs);
 
         ArrayList<TaskPeriodCount> taskPeriodCounts = new ArrayList<>();
         taskPeriodCounts.add(new TaskPeriodCount(0, 0, 1, "一个月内任务"));
@@ -386,8 +386,8 @@ public class TaskController {
                 leadingDepartmentIds.add(deptDTO.getDeptId());
             }
         }
-        List<Map<String, Object>> totals = taskService.countTasksByFieldId(queryTask, leadingDepartmentIds);
-        List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus(queryTask, leadingDepartmentIds);
+        List<Map<String, Object>> totals = taskService.countTasksByFieldId2(queryTask, deptDTOs);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus2(queryTask, deptDTOs);
         List<Field> list = fieldService.list();
 
         ArrayList<TaskFieldCount> taskFieldCounts = new ArrayList<>(list.size());
@@ -396,17 +396,20 @@ public class TaskController {
             taskFieldCount.setFieldId(field.getId());
             taskFieldCount.setFieldName(field.getName());
             for (Map<String, Object> total : totals) {
-                if (((Integer) total.get("field_id")).equals(field.getId())) {
+//                System.out.println("for ++++++++++ field id :" + total.get("field_id") + "  " + field.getId());
+                if (((Integer) total.get("field_id")).equals(field.getId().intValue())) {
+//                    System.out.println("equals ++++++++++ field id :" + total.get("field_id") + "  " + field.getId());
                     taskFieldCount.setTotal(((Long) total.get("count")).intValue());
                     break;
                 }
             }
             for (Map<String, Object> complete_total : complete_totals) {
-                if (((Integer) complete_total.get("field_id")).equals(field.getId())) {
+                if (((Integer) complete_total.get("field_id")).equals(field.getId().intValue())) {
                     taskFieldCount.setComplete(((Long) complete_total.get("count")).intValue());
                     break;
                 }
             }
+//            System.out.println("-------taskFieldCount: " + taskFieldCount.toString());
 
             taskFieldCounts.add(taskFieldCount);
         }

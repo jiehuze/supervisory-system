@@ -650,6 +650,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         return taskMapper.countTasksByTaskPeriod(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getPhoneUsed(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
     }
 
+    @Override
+    public List<Map<String, Object>> countTasksByTaskPeriod2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        return taskMapper.countTasksByTaskPeriod2(queryTask, deptDTOs);
+    }
+
     /**
      * 计算taskPeriod分别为1,2,3且状态status为6的任务数。
      *
@@ -658,6 +663,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public List<Map<String, Object>> countTasksByTaskPeriodAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
         return taskMapper.countTasksByTaskPeriodAndStatus(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getPhoneUsed(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+    }
+
+    @Override
+    public List<Map<String, Object>> countTasksByTaskPeriodAndStatus2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        return taskMapper.countTasksByTaskPeriodAndStatus2(queryTask, deptDTOs);
     }
 
     /**
@@ -672,6 +682,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         return taskMapper.countTasksByFieldId(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
     }
 
+    @Override
+    public List<Map<String, Object>> countTasksByFieldId2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        return taskMapper.countTasksByFieldId2(queryTask, deptDTOs);
+    }
+
     /**
      * 计算根据fieldId分组且状态status为6的任务数。
      *
@@ -682,6 +697,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
         return taskMapper.countTasksByFieldIdAndStatus(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+    }
+
+    @Override
+    public List<Map<String, Object>> countTasksByFieldIdAndStatus2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        return taskMapper.countTasksByFieldIdAndStatus2(queryTask, deptDTOs);
     }
 
 

@@ -55,6 +55,7 @@ public interface ITaskService extends IService<Task> {
     List<Task> ListTasksOverdue();
 
     IPage<Task> queryTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
+
     IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     boolean updateStatusById(Long taskId, Integer newStatus);
@@ -93,12 +94,20 @@ public interface ITaskService extends IService<Task> {
     //根据任务周期读取已办结数量
     List<Map<String, Object>> countTasksByTaskPeriod(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
+    List<Map<String, Object>> countTasksByTaskPeriod2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
+
     List<Map<String, Object>> countTasksByTaskPeriodAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
+
+    List<Map<String, Object>> countTasksByTaskPeriodAndStatus2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
     //根据所属领域读取已办结数量
     List<Map<String, Object>> countTasksByFieldId(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
+    List<Map<String, Object>> countTasksByFieldId2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
+
     List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
+
+    List<Map<String, Object>> countTasksByFieldIdAndStatus2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
     //更新超期任务
     void updateOverdueDays();
