@@ -58,6 +58,12 @@ public class BzFormTargetController {
             for (BzFormTarget bzformTarget : bzFormTargetList) {
                 bzFormTargetService.removeById(bzformTarget.getId());
             }
+            BzForm bzForm = bzFormService.getById(bzSearchDTO.getBzFormId());
+            //写入牵头单位
+            for (BzFormTarget bzFormTarget : bzFormTargets) {
+                bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
+                bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
+            }
             saveBatch = bzFormTargetService.saveBatch(bzFormTargets);
 
             //更新时，写入责任单位

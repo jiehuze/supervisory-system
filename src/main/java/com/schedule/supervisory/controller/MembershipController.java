@@ -25,7 +25,17 @@ public class MembershipController {
     public BaseResponse updateMembership(@RequestBody Membership membership) {
         boolean update = membershipService.updateMembership(membership);
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+    }
 
+    @PutMapping("/save")
+    public BaseResponse saveMembership(@RequestBody Membership membership) {
+        boolean save = true;
+        Membership mp = membershipService.getByLeadingDepartmentId(membership.getLeadingDepartmentId());
+        if (mp != null) {
+            membership.setId(mp.getId());
+        }
+        save = membershipService.saveOrUpdate(membership);
+        return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
 
     @GetMapping("/get/{leadingDepartmentId}")

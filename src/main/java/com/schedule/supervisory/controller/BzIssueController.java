@@ -129,6 +129,8 @@ public class BzIssueController {
         }
         for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
             bzIssueTarget.setBzIssueId(id);
+            bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
+            bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
 //            bzIssueTarget.setAssigner(bzIssue.getAssigner());
 //            bzIssueTarget.setAssignerId(bzIssue.getAssignerId());
 //            bzIssueTarget.setOperator(bzIssue.getAssigner());

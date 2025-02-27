@@ -55,6 +55,12 @@ public class BzIssueTargetController {
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
                 bzIssueTargetService.removeById(bzIssueTarget.getId());
             }
+            BzIssue bzIssue = bzIssueService.getById(bzSearchDTO.getBzIssuedId());
+            //写入牵头单位
+            for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
+                bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
+                bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
+            }
             saveBatch = bzIssueTargetService.saveBatch(bzIssueTargets);
 
             //更新时，写入责任单位

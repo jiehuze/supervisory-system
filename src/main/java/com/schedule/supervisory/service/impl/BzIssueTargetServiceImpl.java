@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueTargetMapper;
 import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
-import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueTargetService;
 import org.springframework.stereotype.Service;
@@ -105,6 +104,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(BzIssueTarget::getLeadingDepartmentId, deptDTO.getDeptId()));
                     }
                 }
             });

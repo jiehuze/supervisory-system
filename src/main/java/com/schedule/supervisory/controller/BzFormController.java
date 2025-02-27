@@ -133,6 +133,9 @@ public class BzFormController {
         }
         for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
             bzFormTarget.setBzFormId(id);
+            //写入牵头单位
+            bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
+            bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
 //            bzFormTarget.setAssigner(bzForm.getAssigner());
 //            bzFormTarget.setAssignerId(bzForm.getAssignerId());
 //            bzFormTarget.setOperator(bzForm.getAssigner());

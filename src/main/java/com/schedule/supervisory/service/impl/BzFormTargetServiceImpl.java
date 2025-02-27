@@ -107,6 +107,7 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(BzFormTarget::getLeadingDepartmentId, deptDTO.getDeptId()));
                     }
                 }
             });
