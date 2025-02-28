@@ -32,9 +32,8 @@ public class FieldController {
     }
 
     @GetMapping("/all")
-    public BaseResponse getAllFields() {
-//        List<Field> list = fieldService.list();// 调用IService的list方法获取所有记录
-        List<Field> list = fieldService.getFields();
+    public BaseResponse getAllFields(@RequestParam(required = false) Boolean deleteField) {
+        List<Field> list = fieldService.getFields(deleteField);
         return new BaseResponse(HttpStatus.OK.value(), "success", list, Integer.toString(0));
     }
 

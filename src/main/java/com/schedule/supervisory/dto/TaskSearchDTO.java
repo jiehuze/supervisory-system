@@ -30,4 +30,5 @@ public class TaskSearchDTO implements Serializable {
     private Boolean unfinished;
     private Boolean unAuth; //不需要权限，可以全部查看
     private Boolean phoneUsed; //手机统计需要特殊处理
+    private Boolean deleteField;
 }

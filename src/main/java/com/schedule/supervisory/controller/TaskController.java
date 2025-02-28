@@ -104,6 +104,10 @@ public class TaskController {
     @PutMapping("/update/{id}")
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
         Task task = taskDTO.getTask();
+        //创建超期时间的任务直接写超时时间
+        if (util.daysDifference(task.getDeadline()) > 0) {
+            task.setOverdueDays((int) util.daysDifference(task.getDeadline()));
+        }
         taskService.updateTask(task);
 
         for (StageNode stageNode : taskDTO.getStageNodes()) {
@@ -388,7 +392,7 @@ public class TaskController {
         }
         List<Map<String, Object>> totals = taskService.countTasksByFieldId2(queryTask, deptDTOs);
         List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus2(queryTask, deptDTOs);
-        List<Field> list = fieldService.list();
+        List<Field> list = fieldService.getFields(queryTask.getDeleteField());
 
         ArrayList<TaskFieldCount> taskFieldCounts = new ArrayList<>(list.size());
         for (Field field : list) {

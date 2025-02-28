@@ -15,9 +15,12 @@ import java.util.List;
 public class FieldServiceImpl extends ServiceImpl<FieldMapper, Field> implements IFieldService {
 
     @Override
-    public List<Field> getFields() {
+    public List<Field> getFields(Boolean delete) {
         LambdaQueryWrapper<Field> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Field::isDelete, false); // 查询没有删除
+        if (delete != null) {
+            queryWrapper.eq(Field::isDelete, delete); // 查询没有删除
+        }
+        queryWrapper.orderByAsc(Field::getId);
         return this.list(queryWrapper);
     }
 

@@ -7,7 +7,7 @@ import com.schedule.supervisory.entity.Field;
 import java.util.List;
 
 public interface IFieldService extends IService<Field> {
-    List<Field> getFields();
+    List<Field> getFields(Boolean delete);
 
     Field getFieldByName(String name);
 
