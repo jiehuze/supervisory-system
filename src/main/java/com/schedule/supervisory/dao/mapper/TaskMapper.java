@@ -66,6 +66,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "<if test='queryTask.taskId != null'> AND id = #{queryTask.taskId}</if>" +
+            "<if test='queryTask.fieldId != null'> AND field_id = #{queryTask.fieldId}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
             "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
@@ -310,6 +311,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
             "</where>" +
             "GROUP BY field_id" +
             "</script>")

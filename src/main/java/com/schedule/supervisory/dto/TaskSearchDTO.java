@@ -16,6 +16,7 @@ public class TaskSearchDTO implements Serializable {
     private String leadingDepartment; // 牵头单位 'leading_department'
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
     private LocalDate deadline; // 完成时间 'deadline'
+    private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
     private Integer status; // 任务状态 'status'
     private Integer overdueDays; // 新增逾期天数字段，当状态为3时，计算超期天数
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
