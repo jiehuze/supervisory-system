@@ -91,6 +91,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getDeadline() != null) {
             updateWrapper.set(Task::getDeadline, task.getDeadline());
         }
+        if (task.getOverdueDays() != null) {
+            updateWrapper.set(Task::getOverdueDays, task.getOverdueDays());
+        }
 
         update(updateWrapper);
     }
@@ -236,6 +239,46 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 //        queryWrapper.orderByDesc(Task::getId);
 
         return page(page, queryWrapper);
+    }
+
+    @Override
+    public List<Task> getTasksBySearchDTO(TaskSearchDTO queryTask) {
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryTask.getTaskId() != null) {
+            queryWrapper.eq(Task::getId, queryTask.getTaskId());
+        }
+
+        if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
+            queryWrapper.like(Task::getSource, queryTask.getSource());
+        }
+
+        if (queryTask.getContent() != null && !queryTask.getContent().isEmpty()) {
+            queryWrapper.like(Task::getContent, queryTask.getContent());
+        }
+
+        if (queryTask.getLeadingOfficial() != null && !queryTask.getLeadingOfficial().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficial, queryTask.getLeadingOfficial());
+        }
+
+        if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
+            queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
+        }
+        if (queryTask.getStatus() != null) {
+            //延期任务
+            if (queryTask.getStatus() == 3) {
+                queryWrapper.ne(Task::getStatus, 6);
+                queryWrapper.ne(Task::getStatus, 9);
+//                queryWrapper.apply("updated_at > deadline");
+                queryWrapper.gt(Task::getOverdueDays, 0); //超期时间大于0
+
+            } else {
+                queryWrapper.eq(Task::getStatus, queryTask.getStatus());
+            }
+        } else if (queryTask.getUnfinished() != null && queryTask.getUnfinished()) { //未完成任务
+            queryWrapper.ne(Task::getStatus, 6);
+            queryWrapper.ne(Task::getStatus, 9);
+        }
+        return list(queryWrapper);
     }
 
     @Override
@@ -708,6 +751,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public void updateOverdueDays() {
         taskMapper.updateOverdueDays();
+    }
+
+    @Override
+    public boolean updateOverdueDays(Long taskId, int days) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId);
+
+        updateWrapper.set(Task::getOverdueDays, days);
+
+        return update(null, updateWrapper);
     }
 
     @Override

@@ -8,6 +8,8 @@ import java.util.List;
 public interface IStageNodeService extends IService<StageNode> {
     List<StageNode> getStageNodesByTaskId(Integer taskId);
 
+    List<StageNode> getStageNodeForOverdue(Long taskId);
+
     StageNode createStageNode(StageNode stageNode);
 
     boolean batchCreateStageNodes(List<StageNode> stageNodes);

@@ -1,10 +1,13 @@
 package com.schedule.supervisory.service.impl;
 
+import com.schedule.supervisory.dto.TaskSearchDTO;
+import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.IStageNodeService;
 import com.schedule.supervisory.service.ITaskService;
 import com.schedule.supervisory.service.IYkbMessageService;
+import com.schedule.utils.util;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +35,31 @@ public class TaskSchedulerService {
     public void executeTaskAt1AM() {
         logTime("01:00 定时任务");
         //每天1点更新下过期时间
-        taskService.updateOverdueDays();
+        //先更新阶段性目标超期的
         stageNodeService.updateOverdueDays();
+
+        //获取所有没有完成的任务
+        TaskSearchDTO taskSearchDTO = new TaskSearchDTO();
+        taskSearchDTO.setUnfinished(true);
+        List<Task> taskList = taskService.getTasksBySearchDTO(taskSearchDTO);
+
+        for (Task task : taskList) {
+            long taskoverdueDays = 0;
+            if (util.daysDifference(task.getDeadline()) > 0) {
+                taskoverdueDays = util.daysDifference(task.getDeadline());
+            }
+            List<StageNode> stageNodeList = stageNodeService.getStageNodeForOverdue(task.getId());
+            for (StageNode stageNode : stageNodeList) {
+                taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
+            }
+
+            if (taskoverdueDays > 0) {
+                task.setOverdueDays((int) taskoverdueDays);
+                taskService.updateOverdueDays(task.getId(), (int) taskoverdueDays);
+            }
+        }
+
+//        taskService.updateOverdueDays();
     }
 
     // 任务2：每天 09:00 执行

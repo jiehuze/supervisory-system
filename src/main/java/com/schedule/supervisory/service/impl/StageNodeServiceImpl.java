@@ -1,9 +1,11 @@
 package com.schedule.supervisory.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.StageNodeMapper;
 import com.schedule.supervisory.entity.StageNode;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IStageNodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,15 @@ public class StageNodeServiceImpl extends ServiceImpl<StageNodeMapper, StageNode
     @Override
     public List<StageNode> getStageNodesByTaskId(Integer taskId) {
         return baseMapper.selectByTaskIdOrderByCreatedAtDesc(taskId);
+    }
+
+    @Override
+    public List<StageNode> getStageNodeForOverdue(Long taskId) {
+        LambdaQueryWrapper<StageNode> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(StageNode::getTaskId, taskId);
+        queryWrapper.eq(StageNode::getStatus, 3);
+
+        return list(queryWrapper);
     }
 
     @Override

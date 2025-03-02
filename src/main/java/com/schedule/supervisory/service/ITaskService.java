@@ -58,6 +58,8 @@ public interface ITaskService extends IService<Task> {
 
     IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
+    List<Task> getTasksBySearchDTO(TaskSearchDTO queryTask);
+
     boolean updateStatusById(Long taskId, Integer newStatus);
 
     boolean updateIsUrgentById(Long taskId, Boolean isUrgent);
@@ -111,6 +113,8 @@ public interface ITaskService extends IService<Task> {
 
     //更新超期任务
     void updateOverdueDays();
+
+    boolean updateOverdueDays(Long taskId, int days);
 
     public List<Task> getTasksDueInHours(int hours);
 

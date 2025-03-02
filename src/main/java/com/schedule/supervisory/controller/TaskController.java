@@ -68,9 +68,14 @@ public class TaskController {
             Task task = taskDTO.getTask();
             if (task.getId() == null) {
                 //创建超期时间的任务直接写超时时间
-                if (util.daysDifference(task.getDeadline()) > 0) {
-                    task.setOverdueDays((int) util.daysDifference(task.getDeadline()));
+                long taskoverdueDays = 0;
+
+                for (StageNode stageNode : taskDTO.getStageNodes()) {
+                    taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
                 }
+                taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
+                task.setOverdueDays((int) taskoverdueDays);
+
                 Long id = taskService.insertTask(task);
                 if (id == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
@@ -103,19 +108,23 @@ public class TaskController {
 
     @PutMapping("/update/{id}")
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
+        long taskoverdueDays = 0;
         Task task = taskDTO.getTask();
         //创建超期时间的任务直接写超时时间
         if (util.daysDifference(task.getDeadline()) > 0) {
-            task.setOverdueDays((int) util.daysDifference(task.getDeadline()));
+            taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
         }
-        taskService.updateTask(task);
 
         for (StageNode stageNode : taskDTO.getStageNodes()) {
             stageNode.setTaskId((int) id.longValue());
+            taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
             if (stageNode.getId() != null) {
                 stageNodeService.removeById(stageNode.getId());
             }
         }
+
+        task.setOverdueDays((int) taskoverdueDays);
+        taskService.updateTask(task);
         stageNodeService.batchCreateStageNodes(taskDTO.getStageNodes());
 
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
