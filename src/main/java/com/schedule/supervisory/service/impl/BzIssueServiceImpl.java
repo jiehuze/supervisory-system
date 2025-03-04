@@ -100,7 +100,8 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
             }
         });
 
-        queryWrapper.orderByDesc(BzIssue::getId);
+//        queryWrapper.orderByDesc(BzIssue::getId);
+        queryWrapper.orderByAsc(BzIssue::getTypeId);
 
         return page(page, queryWrapper);
     }
@@ -156,6 +157,18 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
                 .set(BzIssue::getYear, bzIssue.getYear())
                 .set(BzIssue::getQuarter, bzIssue.getQuarter())
                 .set(BzIssue::getTypeId, bzIssue.getTypeId());
+        if (bzIssue.getLeadingDepartmentId() != null) {
+            updateWrapper.set(BzIssue::getLeadingDepartmentId, bzIssue.getLeadingDepartmentId());
+        }
+        if (bzIssue.getLeadingDepartment() != null) {
+            updateWrapper.set(BzIssue::getLeadingDepartment, bzIssue.getLeadingDepartment());
+        }
+        if (bzIssue.getResponsibleDeptId() != null) {
+            updateWrapper.set(BzIssue::getResponsibleDeptId, bzIssue.getResponsibleDeptId());
+        }
+        if (bzIssue.getResponsibleDept() != null) {
+            updateWrapper.set(BzIssue::getResponsibleDept, bzIssue.getResponsibleDept());
+        }
         return update(updateWrapper);
     }
 

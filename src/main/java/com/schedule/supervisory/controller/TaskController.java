@@ -71,6 +71,9 @@ public class TaskController {
                 long taskoverdueDays = 0;
 
                 for (StageNode stageNode : taskDTO.getStageNodes()) {
+                    if (util.daysDifference(stageNode.getDeadline()) > 0) {
+                        stageNode.setStatus(3);
+                    }
                     taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
                 }
                 taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
@@ -116,6 +119,9 @@ public class TaskController {
         }
 
         for (StageNode stageNode : taskDTO.getStageNodes()) {
+            if (util.daysDifference(stageNode.getDeadline()) > 0) {
+                stageNode.setStatus(3);
+            }
             stageNode.setTaskId((int) id.longValue());
             taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
             if (stageNode.getId() != null) {

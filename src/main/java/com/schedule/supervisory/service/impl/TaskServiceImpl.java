@@ -125,8 +125,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LocalDateTime now = LocalDateTime.now();
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
-                .isNotNull(Task::getDeadline)  // 确保 deadline 不是 null
-                .gt(Task::getDeadline, now)   // deadline 在当前时间之后
+//                .isNotNull(Task::getDeadline)  // 确保 deadline 不是 null
+//                .gt(Task::getDeadline, now)   // deadline 在当前时间之后
+                .gt(Task::getOverdueDays, 0)
                 .ne(Task::getStatus, 6)  // 排除状态 6
                 .ne(Task::getStatus, 9); // 排除状态 9
         return taskMapper.selectList(queryWrapper);

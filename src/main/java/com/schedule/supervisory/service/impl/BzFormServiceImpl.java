@@ -94,7 +94,8 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
             }
         });
 
-        queryWrapper.orderByDesc(BzForm::getId);
+//        queryWrapper.orderByDesc(BzForm::getId);
+        queryWrapper.orderByAsc(BzForm::getTypeId);
 
         return page(page, queryWrapper);
     }
@@ -149,6 +150,12 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
                 .set(BzForm::getYear, bzForm.getYear())
                 .set(BzForm::getQuarter, bzForm.getQuarter())
                 .set(BzForm::getTypeId, bzForm.getTypeId());
+        if (bzForm.getLeadingDepartmentId() != null) {
+            updateWrapper.set(BzForm::getLeadingDepartmentId, bzForm.getLeadingDepartmentId());
+        }
+        if (bzForm.getLeadingDepartment() != null) {
+            updateWrapper.set(BzForm::getLeadingDepartment, bzForm.getLeadingDepartment());
+        }
         if (bzForm.getResponsibleDeptId() != null) {
             updateWrapper.set(BzForm::getResponsibleDeptId, bzForm.getResponsibleDeptId());
         }
