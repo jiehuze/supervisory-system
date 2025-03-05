@@ -14,7 +14,9 @@ public enum TaskStatus {
     TASKSTATUS_CANCEL_REVIEW_LEADER_CB(7, "取消审核中（承办领导）"),
     TASKSTATUS_CANCEL_REVIEW_LEADER_QT(11, "取消审核中（牵头领导）"),
     TASKSTATUS_CANCEL_REVIEW_ASSIGNER(8, "取消审核中（交办人）"),
-    TASKSTATUS_CANCELLED(9, "已取消");
+    TASKSTATUS_CANCELLED(9, "已取消"),
+
+    TASKSTATUS_REPORT(100, "填报审核中（承包领导）");
 
     private final Integer code; // 状态码
     private final String description; // 状态描述

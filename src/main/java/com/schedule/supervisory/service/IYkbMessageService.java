@@ -15,4 +15,5 @@ public interface IYkbMessageService {
     public boolean sendMessageForInstruction(Task task);
 
     public boolean sendMessageForNewTask(Task task);
+    public boolean sendMessageForUrgent(Task task);
 }

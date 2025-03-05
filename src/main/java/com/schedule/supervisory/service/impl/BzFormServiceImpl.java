@@ -168,9 +168,15 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     @Override
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
         BzForm bzForm = getById(taskId);
+        String checkStatus = bzForm.getCheckStatus();
 
         //拼接字符串，使用逗号分割
-        String checkStatus = util.joinString(bzForm.getCheckStatus(), addStatus.toString());
+        if (addStatus != null) {
+            checkStatus = util.joinString(checkStatus, addStatus.toString());
+        }
+        if (removeStatus != null) {
+            checkStatus = util.removeString(checkStatus, removeStatus.toString());
+        }
 
         LambdaUpdateWrapper<BzForm> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzForm::getId, bzForm.getId());

@@ -175,8 +175,14 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     @Override
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
         BzIssue bzIssue = getById(taskId);
+        String checkStatus = bzIssue.getCheckStatus();
         //拼接字符串，使用逗号分割
-        String checkStatus = util.joinString(bzIssue.getCheckStatus(), addStatus.toString());
+        if (addStatus != null) {
+            checkStatus = util.joinString(checkStatus, addStatus.toString());
+        }
+        if (removeStatus != null) {
+            checkStatus = util.removeString(checkStatus, removeStatus.toString());
+        }
 
         LambdaUpdateWrapper<BzIssue> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzIssue::getId, bzIssue.getId());

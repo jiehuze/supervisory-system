@@ -89,6 +89,9 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             case 11:
                 message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
                 break;
+            case 100:
+                message = "有一条【" + task.getSource() + "】任务填报需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
         }
 
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
@@ -107,6 +110,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             case 4:
             case 7:
             case 12:
+            case 100:
                 //获取办结领导
                 String[] deptIds = task.getLeadingDepartmentId().split(",");
                 ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
@@ -161,7 +165,29 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = "您有一个新任务需要接收，请及时处理。";
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR", "XBLD", "XBLD"), List.of(deptIds));//承办人
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR", "XBLD"), List.of(deptIds));//承办人
+
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+        return true;
+    }
+
+    @Override
+    public boolean sendMessageForUrgent(Task task) {
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
+        String message = "您的任务【" + task.getSource() + "】收到一条催办提醒，请及时处理。";
+        String[] deptIds = task.getLeadingDepartmentId().split(",");
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR", "XBLD"), List.of(deptIds));//承办人
 
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
         if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {

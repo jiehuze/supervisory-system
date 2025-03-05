@@ -50,7 +50,7 @@ public class CheckController {
                     taskService.updateCheckById(check.getTaskId(), 1, 0);
                 }
                 Task messageTask = taskService.getTaskById(check.getTaskId());
-                ykbMessageService.sendMessageForCheck(messageTask, TaskStatus.TASKSTATUS_REVIEW_LEADER_CB.getCode());
+                ykbMessageService.sendMessageForCheck(messageTask, TaskStatus.TASKSTATUS_REPORT.getCode());
             }
             //报表牵头人提交审核 3；承办人指标审核 4
             if (check.getBzFormId() != null) {

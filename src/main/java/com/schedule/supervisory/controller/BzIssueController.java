@@ -145,6 +145,18 @@ public class BzIssueController {
 
     @PutMapping("/update")
     public BaseResponse updateBzIssue(@RequestBody BzIssue bzIssue) {
+        BzIssue bi = bzIssueService.getById(bzIssue.getId());
+        if (bi.getLeadingDepartmentId() != null && !bi.getLeadingDepartmentId().equals(bzIssue.getLeadingDepartmentId())) {
+            BzSearchDTO bzSearchDTO = new BzSearchDTO();
+            bzSearchDTO.setBzIssuedId(bzIssue.getId());
+
+            List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
+            for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
+                bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
+                bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
+            }
+            bzIssueTargetService.updateBatchById(bzIssueTargetList);
+        }
         boolean upate = bzIssueService.updateBzIssue(bzIssue);
         return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
     }

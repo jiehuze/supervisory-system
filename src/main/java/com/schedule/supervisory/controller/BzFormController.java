@@ -150,6 +150,20 @@ public class BzFormController {
 
     @PutMapping("/update")
     public BaseResponse updateBzForm(@RequestBody BzForm bzForm) {
+        //需要修改牵头单位到每个target中去
+        BzForm bf = bzFormService.getById(bzForm.getId());
+        if (bf.getLeadingDepartmentId() != null && !bf.getLeadingDepartmentId().equals(bzForm.getLeadingDepartmentId())) {
+            BzSearchDTO bzSearchDTO = new BzSearchDTO();
+            bzSearchDTO.setBzFormId(bzForm.getId());
+
+            List<BzFormTarget> bzFormTargetList = bzFormTargetService.getByFormId(bzSearchDTO, null);
+            for (BzFormTarget bzFormTarget : bzFormTargetList) {
+                bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
+                bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
+            }
+            bzFormTargetService.updateBatchById(bzFormTargetList);
+        }
+
         boolean upate = bzFormService.updateBzFrom(bzForm);
         return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
     }

@@ -312,6 +312,12 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "<if test='queryTask.status != null'>" +
+            "<choose>" +
+            "<when test='queryTask.status == 3'> AND status NOT IN (6, 9) AND overdue_days > 0</when>" +
+            "<otherwise> AND status = #{queryTask.status}</otherwise>" +
+            "</choose>" +
+            "</if>" +
             "</where>" +
             "GROUP BY field_id" +
             "</script>")
