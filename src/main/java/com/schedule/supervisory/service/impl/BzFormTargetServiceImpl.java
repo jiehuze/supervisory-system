@@ -116,4 +116,33 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
         queryWrapper.orderByAsc(BzFormTarget::getId);
         return list(queryWrapper);
     }
+
+    @Override
+    public List<BzFormTarget> getCheckTargetByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
+        LambdaQueryWrapper<BzFormTarget> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BzFormTarget::getBzFormId, bzSearchDTO.getBzFormId());
+
+        if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
+            queryWrapper.like(BzFormTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
+        }
+
+        if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
+                || (deptDTOs != null && deptDTOs.size() > 0)) {
+            // 处理leadingOfficialId模糊查询的情况
+            queryWrapper.and(wrapper -> {
+                if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
+                    wrapper.or(w -> w.like(BzFormTarget::getAssignerId, bzSearchDTO.getUserId()));
+                }
+
+                if (deptDTOs != null && deptDTOs.size() > 0) {
+                    for (DeptDTO deptDTO : deptDTOs) {
+                        wrapper.or(w -> w.like(BzFormTarget::getDeptId, deptDTO.getDeptId()));
+                    }
+                }
+            });
+        }
+
+        queryWrapper.orderByAsc(BzFormTarget::getId);
+        return list(queryWrapper);
+    }
 }

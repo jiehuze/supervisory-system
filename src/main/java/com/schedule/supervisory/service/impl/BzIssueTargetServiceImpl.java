@@ -112,4 +112,29 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
         queryWrapper.orderByAsc(BzIssueTarget::getId);
         return list(queryWrapper);
     }
+
+    @Override
+    public List<BzIssueTarget> getCheckByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
+        LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getBzIssuedId());
+        if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
+            queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
+        }
+        if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
+                || (deptDTOs != null && deptDTOs.size() > 0)) {
+            queryWrapper.and(wrapper -> {
+                if (bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty()) {
+                    wrapper.or(w -> w.like(BzIssueTarget::getAssignerId, bzSearchDTO.getUserId()));
+                }
+
+                if (deptDTOs != null && deptDTOs.size() > 0) {
+                    for (DeptDTO deptDTO : deptDTOs) {
+                        wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId()));
+                    }
+                }
+            });
+        }
+        queryWrapper.orderByAsc(BzIssueTarget::getId);
+        return list(queryWrapper);
+    }
 }

@@ -69,7 +69,7 @@ public class BzFormController {
             bzSearchDTO.setBzFormId(bzForm.getId());
             bzSearchDTO.setCheckStatus("4");
             System.out.println("============bzSearchDTO: " + bzSearchDTO);
-            List<BzFormTarget> bzFormTargets = bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs);
+            List<BzFormTarget> bzFormTargets = bzFormTargetService.getCheckTargetByFormId(bzSearchDTO, deptDTOs);
             if (bzFormTargets != null && bzFormTargets.size() > 0) {
                 bzForm.setCheckStatus(util.joinString(bzForm.getCheckStatus(), "4"));
             }

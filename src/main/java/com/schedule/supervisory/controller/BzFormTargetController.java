@@ -6,7 +6,6 @@ import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzFormTargetRecord;
-import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormService;
 import com.schedule.supervisory.service.IBzFormTargetRecordService;
 import com.schedule.supervisory.service.IBzFormTargetService;
@@ -91,6 +90,9 @@ public class BzFormTargetController {
         bzFormTargetRecord.setTargetId(bzFormTarget.getId());
         bzFormTargetRecord.setIssue(bzFormTarget.getIssues());
         bzFormTargetRecord.setWorkProgress(bzFormTarget.getWorkProgress());
+        bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
+        bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
+        bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
         bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", progress, Integer.toString(0));

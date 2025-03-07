@@ -88,6 +88,9 @@ public class BzIssueTargetController {
         bzIssueTargetRecord.setTargetId(bzIssueTarget.getId());
         bzIssueTargetRecord.setIssue(bzIssueTarget.getIssues());
         bzIssueTargetRecord.setWorkProgress(bzIssueTarget.getWorkProgress());
+        bzIssueTargetRecord.setUpdatedBy(bzIssueTarget.getOperatorId());
+        bzIssueTargetRecord.setOperator(bzIssueTarget.getOperator());
+        bzIssueTargetRecord.setOperatorId(bzIssueTarget.getOperatorId());
         bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", progress, Integer.toString(0));

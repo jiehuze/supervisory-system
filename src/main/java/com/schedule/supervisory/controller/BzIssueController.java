@@ -68,7 +68,7 @@ public class BzIssueController {
             bzSearchDTO.setBzFormId(bzIssue.getId());
             bzSearchDTO.setCheckStatus("4");
             System.out.println("============bzSearchDTO: " + bzSearchDTO);
-            List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs);
+            List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getCheckByIssueId(bzSearchDTO, deptDTOs);
             if (bzIssueTargets != null && bzIssueTargets.size() > 0) {
                 bzIssue.setCheckStatus(util.joinString(bzIssue.getCheckStatus(), "4"));
             }

@@ -17,4 +17,6 @@ public interface IBzFormTargetService extends IService<BzFormTarget> {
     boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus);
 
     List<BzFormTarget> getByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs);
+
+    List<BzFormTarget> getCheckTargetByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs);
 }

@@ -18,4 +18,6 @@ public interface IBzIssueTargetService extends IService<BzIssueTarget> {
     boolean reviewProgress(BzIssueTarget bzIssueTarget);
 
     List<BzIssueTarget> getByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs);
+
+    List<BzIssueTarget> getCheckByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs);
 }
