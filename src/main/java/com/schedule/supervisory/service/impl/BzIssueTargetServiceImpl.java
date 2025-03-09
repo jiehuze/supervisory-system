@@ -130,6 +130,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
                 if (deptDTOs != null && deptDTOs.size() > 0) {
                     for (DeptDTO deptDTO : deptDTOs) {
                         wrapper.or(w -> w.like(BzIssueTarget::getDeptId, deptDTO.getDeptId()));
+                        wrapper.or(w -> w.like(BzIssueTarget::getLeadingDepartmentId, deptDTO.getDeptId()));
                     }
                 }
             });
