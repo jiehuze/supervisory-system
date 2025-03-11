@@ -17,7 +17,7 @@ public interface IProgressReportService extends IService<ProgressReport> {
 
     void deleteProgressReport(Long id);
 
-    List<ProgressReport> getProgressReportsByTaskId(Long taskId);
+    List<ProgressReport> getProgressReportsByTaskId(Long taskId, String userId);
 
     ProgressReport getNewProgressReportByTaskId(Long taskId);
 

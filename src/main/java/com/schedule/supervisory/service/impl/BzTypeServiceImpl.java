@@ -18,6 +18,8 @@ public class BzTypeServiceImpl extends ServiceImpl<BzTypeMapper, BzType> impleme
         if (bzType.getType() != null) {
             queryWrapper.eq(BzType::getType, bzType.getType()); // 根据taskId进行查询
         }
+        queryWrapper.eq(BzType::isDelete, bzType.isDelete());
+        queryWrapper.orderByAsc(BzType::getOrderNum);
         return this.list(queryWrapper);
     }
 

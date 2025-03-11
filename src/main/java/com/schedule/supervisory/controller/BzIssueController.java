@@ -5,12 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
-import com.schedule.supervisory.entity.BzForm;
-import com.schedule.supervisory.entity.BzFormTarget;
-import com.schedule.supervisory.entity.BzIssue;
-import com.schedule.supervisory.entity.BzIssueTarget;
+import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.supervisory.service.IBzIssueTargetService;
+import com.schedule.supervisory.service.IBzTypeService;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.utils.DateUtils;
 import com.schedule.utils.HttpUtil;
@@ -20,10 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/bzIssue")
@@ -34,6 +29,9 @@ public class BzIssueController {
 
     @Autowired
     private IBzIssueTargetService bzIssueTargetService;
+
+    @Autowired
+    private IBzTypeService bzTypeService;
 
     @Autowired
     private IConfigService configService;
@@ -65,7 +63,7 @@ public class BzIssueController {
         }
         IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzSearchDTO, pageNum, pageSize, deptDTOs);
         for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
-            bzSearchDTO.setBzFormId(bzIssue.getId());
+            bzSearchDTO.setBzIssuedId(bzIssue.getId());
             bzSearchDTO.setCheckStatus("4");
             System.out.println("============bzSearchDTO: " + bzSearchDTO);
             List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getCheckByIssueId(bzSearchDTO, deptDTOs);
@@ -157,6 +155,35 @@ public class BzIssueController {
             }
             bzIssueTargetService.updateBatchById(bzIssueTargetList);
         }
+        boolean upate = bzIssueService.updateBzIssue(bzIssue);
+        return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
+    }
+
+    //审核清单
+    @PutMapping("/checkIssue")
+    public BaseResponse checkBzIssue(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                     @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                     @RequestBody BzIssueDTO bzIssueDTO) {
+        if (!Licence.getLicence()) {
+            String tenantIdex = configService.getExternConfig("tenant.id");
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
+        BzIssue bzIssue = bzIssueDTO.getBzIssue();
+        for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
+            bzIssueTarget.setBzIssueId(bzIssue.getId());
+            //需要修改牵头单位到每个target中去
+            bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
+            bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
+
+            //将每个指标的责任单位写入到清单中
+            bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+            bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+        }
+
+        bzIssueTargetService.saveOrUpdateBatch(bzIssueDTO.getBzIssueTargetList());
         boolean upate = bzIssueService.updateBzIssue(bzIssue);
         return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
     }
@@ -290,21 +317,30 @@ public class BzIssueController {
             dateInfos = DateUtils.getCurrentYears();
         }
 
-        List<BzIssue> gearsByConditions = bzIssueService.getGearsByConditions(bzSearch);
         // 第一层：季度或者年；第二层：八层表；值为1-5（A-E）
-        HashMap<Integer, Map<Integer, Integer>> collectMap = new HashMap<>();
+//        HashMap<Integer, Map<Integer, Integer>> collectMap = new HashMap<>();
+        BzType bzType = new BzType();
+        bzType.setType("2");
+        bzType.setDelete(false);
+        List<BzType> bzTypeByContains = bzTypeService.getBzTypeByContains(bzType);
+        LinkedHashMap<Integer, LinkedHashMap<String, Integer>> collectMap = new LinkedHashMap<>();
 
         for (DateInfo dateInfo : dateInfos) {
-            Map<Integer, Integer> dateMap = new HashMap<>();
-            for (int i = 1; i <= 8; i++) {
-                dateMap.put(i, 0);
+            LinkedHashMap<String, Integer> dateMap = new LinkedHashMap<>();
+
+//            for (int i = 1; i <= 8; i++) {
+//                dateMap.put(i, 0);
+//            }
+            for (BzType bt : bzTypeByContains) {
+                dateMap.put(bt.getName(), 0);
             }
             collectMap.put(dateInfo.getNumber(), dateMap);
         }
 
+        List<BzIssue> gearsByConditions = bzIssueService.getGearsByConditions(bzSearch);
         for (BzIssue bzIssue : gearsByConditions) {
 
-            Map<Integer, Integer> typeIdS = null;
+            Map<String, Integer> typeIdS = null;
             if (bzSearch.getDateType() == 1) { //按照年
 //                if (bzIssue.getYear() > now.getYear()) {
 //                    continue;
@@ -318,10 +354,15 @@ public class BzIssueController {
             }
 
             Integer gear = bzIssue.getActualGear();
+
+            if (typeIdS.containsKey(bzIssue.getType()) == false) {
+                continue;
+            }
+
             if (bzIssue.getActualGear() == null) {
                 gear = bzIssue.getPredictedGear();
             }
-            typeIdS.put(bzIssue.getTypeId(), gear);
+            typeIdS.put(bzIssue.getType(), gear);
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", collectMap, Integer.toString(0));

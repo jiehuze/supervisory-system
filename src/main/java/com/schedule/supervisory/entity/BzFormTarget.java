@@ -22,6 +22,7 @@ public class BzFormTarget {
     // 审核状态：0：提交；1：通过；2：退回；
     private Integer reviewStatus;
     private String reviewerId;
+    private boolean delete;
     private String operator;
     private String operatorId;
     private String assigner; //交办人

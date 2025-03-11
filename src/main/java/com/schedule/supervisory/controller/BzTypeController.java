@@ -42,6 +42,18 @@ public class BzTypeController {
         return new BaseResponse(HttpStatus.OK.value(), "success", result, Integer.toString(0));
     }
 
+    /**
+     * 批量更新接口，当调整顺序时可以调用，修改typeId为从1开始的顺序
+     *
+     * @param bzTypeList 待保存的BzType列表。
+     * @return BaseResponse 包含操作结果的信息。
+     */
+    @PostMapping("/order")
+    public BaseResponse order(@RequestBody List<BzType> bzTypeList) {
+        bzTypeService.updateBatchById(bzTypeList);
+        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
+    }
+
     @DeleteMapping("/{id}")
     public BaseResponse delete(@PathVariable Long id) {
 //        boolean result = bzTypeService.removeById(id);

@@ -1,6 +1,7 @@
 package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.ProgressReport;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
@@ -40,6 +41,15 @@ public class ProgressReportController {
         return new BaseResponse(HttpStatus.OK.value(), "success", progressReport1, Integer.toString(0));
     }
 
+    //提交审核
+    @PostMapping("/check")
+    public BaseResponse createCheckProgressReport(@RequestBody ProgressReport progressReport) {
+        progressReport.setStatus(4); //设置为审核状态
+        ProgressReport progressReport1 = progressReportService.createProgressReport(progressReport);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", progressReport1, Integer.toString(0));
+    }
+
     @PutMapping("/{id}")
     public BaseResponse updateProgressReport(@PathVariable(value = "id") Long progressReportId,
                                              @RequestBody ProgressReport progressReportDetails) {
@@ -53,8 +63,8 @@ public class ProgressReportController {
 //    }
 
     @GetMapping("/task/{taskId}")
-    public BaseResponse getProgressReportsByTaskId(@PathVariable(value = "taskId") Long taskId) {
-        List<ProgressReport> progressReports = progressReportService.getProgressReportsByTaskId(taskId);
+    public BaseResponse getProgressReportsByTaskId(@PathVariable(value = "taskId") Long taskId, @ModelAttribute BzSearchDTO bzSearchDTO) {
+        List<ProgressReport> progressReports = progressReportService.getProgressReportsByTaskId(taskId, bzSearchDTO.getUserId());
         return new BaseResponse(HttpStatus.OK.value(), "success", progressReports, Integer.toString(0));
     }
 

@@ -35,10 +35,14 @@ public class ProgressReport {
     /**
      * 1: 已撤回
      * 2：撤回失败
-     * 3：完成
+     * 3：完成 （包括审核成功状态）
+     * 4：审核包括审核中
+     * 5: 审核失败
      */
     private Integer status;
     private String revokeDesc; // 新增的撤回描述字段
 
     private String tbFileUrl; //通报文件
+    private Long checkId;
+    private String submitId; //提交人
 }

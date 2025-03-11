@@ -22,6 +22,7 @@ public class BzIssueTarget {
     // 审核状态：1：通过；2：退回
     private Integer reviewStatus;
     private String reviewerId;
+    private boolean delete;
     private String operator;
     private String operatorId;
     private String assigner; //交办人

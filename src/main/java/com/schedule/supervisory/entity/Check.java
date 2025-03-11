@@ -28,6 +28,8 @@ public class Check extends Model<Check> {
      * 4：:885清单列表指标修改提交审核；
      * 5：:885问题列表详情修改提交审核；
      * 6：:885问题列表指标修改提交审核
+     * 7：任务办结提交审核
+     * 8：任务终结提交审核
      */
     private Integer checkType;
     private String operator;

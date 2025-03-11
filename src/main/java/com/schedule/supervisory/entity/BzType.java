@@ -22,6 +22,8 @@ public class BzType {
 
     private boolean delete;
 
+    private Integer orderNum; //排序
+
     private Date createdAt;
 
 }

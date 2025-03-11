@@ -4,12 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
+import com.schedule.excel.TaskTemplateExcel;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
+import com.schedule.utils.ExcelUtil;
 import com.schedule.utils.HttpUtil;
 import com.schedule.utils.TaskStatus;
 import com.schedule.utils.util;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -113,7 +116,7 @@ public class TaskController {
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
         long taskoverdueDays = 0;
         Task task = taskDTO.getTask();
-        System.out.println("--------- task: "+ task.toString());
+        System.out.println("--------- task: " + task.toString());
         //创建超期时间的任务直接写超时时间
         if (util.daysDifference(task.getDeadline()) > 0 && task.getStatus() != 6 && task.getStatus() != 9) {
             taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
@@ -140,6 +143,28 @@ public class TaskController {
     }
 
     @PutMapping("/report/{id}")
+    public BaseResponse reportTask(@PathVariable Long id, @RequestBody ProgressReport progressReport) {
+        System.out.println(progressReport);
+
+        if (progressReport.getStatus() != 5) {
+            Task task = new Task();
+            task.setId(id);
+            task.setProgress(progressReport.getProgress());
+            task.setIssuesAndChallenges(progressReport.getIssuesAndChallenges());
+            task.setRequiresCoordination(progressReport.getRequiresCoordination());
+            task.setNextSteps(progressReport.getNextSteps());
+            task.setHandler(progressReport.getHandler());
+            task.setPhone(progressReport.getPhone());
+            task.setTbFileUrl(progressReport.getTbFileUrl());
+            taskService.updateCbReport(task);
+        }
+
+        ProgressReport progressReport1 = progressReportService.updateProgressReport(progressReport.getId(), progressReport);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", progressReport1, Integer.toString(0));
+    }
+
+    @PutMapping("/push/report/{id}")
     public BaseResponse reportTask(@PathVariable Long id, @RequestBody Task task) {
         System.out.println(task);
         task.setId(id);
@@ -156,7 +181,6 @@ public class TaskController {
         progressReport.setPhone(task.getPhone());
         progressReport.setTbFileUrl(task.getTbFileUrl());
         ProgressReport update = progressReportService.createProgressReport(progressReport);
-
         return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
@@ -471,5 +495,15 @@ public class TaskController {
 
         return new BaseResponse(HttpStatus.OK.value(), "success", progressReports.get(0), Integer.toString(0));
 
+    }
+
+    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    public void export(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                       @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                       @ModelAttribute TaskSearchDTO queryTask,
+                       HttpServletResponse response) throws Exception {
+        List<Task> tasks = taskService.getTasksBySearchDTO(queryTask);
+//        System.out.println(orderWaitResultDTOS);
+        ExcelUtil.exportExcelToTarget(response, null, "任务", tasks, TaskTemplateExcel.class);
     }
 }

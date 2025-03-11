@@ -7,6 +7,7 @@ import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
+import com.schedule.supervisory.entity.BzType;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.DateUtils;
 import com.schedule.utils.HttpUtil;
@@ -16,10 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/bzform")
@@ -35,6 +33,9 @@ public class BzFormController {
     private IBzFormTargetService bzFormTargetService;
     @Autowired
     private IBzIssueTargetService bzIssueTargetService;
+
+    @Autowired
+    private IBzTypeService bzTypeService;
 
     @Autowired
     private IConfigService configService;
@@ -164,6 +165,35 @@ public class BzFormController {
             bzFormTargetService.updateBatchById(bzFormTargetList);
         }
 
+        boolean upate = bzFormService.updateBzFrom(bzForm);
+        return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
+    }
+
+    //审核清单
+    @PutMapping("/checkForm")
+    public BaseResponse checkBzForm(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                    @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                    @RequestBody BzFormDTO bzFormDTO) {
+        if (!Licence.getLicence()) {
+            String tenantIdex = configService.getExternConfig("tenant.id");
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
+        BzForm bzForm = bzFormDTO.getBzForm();
+        for (BzFormTarget bzFormTarget : bzFormDTO.getBzFormTargetList()) {
+            bzFormTarget.setBzFormId(bzForm.getId());
+            //需要修改牵头单位到每个target中去
+            bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
+            bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
+
+            //将每个指标的责任单位写入到清单中
+            bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+            bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+        }
+
+        bzFormTargetService.saveOrUpdateBatch(bzFormDTO.getBzFormTargetList());
         boolean upate = bzFormService.updateBzFrom(bzForm);
         return new BaseResponse(HttpStatus.OK.value(), "success", upate, Integer.toString(0));
     }
@@ -338,21 +368,27 @@ public class BzFormController {
             dateInfos = DateUtils.getCurrentYears();
         }
 
-        List<BzForm> gearsByConditions = bzFormService.getGearsByConditions(bzSearch);
+        BzType bzType = new BzType();
+        bzType.setType("1");
+        List<BzType> bzTypeByContains = bzTypeService.getBzTypeByContains(bzType);
         // 第一层：季度或者年；第二层：八层表；值为1-5（A-E）
-        HashMap<Integer, Map<Integer, Integer>> collectMap = new HashMap<>();
+        LinkedHashMap<Integer, LinkedHashMap<String, Integer>> collectMap = new LinkedHashMap<>();
 
         for (DateInfo dateInfo : dateInfos) {
-            Map<Integer, Integer> dateMap = new HashMap<>();
-            for (int i = 1; i <= 8; i++) {
-                dateMap.put(i, 0);
+            LinkedHashMap<String, Integer> dateMap = new LinkedHashMap<>();
+//            for (int i = 1; i <= 8; i++) {
+//                dateMap.put(i, 0);
+//            }
+            for (BzType bt : bzTypeByContains) {
+                dateMap.put(bt.getName(), 0);
             }
             collectMap.put(dateInfo.getNumber(), dateMap);
         }
 
+        List<BzForm> gearsByConditions = bzFormService.getGearsByConditions(bzSearch);
         for (BzForm bzForm : gearsByConditions) {
 
-            Map<Integer, Integer> typeIdS = null;
+            Map<String, Integer> typeIdS = null;
             if (bzSearch.getDateType() == 1) { //按照年
 //                if (bzForm.getYear() > now.getYear()) {
 //                    continue;
@@ -364,12 +400,14 @@ public class BzFormController {
 //                }
                 typeIdS = collectMap.get(bzForm.getQuarter());
             }
-
+            if (typeIdS.containsKey(bzForm.getType()) == false) {
+                continue;
+            }
             Integer gear = bzForm.getActualGear();
             if (bzForm.getActualGear() == null) {
                 gear = bzForm.getPredictedGear();
             }
-            typeIdS.put(bzForm.getTypeId(), gear);
+            typeIdS.put(bzForm.getType(), gear);
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", collectMap, Integer.toString(0));

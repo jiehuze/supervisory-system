@@ -94,6 +94,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getOverdueDays() != null) {
             updateWrapper.set(Task::getOverdueDays, task.getOverdueDays());
         }
+        if (task.getFillCycle() != null) {
+            updateWrapper.set(Task::getFillCycle, task.getFillCycle());
+        }
 
         update(updateWrapper);
     }

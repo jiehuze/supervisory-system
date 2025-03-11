@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.ProgressReportMapper;
 import com.schedule.supervisory.dto.TaskWithProgressReportDTO;
 import com.schedule.supervisory.entity.ProgressReport;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -39,15 +41,33 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
         if (progressReport == null) {
             throw new RuntimeException("Progress Report not found for id: " + id);
         }
-        progressReport.setTaskId(progressReportDetails.getTaskId());
-        progressReport.setStageNodeId(progressReportDetails.getStageNodeId());
-        progressReport.setProgress(progressReportDetails.getProgress());
-        progressReport.setIssuesAndChallenges(progressReportDetails.getIssuesAndChallenges());
-        progressReport.setRequiresCoordination(progressReportDetails.getRequiresCoordination());
-        progressReport.setNextSteps(progressReportDetails.getNextSteps());
-        progressReport.setHandler(progressReportDetails.getHandler());
-        progressReport.setPhone(progressReportDetails.getPhone());
-        progressReport.setStatus(progressReportDetails.getStatus());
+        if (progressReport.getTaskId() != null) {
+            progressReport.setTaskId(progressReportDetails.getTaskId());
+        }
+        if (progressReport.getStageNodeId() != null) {
+            progressReport.setStageNodeId(progressReportDetails.getStageNodeId());
+        }
+        if (progressReport.getStageNodeId() != null) {
+            progressReport.setProgress(progressReportDetails.getProgress());
+        }
+        if (progressReport.getStageNodeId() != null) {
+            progressReport.setIssuesAndChallenges(progressReportDetails.getIssuesAndChallenges());
+        }
+        if (progressReport.getStageNodeId() != null) {
+            progressReport.setRequiresCoordination(progressReportDetails.getRequiresCoordination());
+        }
+        if (progressReport.getNextSteps() != null) {
+            progressReport.setNextSteps(progressReportDetails.getNextSteps());
+        }
+        if (progressReport.getNextSteps() != null) {
+            progressReport.setHandler(progressReportDetails.getHandler());
+        }
+        if (progressReport.getNextSteps() != null) {
+            progressReport.setPhone(progressReportDetails.getPhone());
+        }
+        if (progressReport.getNextSteps() != null) {
+            progressReport.setStatus(progressReportDetails.getStatus());
+        }
 
         updateById(progressReport);
         return progressReport;
@@ -59,8 +79,25 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
     }
 
     @Override
-    public List<ProgressReport> getProgressReportsByTaskId(Long taskId) {
-        return baseMapper.selectByTaskIdOrderByCreatedAtDesc(taskId);
+    public List<ProgressReport> getProgressReportsByTaskId(Long taskId, String userId) {
+//        return baseMapper.selectByTaskIdOrderByCreatedAtDesc(taskId);
+        LambdaQueryWrapper<ProgressReport> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ProgressReport::getTaskId, taskId); // 替换 yourTaskId 为实际的 task_id 值
+        List<Integer> excludedStatuses = Arrays.asList(4, 5);
+        if (userId != null) {
+            queryWrapper.and(
+                    wrapper -> wrapper.notIn(ProgressReport::getStatus, excludedStatuses)
+                            .or(iw -> iw.in(ProgressReport::getStatus, excludedStatuses)
+                                    .like(ProgressReport::getSubmitId, userId))
+            );
+        } else {
+//            queryWrapper.ne(ProgressReport::getStatus, 4);
+//            queryWrapper.ne(ProgressReport::getStatus, 5);
+            queryWrapper.notIn(ProgressReport::getStatus, excludedStatuses);
+        }
+        queryWrapper.orderByDesc(ProgressReport::getId);
+
+        return list(queryWrapper);
     }
 
     @Override
