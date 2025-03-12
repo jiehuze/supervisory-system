@@ -447,4 +447,41 @@ public class BzFormController {
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFromTargetNameCounts, Integer.toString(0));
     }
+
+    /**
+     * 根据指定的类型（季度或全年）和档位获取统计数据
+     *
+     * @param type 类型（大于2025: 为全年, 1-4: 季度）
+     * @param gear 档位
+     * @return 统计结果列表
+     */
+    @GetMapping("/gearTargets")
+    public BaseResponse getTargetByQuarterAndGear(@RequestParam(value = "type", defaultValue = "0") int type,
+                                                  @RequestParam(value = "year", defaultValue = "0") int year,
+                                                  @RequestParam(value = "quarter", defaultValue = "0") int quarter,
+                                                  @RequestParam("gear") Integer gear,
+                                                  @RequestParam("typeId") int typeid,
+                                                  @RequestParam(defaultValue = "1") int current,
+                                                  @RequestParam(defaultValue = "10") int size) {
+        int number = 0;
+        DateInfo dateInfo = null;
+        List<DateInfo> dateInfos = null;
+        if (year >= 2025) {
+            dateInfos = DateUtils.getCurrentYears();
+            number = year;
+        } else if (quarter >= 1 && quarter <= 4) {
+            dateInfos = DateUtils.getCurrentQuarters();
+            number = quarter;
+        }
+        for (DateInfo di : dateInfos) {
+            if (di.getNumber() == number) {
+                dateInfo = di;
+                break;
+            }
+        }
+        IPage<BzFormTarget> bzFormTargetIPage = bzFormService.selectByTypeAndGear(current, size, dateInfo.getStartTime(), dateInfo.getEndTime(), gear, typeid);
+
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", bzFormTargetIPage, Integer.toString(0));
+    }
 }

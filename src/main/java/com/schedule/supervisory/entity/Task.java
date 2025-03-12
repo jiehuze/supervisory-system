@@ -27,7 +27,7 @@ public class Task {
     private Boolean requiresCoordination; // 是否需要领导协调解决 'requires_coordination'
     private String instruction; // 批示 'approval_status'
     /*
-     * 状态定义：
+     * 状态定义：优化前
      * 1：待接收；
      * 2：正常推进；
      * 3：已超期；
@@ -36,7 +36,13 @@ public class Task {
      * 6：已完成
      * 7：取消审核中（承办领导）
      * 8：取消审核中（交办人）
-     * 9：已取消
+     * 9：已终止
+     * 状态定义：优化后
+     * 1：待接收
+     * 2：正常推进
+     * 6：已完成
+     * 9：已终止
+     * 12：审核中
      * */
     private Integer status; // 任务状态 'status'
     //    private String check;

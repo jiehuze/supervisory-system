@@ -298,28 +298,28 @@ public class HttpUtil {
         TokenRespDTO tokenRespDTO = httpUtil.oauthen2("http://113.207.111.33:48770/api/admin/oauth2/token");
         System.out.println("++++++ token: " + tokenRespDTO.toString());
 
-        RoleDeptRequestDTO requestDTO = new RoleDeptRequestDTO();
-        requestDTO.setRoleCodes(List.of("CBLD"));
-        requestDTO.setDeptIds(List.of());
-
-        String jsonString = JSON.toJSONString(requestDTO);
-
-        String userListData = httpUtil.post("http://113.207.111.33:48770/api/admin/user/getUserListByRoleCodeList",
-                String.format("%s %s", tokenRespDTO.getToken_type(), tokenRespDTO.getAccess_token()),
-                "1877665103373783042",
-                jsonString);
-        System.out.println("****** listdata: " + userListData);
-
-
-        if (userListData != null) {
-
-            // 当code为0时，将data解析为List<UserDataDTO>
-            List<UserDataDTO> userDataList = JSON.parseArray(userListData, UserDataDTO.class);
-
-            for (UserDataDTO userData : userDataList) {
-                System.out.println("user  =  " + userData.toString());
-            }
-        }
+//        RoleDeptRequestDTO requestDTO = new RoleDeptRequestDTO();
+//        requestDTO.setRoleCodes(List.of("CBLD"));
+//        requestDTO.setDeptIds(List.of());
+//
+//        String jsonString = JSON.toJSONString(requestDTO);
+//
+//        String userListData = httpUtil.post("http://113.207.111.33:48770/api/admin/user/getUserListByRoleCodeList",
+//                String.format("%s %s", tokenRespDTO.getToken_type(), tokenRespDTO.getAccess_token()),
+//                "1877665103373783042",
+//                jsonString);
+//        System.out.println("****** listdata: " + userListData);
+//
+//
+//        if (userListData != null) {
+//
+//            // 当code为0时，将data解析为List<UserDataDTO>
+//            List<UserDataDTO> userDataList = JSON.parseArray(userListData, UserDataDTO.class);
+//
+//            for (UserDataDTO userData : userDataList) {
+//                System.out.println("user  =  " + userData.toString());
+//            }
+//        }
 
     }
 }

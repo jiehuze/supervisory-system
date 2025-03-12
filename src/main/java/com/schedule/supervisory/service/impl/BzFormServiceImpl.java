@@ -11,6 +11,7 @@ import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzFormService;
 import com.schedule.utils.util;
@@ -208,5 +209,11 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     @Override
     public List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear, Integer typeId) {
         return bzFormMapper.selectByTimeAndGear(startTime, endTime, gear, typeId);
+    }
+
+    @Override
+    public IPage<BzFormTarget> selectByTypeAndGear(int pageNum, int pageSize, LocalDateTime startTime, LocalDateTime endTime, Integer gear, Integer typeId) {
+        Page<BzFormTarget> page = new Page<>(pageNum, pageSize);
+        return bzFormMapper.selectByTypeAndGear(page, startTime, endTime, gear, typeId);
     }
 }

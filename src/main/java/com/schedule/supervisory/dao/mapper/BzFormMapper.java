@@ -1,9 +1,12 @@
 package com.schedule.supervisory.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.schedule.supervisory.dto.BzFromTargetNameCount;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.BzFormTarget;
+import com.schedule.supervisory.entity.Task;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -68,4 +71,19 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
                                                     @Param("endTime") LocalDateTime endTime,
                                                     @Param("gear") Integer gear,
                                                     @Param("typeId") Integer typeId);
+
+    @Select("<script>" +
+            "SELECT * " +
+            "FROM public.bz_form_target bft " +
+            "LEFT JOIN public.bz_form bf ON bf.id = bft.bz_form_id " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "<if test='typeId != null and typeId != 0'> bf.type_id = #{typeId} </if>" +
+            "AND CASE WHEN bft.actual_gear IS NOT NULL THEN bft.actual_gear ELSE bft.predicted_gear END = #{gear} " +
+            "</where>" +
+            "</script>")
+    Page<BzFormTarget> selectByTypeAndGear(Page<BzFormTarget> page,
+                                           @Param("startTime") LocalDateTime startTime,
+                                           @Param("endTime") LocalDateTime endTime,
+                                           @Param("gear") Integer gear,
+                                           @Param("typeId") Integer typeId);
 }

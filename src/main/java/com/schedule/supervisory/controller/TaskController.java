@@ -497,13 +497,26 @@ public class TaskController {
 
     }
 
-    @RequestMapping(value = "/export", method = RequestMethod.GET)
+    @PostMapping(value = "/export")
     public void export(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                        @RequestHeader(value = "tenant-id", required = false) String tenantId,
                        @ModelAttribute TaskSearchDTO queryTask,
+                       @RequestBody List<Long> taskIds,
                        HttpServletResponse response) throws Exception {
+//        if (queryTask.getTaskIds() != null) {
+//            List<Long> taskIdList = new ArrayList<>();
+//            String[] userIdsArray = queryTask.getTaskIds().split(",");
+//            for (String id : userIdsArray) {
+//                taskIdList.add(Long.parseLong(id));
+//                System.out.println("=========== list: " + id);
+//            }
+//            queryTask.setTaskIdList(taskIdList);
+//        }
+        if (taskIds != null && taskIds.size() > 0) {
+            queryTask.setTaskIdList(taskIds);
+        }
+        System.out.println("=========== list: " + queryTask.getTaskIdList());
         List<Task> tasks = taskService.getTasksBySearchDTO(queryTask);
-//        System.out.println(orderWaitResultDTOS);
         ExcelUtil.exportExcelToTarget(response, null, "任务", tasks, TaskTemplateExcel.class);
     }
 }

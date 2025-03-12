@@ -282,6 +282,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.ne(Task::getStatus, 6);
             queryWrapper.ne(Task::getStatus, 9);
         }
+        if (queryTask.getTaskIdList() != null) {
+            queryWrapper.in(Task::getId, queryTask.getTaskIdList());
+        }
         return list(queryWrapper);
     }
 
@@ -548,9 +551,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
 
-//        queryWrapper.ne(Task::getStatus, 6);
-//        queryWrapper.ne(Task::getStatus, 9);
-        queryWrapper.eq(Task::getStatus, 2); //正常推进中
+        queryWrapper.ne(Task::getStatus, 6);
+        queryWrapper.ne(Task::getStatus, 9);
+//        queryWrapper.eq(Task::getStatus, 2); //正常推进中
+//        queryWrapper.and(
+//                wrapper -> {
+//                    wrapper.or(w -> w.eq(Task::getStatus, 1));
+//                    wrapper.or(w -> w.eq(Task::getStatus, 2));
+//                    wrapper.or(w -> w.eq(Task::getStatus, 12));
+//                }
+//        );
+        queryWrapper.eq(Task::getOverdueDays, 0);
 
         if (queryTask.getUnAuth() == null || queryTask.getUnAuth() == false) {
             // 处理leadingOfficialId模糊查询的情况

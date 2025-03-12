@@ -7,6 +7,7 @@ import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssue;
 
 import java.time.LocalDateTime;
@@ -37,4 +38,6 @@ public interface IBzFormService extends IService<BzForm> {
     List<EffectiveGearCount> countGearCollectByDate(LocalDateTime startTime, LocalDateTime endTime);
 
     List<BzFromTargetNameCount> selectByTimeAndGear(LocalDateTime startTime, LocalDateTime endTime, Integer gear, Integer typeId);
+
+    IPage<BzFormTarget> selectByTypeAndGear(int pageNum, int pageSize, LocalDateTime startTime, LocalDateTime endTime, Integer gear, Integer typeId);
 }
