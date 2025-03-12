@@ -22,4 +22,13 @@ public class ParameterDTO {
 
     @Value("${duban.users}")
     private String usersUrl;
+
+    @Value("${duban.check.start}")
+    private String checkStart;
+    @Value("${duban.check.detail}")
+    private String checkDetail;
+    @Value("${duban.check.format}")
+    private String checkFormat;
+    @Value("${duban.check.complete}")
+    private String checkComplete;
 }

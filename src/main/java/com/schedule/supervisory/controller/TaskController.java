@@ -310,8 +310,8 @@ public class TaskController {
     }
 
     @GetMapping("/distinct-sources")
-    public BaseResponse getDistinctSources() {
-        List<String> distinctSources = taskService.getDistinctSources();
+    public BaseResponse getDistinctSources(@ModelAttribute TaskSearchDTO queryTask) {
+        List<String> distinctSources = taskService.getDistinctSources(queryTask.getSource());
         return new BaseResponse(HttpStatus.OK.value(), "success", distinctSources, Integer.toString(0));
     }
 

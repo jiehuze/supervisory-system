@@ -3,6 +3,7 @@ package com.schedule.supervisory.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.dto.ProcessCheckInfoDTO;
 import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 
@@ -40,7 +41,7 @@ public interface ITaskService extends IService<Task> {
      */
     List<Task> listTasks();
 
-    List<String> getDistinctSources();
+    List<String> getDistinctSources(String source);
 
     /**
      * 根据任务状态获取任务列表
@@ -65,6 +66,8 @@ public interface ITaskService extends IService<Task> {
     boolean updateIsUrgentById(Long taskId, Boolean isUrgent);
 
     boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
+
+    boolean updateCheckInfoById(Long taskId, ProcessCheckInfoDTO processCheckInfoDTO);
 
     boolean updateInstructionById(Long taskId, String instrunction);
 

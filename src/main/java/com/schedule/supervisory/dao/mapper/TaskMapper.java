@@ -56,6 +56,9 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("SELECT DISTINCT source FROM public.task ORDER BY source")
     List<String> selectDistinctSources();
 
+    @Select("SELECT DISTINCT source FROM public.task WHERE source LIKE CONCAT('%', #{source}, '%') ORDER BY source")
+    List<String> selectDistinctSources(@Param("source") String source);
+
     /**
      * 自定义分页查询方法
      */

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.TaskMapper;
 import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.dto.ProcessCheckInfoDTO;
 import com.schedule.supervisory.dto.TaskSearchDTO;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.ITaskService;
@@ -107,8 +108,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
-    public List<String> getDistinctSources() {
-        return taskMapper.selectDistinctSources();
+    public List<String> getDistinctSources(String source) {
+        return taskMapper.selectDistinctSources(source);
     }
 
     @Override
@@ -312,14 +313,30 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         List<String> list = null;
         Task task = getTaskById(taskId);
 //        String checkStatus = util.joinString(task.getCheckStatus(), addStatus.toString());
-
-        String checkStatus = util.removeString(addStatus != null ? util.joinString(task.getCheckStatus(), addStatus.toString()) : null,
-                removeStatus != null ? removeStatus.toString() : null);
+        if (addStatus != null) {
+            task.setCheckStatus(util.joinString(task.getCheckStatus(), addStatus.toString()));
+        }
+        if (removeStatus != null) {
+            task.setCheckStatus(util.removeString(task.getCheckStatus(), removeStatus.toString()));
+        }
+//
+//        String checkStatus = util.removeString(addStatus != null ? util.joinString(task.getCheckStatus(), addStatus.toString()) : null,
+//                removeStatus != null ? removeStatus.toString() : null);
 
 
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, task.getId());
-        updateWrapper.set(Task::getCheckStatus, checkStatus);
+        updateWrapper.set(Task::getCheckStatus, task.getCheckStatus());
+
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean updateCheckInfoById(Long taskId, ProcessCheckInfoDTO processCheckInfoDTO) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId);
+//        updateWrapper.set(Task::getReviewIds, processCheckInfoDTO.getReviewIds());
+        updateWrapper.set(Task::getProgress, processCheckInfoDTO.getProcessInstanceId());
 
         return update(updateWrapper);
     }
