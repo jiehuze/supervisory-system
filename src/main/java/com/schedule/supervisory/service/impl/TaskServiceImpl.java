@@ -98,6 +98,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getFillCycle() != null) {
             updateWrapper.set(Task::getFillCycle, task.getFillCycle());
         }
+        if (task.getUndertaker() != null) {
+            updateWrapper.set(Task::getUndertaker, task.getUndertaker());
+        }
+        if (task.getUndertakerId() != null) {
+            updateWrapper.set(Task::getUndertakerId, task.getUndertakerId());
+        }
 
         update(updateWrapper);
     }
@@ -168,6 +174,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             queryWrapper.eq(Task::getId, queryTask.getTaskId());
         }
 
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
+
         if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
             queryWrapper.like(Task::getSource, queryTask.getSource());
         }
@@ -236,22 +246,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         // 使用 CASE WHEN 实现自定义排序
         // 使用 CASE 语句来按照特定顺序排序
-        String caseSortSql = "overdue_days DESC, CASE status " +
-                "WHEN 2 THEN 2 " +
-                "WHEN 1 THEN 3 " +
-                "WHEN 4 THEN 4 " +
-                "WHEN 5 THEN 5 " +
-                "WHEN 7 THEN 6 " +
-                "WHEN 8 THEN 7 " +
-                "WHEN 10 THEN 8 " +
-                "WHEN 11 THEN 9 " +
-                "WHEN 6 THEN 10 " +
-                "WHEN 9 THEN 11 " +
-                "END, " + " id DESC";
+//        String caseSortSql = "overdue_days DESC, CASE status " +
+//                "WHEN 2 THEN 2 " +
+//                "WHEN 1 THEN 3 " +
+//                "WHEN 4 THEN 4 " +
+//                "WHEN 5 THEN 5 " +
+//                "WHEN 7 THEN 6 " +
+//                "WHEN 8 THEN 7 " +
+//                "WHEN 10 THEN 8 " +
+//                "WHEN 11 THEN 9 " +
+//                "WHEN 6 THEN 10 " +
+//                "WHEN 9 THEN 11 " +
+//                "END, " + " id DESC";
 //        queryWrapper.orderByDesc(Task::getOverdueDays);
-        queryWrapper.last("ORDER BY " + caseSortSql);
+//        queryWrapper.last("ORDER BY " + caseSortSql);
         // 使用 CASE 语句按 status 排序
-//        queryWrapper.orderByDesc(Task::getId);
+        queryWrapper.orderByDesc(Task::getId);
 
         return page(page, queryWrapper);
     }
@@ -262,7 +272,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getTaskId() != null) {
             queryWrapper.eq(Task::getId, queryTask.getTaskId());
         }
-
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
         if (queryTask.getSource() != null && !queryTask.getSource().isEmpty()) {
             queryWrapper.like(Task::getSource, queryTask.getSource());
         }
@@ -464,6 +476,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public Long countTasksNums(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
@@ -523,7 +538,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         // 添加 updated_at 小于等于 deadline 的条件
 //        queryWrapper.apply("updated_at <= deadline");
         queryWrapper.eq(Task::getOverdueDays, 0); //超期时间为0
-
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
@@ -568,7 +585,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public Long countTasksInProgress(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
 //        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
-
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
@@ -628,7 +647,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 //        return taskMapper.countTasksOverdue(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
 
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
-
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
 //        queryWrapper.apply("updated_at > deadline");
         queryWrapper.gt(Task::getOverdueDays, 0); //当超时时间>0,并且status不为6或者9
 
@@ -684,7 +705,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public Long countTasksComplete(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs, Boolean taskPeriod) {
 //        return taskMapper.countTasksComplete(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId, taskPeriod);
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
-
+        if (queryTask.getTaskType() != null) {
+            queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
+        }
         // 添加 status 为 6 的条件
         queryWrapper.eq(Task::getStatus, queryTask.getStatus());
         // 添加协办单位筛选条件
@@ -788,7 +811,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
      */
     @Override
     public List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds) {
-        return taskMapper.countTasksByFieldIdAndStatus(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+//        return taskMapper.countTasksByFieldIdAndStatus(leadingDepartmentIds, queryTask.getLeadingDepartmentId(), queryTask.getLeadingOfficialId(), queryTask.getSource(), queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
+        return null;
     }
 
     @Override

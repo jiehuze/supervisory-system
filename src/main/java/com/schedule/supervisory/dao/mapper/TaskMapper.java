@@ -69,6 +69,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "<if test='queryTask.taskId != null'> AND id = #{queryTask.taskId}</if>" +
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.fieldId != null'> AND field_id = #{queryTask.fieldId}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
@@ -80,10 +81,10 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</foreach> " +
             "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
             "<if test='deptDTOs == null or deptDTOs.isEmpty()'>" + // 如果deptDTOs为空，则不包括OR前缀
-            " (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            " (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR undertaker_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
             "</if>" +
             "<if test='deptDTOs != null and !deptDTOs.isEmpty()'>" + // 检查deptDTOs是否非空
-            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR undertaker_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
             "</if>" +
             "</if>" +
             ") </if>" +
@@ -203,6 +204,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "task_period IN (1, 2, 3, 4) " +
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
@@ -248,6 +250,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "status = 6 AND task_period IN (1, 2, 3, 4) " +
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
@@ -302,6 +305,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
@@ -362,6 +366,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "status = 6 " +
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +

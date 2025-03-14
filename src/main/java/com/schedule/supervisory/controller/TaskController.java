@@ -249,6 +249,42 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", tasksByConditions, Integer.toString(0));
     }
 
+    @GetMapping("/gantt")
+    public BaseResponse gantt(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                              @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                              @ModelAttribute TaskSearchDTO queryTask) {
+        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+        }
+
+        if (!Licence.getLicence()) {
+            String tenantIdex = configService.getExternConfig("tenant.id");
+            System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
+        System.out.println("searchTasks token：" + authorizationHeader);
+        IPage<Task> tasksByConditions = taskService.queryTasksByConditions(queryTask, 1, 100, deptDTOs);
+        List<TaskDTO> taskDTOList = new ArrayList<>();
+        for (Task task : tasksByConditions.getRecords()) {
+            TaskDTO taskDTO = new TaskDTO();
+            taskDTO.setTask(task);
+            List<StageNode> stageNodes = stageNodeService.getStageNodesByTaskId(task.getId().intValue());
+            taskDTO.setStageNodes(stageNodes);
+            taskDTOList.add(taskDTO);
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskDTOList, Integer.toString(0));
+    }
+
     @PutMapping("/{taskId}/status")
     public BaseResponse updateTaskStatus(@PathVariable Long taskId,
                                          @RequestParam Integer newStatus) {

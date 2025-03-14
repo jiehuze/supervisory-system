@@ -14,6 +14,12 @@ public class Task {
 
     @TableId(type = IdType.AUTO)
     private Long id; // 对应数据库列 'id'
+    /**
+     * 任务类型：
+     * 0：督查室任务（现在用的）；
+     * 1： 我的交办和承办任务
+     */
+    private Integer taskType;
     private String source; // 任务来源 'source'
     private String content; // 任务内容 'content'
     private String leadingOfficial; // 牵头区领导 'leading_official'
@@ -72,6 +78,8 @@ public class Task {
     private String cancelFile; // 取消文件
     private String assigner; //交办人
     private String assignerId; //交办人Id
+    private String undertaker; //承办人
+    private String undertakerId; //承办人id
     private String tbFileUrl; //同步文件url
     private Integer fillCycle; //填报周期
     private String checkStatus; //审核状态 1: 任务审核；2：阶段性审核；3：报表审核；4：指标审核，用逗号分割
