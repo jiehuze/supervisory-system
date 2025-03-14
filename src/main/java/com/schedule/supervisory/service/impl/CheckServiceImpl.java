@@ -155,6 +155,7 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                 if (check.getStatus() == 2) { //审核通过
                     Task task = new Task();
                     task.setId(check.getTaskId());
+                    task.setStatus(2);
                     task.setProgress(progressReport.getProgress());
                     task.setIssuesAndChallenges(progressReport.getIssuesAndChallenges());
                     task.setRequiresCoordination(progressReport.getRequiresCoordination());
@@ -166,102 +167,132 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     progressReportService.updateStatus(progressReport.getId().intValue(), 3);
                 } else if (check.getStatus() == 3) {
                     progressReportService.updateStatus(progressReport.getId().intValue(), 5);
+                    taskService.updateStatusById(check.getTaskId(), 2); //设置为正常推进状态
+
                 }
                 taskService.updateCheckById(check.getTaskId(), null, 1);
+                break;
             case 2: //阶段性审核，更新阶段性审核数据
                 if (check.getStatus() == 2) { //通过审核
                     stageNodeService.updateStatusById(check.getStageId().intValue(), 2);
+                } else if (check.getStatus() == 3) {
+                    stageNodeService.updateStatusById(check.getStageId().intValue(), 1); //修改为正常推进
                 }
-                stageNodeService.updateStatusById(check.getStageId().intValue(), 1);
                 taskService.updateStatusById(check.getTaskId(), 2);
                 taskService.updateCheckById(check.getTaskId(), null, 2);
+                break;
             case 7: // 办结审核，更新办结状态为6
-                taskService.updateStatusById(check.getTaskId(), 6);
+                if (check.getStatus() == 2) { //通过审核
+                    taskService.updateStatusById(check.getTaskId(), 6);
+                } else if (check.getStatus() == 3) {
+                    taskService.updateStatusById(check.getTaskId(), 2); //修改成正常推进中
+                }
                 taskService.updateCheckById(check.getTaskId(), null, 7);
+                break;
             case 8: //终结审核，更新终结状态为9
-                taskService.updateStatusById(check.getTaskId(), 9);
+                if (check.getStatus() == 2) { //通过审核
+                    taskService.updateStatusById(check.getTaskId(), 9);
+                } else if (check.getStatus() == 3) {
+                    taskService.updateStatusById(check.getTaskId(), 2); //修改成正常推进中
+                }
                 taskService.updateCheckById(check.getTaskId(), null, 8);
                 break;
             case 3: //报表清单编辑审核
                 //获取表单数据
-                BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
-                });
-                if (bzFormDTO != null) {
-                    BzForm bzForm = bzFormDTO.getBzForm();
-                    for (BzFormTarget bzFormTarget : bzFormDTO.getBzFormTargetList()) {
-                        if (bzFormTarget.isDelete()) {
-                            bzFormTargetService.removeById(bzFormTarget.getId());
-                            continue;
+                if (check.getStatus() == 2) { //通过审核
+                    BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
+                    });
+                    if (bzFormDTO != null) {
+                        BzForm bzForm = bzFormDTO.getBzForm();
+                        for (BzFormTarget bzFormTarget : bzFormDTO.getBzFormTargetList()) {
+                            if (bzFormTarget.isDelete()) {
+                                bzFormTargetService.removeById(bzFormTarget.getId());
+                                continue;
+                            }
+                            bzFormTarget.setBzFormId(bzForm.getId());
+                            //需要修改牵头单位到每个target中去
+                            bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
+                            bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
+
+                            //将每个指标的责任单位写入到清单中
+                            bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+                            bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
                         }
-                        bzFormTarget.setBzFormId(bzForm.getId());
-                        //需要修改牵头单位到每个target中去
-                        bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
-                        bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
 
-                        //将每个指标的责任单位写入到清单中
-                        bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
-                        bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+                        bzFormTargetService.saveOrUpdateBatch(bzFormDTO.getBzFormTargetList());
+                        boolean upate = bzFormService.updateBzFrom(bzForm);
                     }
+                } else if (check.getStatus() == 3) {
 
-                    bzFormTargetService.saveOrUpdateBatch(bzFormDTO.getBzFormTargetList());
-                    boolean upate = bzFormService.updateBzFrom(bzForm);
                 }
                 bzFormService.updateCheckById(check.getBzFormId(), null, 3);
                 break;
             case 4: //报表指标审核
-                BzFormTarget bzFormTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormTarget>() {
-                });
-                if (bzFormTarget != null) {
-                    boolean progress = bzFormTargetService.updateProgress(bzFormTarget);
-                    BzFormTargetRecord bzFormTargetRecord = new BzFormTargetRecord();
-                    bzFormTargetRecord.setTargetId(bzFormTarget.getId());
-                    bzFormTargetRecord.setIssue(bzFormTarget.getIssues());
-                    bzFormTargetRecord.setWorkProgress(bzFormTarget.getWorkProgress());
-                    bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
-                    bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
-                    bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
-                    bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
+                if (check.getStatus() == 2) { //通过审核
+                    BzFormTarget bzFormTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormTarget>() {
+                    });
+                    if (bzFormTarget != null) {
+                        boolean progress = bzFormTargetService.updateProgress(bzFormTarget);
+                        BzFormTargetRecord bzFormTargetRecord = new BzFormTargetRecord();
+                        bzFormTargetRecord.setTargetId(bzFormTarget.getId());
+                        bzFormTargetRecord.setIssue(bzFormTarget.getIssues());
+                        bzFormTargetRecord.setWorkProgress(bzFormTarget.getWorkProgress());
+                        bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
+                        bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
+                        bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
+                        bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
+                    }
+                } else if (check.getStatus() == 3) {
+
                 }
                 bzFormTargetService.updateCheckById(check.getBzFormTargetId(), null, 4);
                 break;
             case 5: //问题清单审核
-                BzIssueDTO bzIssueDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueDTO>() {
-                });
-                if (bzIssueDTO != null) {
-                    BzIssue bzIssue = bzIssueDTO.getBzIssue();
-                    for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
-                        if (bzIssueTarget.isDelete()) {
-                            bzIssueTargetService.removeById(bzIssueTarget.getId());
-                            continue;
+                if (check.getStatus() == 2) { //通过审核
+                    BzIssueDTO bzIssueDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueDTO>() {
+                    });
+                    if (bzIssueDTO != null) {
+                        BzIssue bzIssue = bzIssueDTO.getBzIssue();
+                        for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
+                            if (bzIssueTarget.isDelete()) {
+                                bzIssueTargetService.removeById(bzIssueTarget.getId());
+                                continue;
+                            }
+                            bzIssueTarget.setBzIssueId(bzIssue.getId());
+                            //需要修改牵头单位到每个target中去
+                            bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
+                            bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
+
+                            //将每个指标的责任单位写入到清单中
+                            bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+                            bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
                         }
-                        bzIssueTarget.setBzIssueId(bzIssue.getId());
-                        //需要修改牵头单位到每个target中去
-                        bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
-                        bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
 
-                        //将每个指标的责任单位写入到清单中
-                        bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
-                        bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+                        bzIssueTargetService.saveOrUpdateBatch(bzIssueDTO.getBzIssueTargetList());
+                        boolean upate = bzIssueService.updateBzIssue(bzIssue);
                     }
+                } else if (check.getStatus() == 3) {
 
-                    bzIssueTargetService.saveOrUpdateBatch(bzIssueDTO.getBzIssueTargetList());
-                    boolean upate = bzIssueService.updateBzIssue(bzIssue);
                 }
                 bzIssueService.updateCheckById(check.getBzIssueId(), null, 3);
                 break;
             case 6: //问题指标审核
-                BzIssueTarget bzIssueTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueTarget>() {
-                });
-                if (bzIssueTarget != null) {
-                    boolean progress = bzIssueTargetService.updateProgress(bzIssueTarget);
-                    BzIssueTargetRecord bzIssueTargetRecord = new BzIssueTargetRecord();
-                    bzIssueTargetRecord.setTargetId(bzIssueTarget.getId());
-                    bzIssueTargetRecord.setIssue(bzIssueTarget.getIssues());
-                    bzIssueTargetRecord.setWorkProgress(bzIssueTarget.getWorkProgress());
-                    bzIssueTargetRecord.setUpdatedBy(bzIssueTarget.getOperatorId());
-                    bzIssueTargetRecord.setOperator(bzIssueTarget.getOperator());
-                    bzIssueTargetRecord.setOperatorId(bzIssueTarget.getOperatorId());
-                    bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
+                if (check.getStatus() == 2) { //通过审核
+                    BzIssueTarget bzIssueTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueTarget>() {
+                    });
+                    if (bzIssueTarget != null) {
+                        boolean progress = bzIssueTargetService.updateProgress(bzIssueTarget);
+                        BzIssueTargetRecord bzIssueTargetRecord = new BzIssueTargetRecord();
+                        bzIssueTargetRecord.setTargetId(bzIssueTarget.getId());
+                        bzIssueTargetRecord.setIssue(bzIssueTarget.getIssues());
+                        bzIssueTargetRecord.setWorkProgress(bzIssueTarget.getWorkProgress());
+                        bzIssueTargetRecord.setUpdatedBy(bzIssueTarget.getOperatorId());
+                        bzIssueTargetRecord.setOperator(bzIssueTarget.getOperator());
+                        bzIssueTargetRecord.setOperatorId(bzIssueTarget.getOperatorId());
+                        bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
+                    }
+                } else if (check.getStatus() == 3) {
+
                 }
                 bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), null, 4);
                 break;
@@ -309,8 +340,9 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
         logTime("=====> check node userIds: " + userIds);
         //说明没有要审核的人了，就是审核完成了
         if (userIds.length() <= 1) {
+            logTime("Complete -------->> check process instance complete, check type：" + check.getCheckType() + "     check id: " + check.getId() + " check status： " + check.getStatus());
             check.setStatus(2);
-            updateCheckStatusByCheckType(check);
+            updateCheckInfoToTarget(check);
             return;
         }
 

@@ -105,6 +105,7 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzFormTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }
+        queryWrapper.eq(BzFormTarget::isDelete, false);//没有删除的
 
         if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
                 || (deptDTOs != null && deptDTOs.size() > 0)) {
@@ -135,6 +136,7 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzFormTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }
+        queryWrapper.eq(BzFormTarget::isDelete, false);//没有删除的
 
         if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
                 || (deptDTOs != null && deptDTOs.size() > 0)) {

@@ -3,10 +3,7 @@ package com.schedule.supervisory.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.schedule.common.BaseResponse;
-import com.schedule.supervisory.dto.CheckStartDTO;
-import com.schedule.supervisory.dto.ParameterDTO;
-import com.schedule.supervisory.dto.ProcessCallBackDTO;
-import com.schedule.supervisory.dto.TokenRespDTO;
+import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.HttpUtil;
@@ -15,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -89,6 +88,23 @@ public class CheckController {
         return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
 
+    private List<CheckUserDTO> getCheckUserList(String userIds, String userNames) {
+        ArrayList<CheckUserDTO> checkUserDTOS = new ArrayList<>();
+        String[] userIdList = userIds.split(",");
+        String[] userNameList = userNames.split(",");
+        for (int i = 0; i < userNameList.length; i++) {
+            CheckUserDTO checkUserDTO = new CheckUserDTO();
+            checkUserDTO.setName(userNameList[i]);
+            checkUserDTO.setId(userIdList[i]);
+            checkUserDTO.setType("user");
+            checkUserDTO.setAvatar(null);
+
+            checkUserDTOS.add(checkUserDTO);
+        }
+
+        return checkUserDTOS;
+    }
+
     @PostMapping("/start")
     public BaseResponse start(@RequestBody Check check,
                               @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
@@ -106,6 +122,7 @@ public class CheckController {
                 progressReport.setFlowId("P20250312054230198JQIIT");
                 ProgressReport progressReportNew = progressReportService.createProgressReport(progressReport);
                 check.setDataJson(JSON.toJSONString(progressReportNew)); //需要更新下，以为新增的progressReport数据没有记录id，后面审核的时候无法获取到
+                System.out.println("--------- datajson: " + progressReportNew);
 
                 checkStartDTO.setFlowId("P20250312054230198JQIIT");
                 Task taskrp = taskService.getById(check.getTaskId());
@@ -118,7 +135,7 @@ public class CheckController {
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
                 checkStartDTO.setFlowId("P20250312055145385L8CB4");
                 Task taskst = taskService.getById(check.getTaskId());
-                paramMap.put("m85i4x1dgshw6", taskst.getAssignerId());
+                paramMap.put("m85i4x1dgshw6_assignee_select", getCheckUserList(taskst.getAssignerId(), taskst.getAssigner()));
                 paramMap.put("submitDeptIds", taskst.getLeadingDepartmentId().split(","));
 
                 break;
@@ -127,6 +144,13 @@ public class CheckController {
                 checkStartDTO.setFlowId("P20250312055555772BEE9J");
                 BzForm bzform = bzFormService.getById(check.getBzFormId());
                 paramMap.put("submitDeptIds", bzform.getLeadingDepartmentId().split(","));
+
+
+                BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
+                });
+                System.out.println("================ bzformDTO: " + bzFormDTO.toString());
+
+
                 break;
             case 4: //报表指标审核
                 bzFormTargetService.updateCheckById(check.getBzFormTargetId(), 4, null);
@@ -151,8 +175,8 @@ public class CheckController {
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
                 checkStartDTO.setFlowId("P20250312054853669F7BFK");
                 Task taskCm = taskService.getById(check.getTaskId());
-                paramMap.put("m85i04a1nuxd2", taskCm.getAssignerId());
-                paramMap.put("m85hstanyga4a", taskCm.getLeadingOfficialId());
+                paramMap.put("m85i04a1nuxd2_assignee_select", getCheckUserList(taskCm.getAssignerId(), taskCm.getAssigner()));
+                paramMap.put("m85hstanyga4a_assignee_select", getCheckUserList(taskCm.getLeadingOfficialId(), taskCm.getLeadingOfficial()));
                 paramMap.put("submitDeptIds", taskCm.getLeadingDepartmentId().split(","));
 
                 ykbMessageService.sendMessageForCheck(taskCm, 4);
@@ -163,8 +187,8 @@ public class CheckController {
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
                 checkStartDTO.setFlowId("P20250312055005786PBMBA");
                 Task taskCn = taskService.getById(check.getTaskId());
-                paramMap.put("m85i04a1nuxd2", taskCn.getAssignerId());
-                paramMap.put("m85hstanyga4a", taskCn.getLeadingOfficialId());
+                paramMap.put("m85i2kyhmvg3q_assignee_select", getCheckUserList(taskCn.getAssignerId(), taskCn.getAssigner()));
+                paramMap.put("m85hvad96zqkc_assignee_select", getCheckUserList(taskCn.getLeadingOfficialId(), taskCn.getLeadingOfficial()));
                 paramMap.put("submitDeptIds", taskCn.getLeadingDepartmentId().split(","));
 
                 ykbMessageService.sendMessageForCheck(taskCn, 7);
@@ -179,6 +203,11 @@ public class CheckController {
         HttpUtil httpUtil = new HttpUtil();
         String processInstanceId = httpUtil.post(parameterDTO.getCheckStart(), authorizationHeader, tenantId, JSON.toJSONString(checkStartDTO));
         if (processInstanceId == null) {
+            if (check.getCheckType() == 1) {
+                ProgressReport progressReport = JSON.parseObject(check.getDataJson(), new TypeReference<ProgressReport>() {
+                });
+                progressReportService.removeById(progressReport.getId());
+            }
             return new BaseResponse(HttpStatus.OK.value(), parameterDTO.getCheckStart() + " request failed", null, Integer.toString(0));
         }
 
@@ -264,6 +293,7 @@ public class CheckController {
         }
 
         if (processCallBackDTO.getStatus() == 3) { //驳回申请,3就是被驳回，1是审核中
+            System.out.println("----------------->> Cancel: check process cancel, check type: " + check.getCheckType() + "    check id: " + check.getId());
             check.setStatus(3);
             boolean checkInfo = checkService.updateCheckInfoToTarget(check);
             return new BaseResponse(HttpStatus.OK.value(), "success", checkInfo, Integer.toString(0));

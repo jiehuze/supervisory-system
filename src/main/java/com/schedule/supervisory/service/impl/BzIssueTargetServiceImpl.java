@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzIssueTargetMapper;
 import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzIssueTargetService;
@@ -105,6 +106,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }
+        queryWrapper.eq(BzIssueTarget::isDelete, false);//没有删除的
         if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
                 || (deptDTOs != null && deptDTOs.size() > 0)) {
             queryWrapper.and(wrapper -> {
@@ -131,6 +133,8 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }
+        queryWrapper.eq(BzIssueTarget::isDelete, false);//没有删除的
+
         if ((bzSearchDTO.getUserId() != null && !bzSearchDTO.getUserId().isEmpty())
                 || (deptDTOs != null && deptDTOs.size() > 0)) {
             queryWrapper.and(wrapper -> {

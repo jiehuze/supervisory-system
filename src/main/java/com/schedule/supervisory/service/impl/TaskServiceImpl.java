@@ -341,18 +341,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
         List<String> list = null;
         Task task = getTaskById(taskId);
-//        String checkStatus = util.joinString(task.getCheckStatus(), addStatus.toString());
         if (addStatus != null) {
             task.setCheckStatus(util.joinString(task.getCheckStatus(), addStatus.toString()));
         }
         if (removeStatus != null) {
             task.setCheckStatus(util.removeString(task.getCheckStatus(), removeStatus.toString()));
         }
-//
-//        String checkStatus = util.removeString(addStatus != null ? util.joinString(task.getCheckStatus(), addStatus.toString()) : null,
-//                removeStatus != null ? removeStatus.toString() : null);
-
-
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, task.getId());
         updateWrapper.set(Task::getCheckStatus, task.getCheckStatus());

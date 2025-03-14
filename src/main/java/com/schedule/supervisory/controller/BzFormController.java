@@ -178,7 +178,7 @@ public class BzFormController {
     }
 
     //审核清单
-    @PutMapping("/checkForm")
+    @PutMapping("/all/update")
     public BaseResponse checkBzForm(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                     @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                     @RequestBody BzFormDTO bzFormDTO) {
@@ -191,6 +191,7 @@ public class BzFormController {
 
         BzForm bzForm = bzFormDTO.getBzForm();
         for (BzFormTarget bzFormTarget : bzFormDTO.getBzFormTargetList()) {
+
             bzFormTarget.setBzFormId(bzForm.getId());
             //需要修改牵头单位到每个target中去
             bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());

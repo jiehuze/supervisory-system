@@ -168,7 +168,7 @@ public class BzIssueController {
     }
 
     //审核清单
-    @PutMapping("/checkIssue")
+    @PutMapping("/all/update")
     public BaseResponse checkBzIssue(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                      @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                      @RequestBody BzIssueDTO bzIssueDTO) {
