@@ -7,6 +7,7 @@ import com.schedule.supervisory.dao.mapper.BzIssueTargetMapper;
 import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.entity.BzIssueTarget;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzIssueTargetService;
 import org.springframework.stereotype.Service;
 
@@ -79,6 +80,16 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     }
 
     @Override
+    public void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssueTarget::getId, id)
+                .set(BzIssueTarget::getProcessInstanceId, processInstanceId)
+                .set(BzIssueTarget::getProcessInstanceReviewIds, processInstanceReviewIds);
+
+        update(updateWrapper);
+    }
+
+    @Override
     public boolean reviewProgress(BzIssueTarget bzIssueTarget) {
         LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzIssueTarget::getId, bzIssueTarget.getId())
@@ -90,7 +101,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     @Override
     public List<BzIssueTarget> getByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getBzIssuedId());
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getBzIssueId());
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }
@@ -116,7 +127,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     @Override
     public List<BzIssueTarget> getCheckByIssueId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzIssueTarget> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getBzIssuedId());
+        queryWrapper.eq(BzIssueTarget::getBzIssueId, bzSearchDTO.getBzIssueId());
         if (bzSearchDTO.getCheckStatus() != null && !bzSearchDTO.getCheckStatus().isEmpty()) {
             queryWrapper.like(BzIssueTarget::getCheckStatus, bzSearchDTO.getCheckStatus());
         }

@@ -29,6 +29,9 @@ public class BzForm {
     private String assigner; //交办人
     private String assignerId; //交办人Id
     private String checkStatus; //审核状态 1: 任务审核；2：阶段性审核；3：报表审核；4：指标审核，用逗号分割
+    private String processInstanceId; //审核流水号
+    private String processInstanceReviewIds; //审核的人，使用逗号分割
+    private String processInstanceTargetReviewIds; //审核的人，使用逗号分割
     private java.sql.Timestamp createdAt; // 创建时间
     private java.sql.Timestamp updatedAt; // 更新时间
 }

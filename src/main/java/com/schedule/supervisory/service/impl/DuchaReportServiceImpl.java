@@ -119,30 +119,30 @@ public class DuchaReportServiceImpl extends ServiceImpl<DuchaReportMapper, Ducha
         }
 
         //todo，创建报告，上传报告
-        int rate = report.getCompleteOnTimeCount() * 100 / report.getTaskCount();
-//        WordFileReplace.replace();
-        Map<String, String> replacements = Map.ofEntries(
-                new SimpleEntry<>("{{name}}", report.getReportName()),
-                new SimpleEntry<>("{{Y}}", "2025"),
-                new SimpleEntry<>("{{M}}", "01"),
-                new SimpleEntry<>("{{D}}", "11"),
-                new SimpleEntry<>("{{Q}}", report.getPeriod().toString()),
-                new SimpleEntry<>("{{total}}", report.getTaskCount().toString()),
-                new SimpleEntry<>("{{complete}}", report.getCompleteCount().toString()),
-                new SimpleEntry<>("{{inprogress}}", report.getInProgressCount().toString()),
-                new SimpleEntry<>("{{issues}}", report.getIssueCount().toString()),
-                new SimpleEntry<>("{{overdue}}", report.getOverdueCount().toString()),
-                new SimpleEntry<>("{{rate}}", String.valueOf(rate)),
-                new SimpleEntry<>("{{extra}}", "New Value") // 添加额外键值对
-        );
-
-        String outputPath = "/tmp/report" + System.currentTimeMillis() + ".docx";
-        WordFileReplace.replaceTextInWordX(replacements, outputPath);
-        System.out.println("uploadurl: " + parameterDTO.getUploadUrl());
-        //上传文件
-        HttpUtil httpUtil = new HttpUtil();
-        String uploadUrl = httpUtil.upload(parameterDTO.getUploadUrl(), token, tenantId, outputPath);
-        report.setReportFile(uploadUrl);
+//        int rate = report.getCompleteOnTimeCount() * 100 / report.getTaskCount();
+////        WordFileReplace.replace();
+//        Map<String, String> replacements = Map.ofEntries(
+//                new SimpleEntry<>("{{name}}", report.getReportName()),
+//                new SimpleEntry<>("{{Y}}", "2025"),
+//                new SimpleEntry<>("{{M}}", "01"),
+//                new SimpleEntry<>("{{D}}", "11"),
+//                new SimpleEntry<>("{{Q}}", report.getPeriod().toString()),
+//                new SimpleEntry<>("{{total}}", report.getTaskCount().toString()),
+//                new SimpleEntry<>("{{complete}}", report.getCompleteCount().toString()),
+//                new SimpleEntry<>("{{inprogress}}", report.getInProgressCount().toString()),
+//                new SimpleEntry<>("{{issues}}", report.getIssueCount().toString()),
+//                new SimpleEntry<>("{{overdue}}", report.getOverdueCount().toString()),
+//                new SimpleEntry<>("{{rate}}", String.valueOf(rate)),
+//                new SimpleEntry<>("{{extra}}", "New Value") // 添加额外键值对
+//        );
+//
+//        String outputPath = "/tmp/report" + System.currentTimeMillis() + ".docx";
+//        WordFileReplace.replaceTextInWordX(replacements, outputPath);
+//        System.out.println("uploadurl: " + parameterDTO.getUploadUrl());
+//        //上传文件
+//        HttpUtil httpUtil = new HttpUtil();
+//        String uploadUrl = httpUtil.upload(parameterDTO.getUploadUrl(), token, tenantId, outputPath);
+//        report.setReportFile(uploadUrl);
 
         return this.save(report);
     }

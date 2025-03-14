@@ -103,6 +103,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
+    public void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId)
+                .set(Task::getProcessInstanceId, processInstanceId)
+                .set(Task::getProcessInstanceReviewIds, processInstanceReviewIds);
+
+        update(updateWrapper);
+    }
+
+    @Override
     public List<Task> listTasks() {
         return taskMapper.listTasks();
     }
@@ -286,6 +296,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getTaskIdList() != null) {
             queryWrapper.in(Task::getId, queryTask.getTaskIdList());
         }
+        return list(queryWrapper);
+    }
+
+    @Override
+    public List<Task> getTasksByIds(List<Integer> ids) {
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Task::getId, ids);
         return list(queryWrapper);
     }
 

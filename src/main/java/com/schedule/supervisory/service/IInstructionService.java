@@ -1,6 +1,7 @@
 package com.schedule.supervisory.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.Instruction;
 
 import java.util.List;
@@ -11,5 +12,5 @@ public interface IInstructionService extends IService<Instruction> {
      * @param taskId 任务ID
      * @return 批示列表
      */
-    List<Instruction> getInstructionsByTaskId(Integer taskId);
+    List<Instruction> getInstructionsByTaskId(BzSearchDTO bzSearchDTO);
 }

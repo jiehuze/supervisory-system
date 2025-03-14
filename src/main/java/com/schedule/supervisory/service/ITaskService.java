@@ -34,6 +34,8 @@ public interface ITaskService extends IService<Task> {
      */
     void updateTask(Task task);
 
+    void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReviewIds);
+
     /**
      * 获取任务列表
      *
@@ -60,6 +62,8 @@ public interface ITaskService extends IService<Task> {
     IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     List<Task> getTasksBySearchDTO(TaskSearchDTO queryTask);
+
+    List<Task> getTasksByIds(List<Integer> ids);
 
     boolean updateStatusById(Long taskId, Integer newStatus);
 

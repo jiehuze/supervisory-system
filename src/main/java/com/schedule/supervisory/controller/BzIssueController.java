@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
+import com.schedule.excel.FormTemplateExcel;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.IBzIssueService;
@@ -11,8 +12,10 @@ import com.schedule.supervisory.service.IBzIssueTargetService;
 import com.schedule.supervisory.service.IBzTypeService;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.utils.DateUtils;
+import com.schedule.utils.ExcelUtil;
 import com.schedule.utils.HttpUtil;
 import com.schedule.utils.util;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -63,12 +66,17 @@ public class BzIssueController {
         }
         IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzSearchDTO, pageNum, pageSize, deptDTOs);
         for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
-            bzSearchDTO.setBzIssuedId(bzIssue.getId());
+            bzSearchDTO.setBzIssueId(bzIssue.getId());
             bzSearchDTO.setCheckStatus("4");
             System.out.println("============bzSearchDTO: " + bzSearchDTO);
             List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getCheckByIssueId(bzSearchDTO, deptDTOs);
             if (bzIssueTargets != null && bzIssueTargets.size() > 0) {
                 bzIssue.setCheckStatus(util.joinString(bzIssue.getCheckStatus(), "4"));
+                String reviewTargetIds = "";
+                for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
+                    util.joinString(reviewTargetIds, bzIssueTarget.getProcessInstanceReviewIds());
+                }
+                bzIssue.setProcessInstanceTargetReviewIds(reviewTargetIds);
             }
         }
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueByConditions, Integer.toString(0));
@@ -89,7 +97,7 @@ public class BzIssueController {
         } else {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
-        bzSearchDTO.setBzIssuedId(bzSearchDTO.getId());
+        bzSearchDTO.setBzIssueId(bzSearchDTO.getId());
         bzIssueDTO.setBzIssueTargetList(bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs));
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueDTO, Integer.toString(0));
@@ -146,7 +154,7 @@ public class BzIssueController {
         BzIssue bi = bzIssueService.getById(bzIssue.getId());
         if (bi.getLeadingDepartmentId() != null && !bi.getLeadingDepartmentId().equals(bzIssue.getLeadingDepartmentId())) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
-            bzSearchDTO.setBzIssuedId(bzIssue.getId());
+            bzSearchDTO.setBzIssueId(bzIssue.getId());
 
             List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
@@ -400,5 +408,40 @@ public class BzIssueController {
 
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFromTargetNameCounts, Integer.toString(0));
+    }
+
+    @GetMapping(value = "/export")
+    public void export(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                       @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                       @ModelAttribute BzSearchDTO bzSearchDTO,
+                       HttpServletResponse response) throws Exception {
+
+        List<FormTemplateExcel> formTemplateExcels = new ArrayList<>();
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return;
+        }
+        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzSearchDTO, 1, 100, deptDTOs);
+        for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
+            bzSearchDTO.setBzIssueId(bzIssue.getId());
+            List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs);
+            for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
+                FormTemplateExcel formTemplateExcel = new FormTemplateExcel();
+                formTemplateExcel.setType(bzIssue.getType());
+                formTemplateExcel.setPredictedGear(String.valueOf(bzIssue.getPredictedGear() + 'A' - 1));
+                formTemplateExcel.setName(bzIssueTarget.getName());
+                formTemplateExcel.setWorkProgress(bzIssueTarget.getWorkProgress());
+                formTemplateExcel.setIssues(bzIssueTarget.getIssues());
+                formTemplateExcel.setDept(bzIssueTarget.getDept());
+                formTemplateExcels.add(formTemplateExcel);
+            }
+        }
+
+        ExcelUtil.exportExcelToTarget(response, null, "任务", formTemplateExcels, FormTemplateExcel.class);
     }
 }

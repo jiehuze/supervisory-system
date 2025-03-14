@@ -1,15 +1,49 @@
 package com.schedule.supervisory.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.CheckMapper;
-import com.schedule.supervisory.entity.Check;
-import com.schedule.supervisory.service.ICheckService;
+import com.schedule.supervisory.dto.BzFormDTO;
+import com.schedule.supervisory.dto.BzIssueDTO;
+import com.schedule.supervisory.dto.ProcessNodeDTO;
+import com.schedule.supervisory.entity.*;
+import com.schedule.supervisory.service.*;
+import com.schedule.utils.HttpUtil;
+import com.schedule.utils.util;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements ICheckService {
+    @Autowired
+    private ITaskService taskService;
+    @Autowired
+    private IStageNodeService stageNodeService;
+    @Autowired
+    private IProgressReportService progressReportService;
+    @Autowired
+    private IBzIssueService bzIssueService;
+    @Autowired
+    private IBzIssueTargetService bzIssueTargetService;
+    @Autowired
+    private IBzFormService bzFormService;
+    @Autowired
+    private IBzFormTargetService bzFormTargetService;
+
+    @Autowired
+    private IBzFormTargetRecordService bzFormTargetRecordService;
+    @Autowired
+    private IBzIssueTargetRecordService bzIssueTargetRecordService;
+
     @Override
     public boolean checkStatus(Check check) {
         LambdaUpdateWrapper<Check> updateWrapper = new LambdaUpdateWrapper<>();
@@ -48,5 +82,255 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
         queryWrapper.orderByDesc(Check::getId);
         queryWrapper.last("LIMIT 1");
         return getOne(queryWrapper);
+    }
+
+    /**
+     * 所有通过审核，或者驳回审核，都需要将对应的checkStatus相关状态清空
+     *
+     * @param check
+     * @return
+     */
+    @Override
+    public boolean updateCheckStatusByCheckType(Check check) {
+        boolean checkStatus = checkStatus(check);
+        if (checkStatus) {
+            //进度填报 1；阶段性目标办结申请审核 2
+            if (check.getTaskId() != null) {
+                if (check.getStageId() != null && check.getCheckType() == 2) {
+                    taskService.updateCheckById(check.getTaskId(), null, 2);
+
+                } else if (check.getCheckType() == 1) {
+                    taskService.updateCheckById(check.getTaskId(), null, 1);
+                } else if (check.getCheckType() == 7) {
+                    taskService.updateCheckById(check.getTaskId(), null, 7);
+                } else if (check.getCheckType() == 8) {
+                    taskService.updateCheckById(check.getTaskId(), null, 8);
+                }
+            }
+            //报表牵头人提交审核 3；承办人指标审核 4
+            if (check.getBzFormId() != null) {
+                if (check.getBzFormTargetId() != null && check.getCheckType() == 4) {
+                    bzFormService.updateCheckById(check.getBzFormId(), null, 4);
+                    bzFormTargetService.updateCheckById(check.getBzFormTargetId(), null, 4);
+                } else if (check.getCheckType() == 3) {
+                    bzFormService.updateCheckById(check.getBzFormId(), null, 3);
+                }
+            }
+            //报表牵头人提交审核 3；承办人指标审核 4
+            if (check.getBzIssueId() != null) {
+                if (check.getBzIssueTargetId() != null && check.getCheckType() == 6) {
+                    bzIssueService.updateCheckById(check.getBzIssueId(), null, 4);
+                    bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), null, 4);
+                } else if (check.getCheckType() == 5) {
+                    bzIssueService.updateCheckById(check.getBzIssueId(), null, 3);
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Check getByProcessInstanceId(String processInstanceId) {
+        LambdaQueryWrapper<Check> queryWrapper = new LambdaQueryWrapper<>();
+
+        queryWrapper.eq(Check::getProcessInstanceId, processInstanceId);
+        queryWrapper.orderByDesc(Check::getId);
+        queryWrapper.last("LIMIT 1");
+        return getOne(queryWrapper);
+    }
+
+    /**
+     * 更新数据状态，根据审核结果，只有通过或者驳回的时候才修改状态，其他时候不修改状态
+     *
+     * @param check
+     * @return
+     */
+    @Override
+    public boolean updateCheckInfoToTarget(Check check) {
+        boolean checkStatus = checkStatus(check);
+        switch (check.getCheckType()) {
+            case 1: //填报申请,需要更新填报
+                ProgressReport progressReport = JSON.parseObject(check.getDataJson(), new TypeReference<ProgressReport>() {
+                });
+                if (check.getStatus() == 2) { //审核通过
+                    Task task = new Task();
+                    task.setId(check.getTaskId());
+                    task.setProgress(progressReport.getProgress());
+                    task.setIssuesAndChallenges(progressReport.getIssuesAndChallenges());
+                    task.setRequiresCoordination(progressReport.getRequiresCoordination());
+                    task.setNextSteps(progressReport.getNextSteps());
+                    task.setHandler(progressReport.getHandler());
+                    task.setPhone(progressReport.getPhone());
+                    task.setTbFileUrl(progressReport.getTbFileUrl());
+                    taskService.updateCbReport(task);
+                    progressReportService.updateStatus(progressReport.getId().intValue(), 3);
+                } else if (check.getStatus() == 3) {
+                    progressReportService.updateStatus(progressReport.getId().intValue(), 5);
+                }
+                taskService.updateCheckById(check.getTaskId(), null, 1);
+            case 2: //阶段性审核，更新阶段性审核数据
+                if (check.getStatus() == 2) { //通过审核
+                    stageNodeService.updateStatusById(check.getStageId().intValue(), 2);
+                }
+                stageNodeService.updateStatusById(check.getStageId().intValue(), 1);
+                taskService.updateStatusById(check.getTaskId(), 2);
+                taskService.updateCheckById(check.getTaskId(), null, 2);
+            case 7: // 办结审核，更新办结状态为6
+                taskService.updateStatusById(check.getTaskId(), 6);
+                taskService.updateCheckById(check.getTaskId(), null, 7);
+            case 8: //终结审核，更新终结状态为9
+                taskService.updateStatusById(check.getTaskId(), 9);
+                taskService.updateCheckById(check.getTaskId(), null, 8);
+                break;
+            case 3: //报表清单编辑审核
+                //获取表单数据
+                BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
+                });
+                if (bzFormDTO != null) {
+                    BzForm bzForm = bzFormDTO.getBzForm();
+                    for (BzFormTarget bzFormTarget : bzFormDTO.getBzFormTargetList()) {
+                        bzFormTarget.setBzFormId(bzForm.getId());
+                        //需要修改牵头单位到每个target中去
+                        bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
+                        bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
+
+                        //将每个指标的责任单位写入到清单中
+                        bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+                        bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+                    }
+
+                    bzFormTargetService.saveOrUpdateBatch(bzFormDTO.getBzFormTargetList());
+                    boolean upate = bzFormService.updateBzFrom(bzForm);
+                }
+                bzFormService.updateCheckById(check.getBzFormId(), null, 3);
+                break;
+            case 4: //报表指标审核
+                BzFormTarget bzFormTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormTarget>() {
+                });
+                if (bzFormTarget != null) {
+                    boolean progress = bzFormTargetService.updateProgress(bzFormTarget);
+                    BzFormTargetRecord bzFormTargetRecord = new BzFormTargetRecord();
+                    bzFormTargetRecord.setTargetId(bzFormTarget.getId());
+                    bzFormTargetRecord.setIssue(bzFormTarget.getIssues());
+                    bzFormTargetRecord.setWorkProgress(bzFormTarget.getWorkProgress());
+                    bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
+                    bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
+                    bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
+                    bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
+                }
+                bzFormTargetService.updateCheckById(check.getBzFormTargetId(), null, 4);
+                break;
+            case 5: //问题清单审核
+                BzIssueDTO bzIssueDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueDTO>() {
+                });
+                if (bzIssueDTO != null) {
+                    BzIssue bzIssue = bzIssueDTO.getBzIssue();
+                    for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
+                        bzIssueTarget.setBzIssueId(bzIssue.getId());
+                        //需要修改牵头单位到每个target中去
+                        bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
+                        bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
+
+                        //将每个指标的责任单位写入到清单中
+                        bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+                        bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+                    }
+
+                    bzIssueTargetService.saveOrUpdateBatch(bzIssueDTO.getBzIssueTargetList());
+                    boolean upate = bzIssueService.updateBzIssue(bzIssue);
+                }
+                bzIssueService.updateCheckById(check.getBzIssueId(), null, 3);
+                break;
+            case 6: //问题指标审核
+                BzIssueTarget bzIssueTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueTarget>() {
+                });
+                if (bzIssueTarget != null) {
+                    boolean progress = bzIssueTargetService.updateProgress(bzIssueTarget);
+                    BzIssueTargetRecord bzIssueTargetRecord = new BzIssueTargetRecord();
+                    bzIssueTargetRecord.setTargetId(bzIssueTarget.getId());
+                    bzIssueTargetRecord.setIssue(bzIssueTarget.getIssues());
+                    bzIssueTargetRecord.setWorkProgress(bzIssueTarget.getWorkProgress());
+                    bzIssueTargetRecord.setUpdatedBy(bzIssueTarget.getOperatorId());
+                    bzIssueTargetRecord.setOperator(bzIssueTarget.getOperator());
+                    bzIssueTargetRecord.setOperatorId(bzIssueTarget.getOperatorId());
+                    bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
+                }
+                bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), null, 4);
+                break;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void executeAfterDelay(String url, String authorizationHeader, String tenantId, Check check) throws InterruptedException {
+        logTime("任务开始执行时间：" + java.time.LocalDateTime.now());
+        Thread.sleep(5000L); // 模拟等待10秒
+        logTime("任务完成时间：" + java.time.LocalDateTime.now());
+        HttpUtil httpUtil = new HttpUtil();
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("flowId", check.getFlowId());
+        requestBody.put("processInstanceId", check.getProcessInstanceId());
+
+        logTime("check start request body: " + JSON.toJSONString(requestBody));
+        //获取节点数据,需要异步处理，等等10秒左右
+        String formatData = httpUtil.post(url, authorizationHeader, tenantId, JSON.toJSONString(requestBody));
+        if (formatData == null) {
+            logTime(url + " request failed");
+            return;
+        }
+        // 解析为Node对象列表
+        List<ProcessNodeDTO> nodeList = JSON.parseObject(formatData, new TypeReference<List<ProcessNodeDTO>>() {
+        });
+        String userIds = "";
+        for (ProcessNodeDTO nodeDTO : nodeList) {
+            logTime("=====> check node: " + nodeDTO.toString());
+            if (nodeDTO.getStatus() < 2) {
+                List<ProcessNodeDTO.UserVo> userVoList = nodeDTO.getUserVoList();
+                for (ProcessNodeDTO.UserVo userVo : userVoList) {
+                    if (userVo.getStatus() < 2) {
+                        userIds = util.joinString(userIds, userVo.getId());
+                    }
+                }
+                //说明已经取到要执行的节点，直接退出即可
+                if (userIds.length() > 1) {
+                    break;
+                }
+            }
+        }
+        logTime("=====> check node userIds: " + userIds);
+        //说明没有要审核的人了，就是审核完成了
+        if (userIds.length() <= 1) {
+            check.setStatus(2);
+            updateCheckStatusByCheckType(check);
+            return;
+        }
+
+
+        switch (check.getCheckType()) {
+            case 1: //填报申请
+            case 2: //阶段性审核
+            case 7: // 办结审核
+            case 8: //终结审核
+                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), userIds);
+                break;
+            case 3: //报表清单编辑审核
+                bzFormService.updateCheckProcess(check.getBzFormId(), check.getProcessInstanceId(), userIds);
+                break;
+            case 4: //报表指标审核
+                bzFormTargetService.updateCheckProcess(check.getBzFormTargetId(), check.getProcessInstanceId(), userIds);
+                break;
+            case 5: //问题清单审核
+                bzIssueService.updateCheckProcess(check.getBzIssueId(), check.getProcessInstanceId(), userIds);
+                break;
+            case 6: //问题指标审核
+                bzIssueTargetService.updateCheckProcess(check.getBzIssueTargetId(), check.getProcessInstanceId(), userIds);
+                break;
+        }
+    }
+
+    private void logTime(String taskName) {
+        String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        System.out.println(time + " " + taskName);
     }
 }

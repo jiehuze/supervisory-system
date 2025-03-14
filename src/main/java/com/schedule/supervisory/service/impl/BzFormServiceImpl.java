@@ -187,6 +187,16 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
+    public void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<BzForm> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzForm::getId, id)
+                .set(BzForm::getProcessInstanceId, processInstanceId)
+                .set(BzForm::getProcessInstanceReviewIds, processInstanceReviewIds);
+
+        update(updateWrapper);
+    }
+
+    @Override
     public List<Map<String, Object>> countEffectiveGear() {
         return bzFormMapper.countEffectiveGear();
     }

@@ -68,9 +68,28 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
         if (progressReport.getNextSteps() != null) {
             progressReport.setStatus(progressReportDetails.getStatus());
         }
+        if (progressReport.getFlowId() != null) {
+            progressReport.setFlowId(progressReportDetails.getFlowId());
+        }
+        if (progressReport.getProcessInstanceId() != null) {
+            progressReport.setProcessInstanceId(progressReportDetails.getProcessInstanceId());
+        }
 
         updateById(progressReport);
         return progressReport;
+    }
+
+    @Override
+    public boolean updateProgressReportCheckInfo(ProgressReport progressReport) {
+        LambdaUpdateWrapper<ProgressReport> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(ProgressReport::getId, progressReport.getId());
+        if (progressReport.getProcessInstanceId() != null) {
+            updateWrapper.set(ProgressReport::getProcessInstanceId, progressReport.getProcessInstanceId());
+        }
+        if (progressReport.getFlowId() != null) {
+            updateWrapper.set(ProgressReport::getFlowId, progressReport.getFlowId());
+        }
+        return update(updateWrapper);
     }
 
     @Override

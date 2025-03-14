@@ -29,6 +29,8 @@ public interface IBzFormService extends IService<BzForm> {
 
     boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
 
+    void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds);
+
     List<Map<String, Object>> countEffectiveGear();
 
     List<EffectiveGearCount> countGearCollect();

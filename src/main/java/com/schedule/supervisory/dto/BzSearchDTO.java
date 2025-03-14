@@ -10,7 +10,7 @@ public class BzSearchDTO implements Serializable {
     private Long id; // 表id
     private Long taskId;
     private Long bzFormId;
-    private Long bzIssuedId;
+    private Long bzIssueId;
     private Long bzFormTargetId;
     private Long bzIssueTargetId;
     private String name; // 名称

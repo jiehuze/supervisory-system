@@ -50,7 +50,14 @@ public class BzTypeController {
      */
     @PostMapping("/order")
     public BaseResponse order(@RequestBody List<BzType> bzTypeList) {
-        bzTypeService.updateBatchById(bzTypeList);
+        Integer maxTypeId = bzTypeService.getMaxTypeId(bzTypeList.get(0).getType());
+        for (BzType bzType : bzTypeList) {
+            if (bzType.getId() == null) {
+                bzType.setTypeId(++maxTypeId);
+            }
+        }
+//        bzTypeService.updateBatchById(bzTypeList);
+        bzTypeService.saveOrUpdateBatch(bzTypeList);
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 

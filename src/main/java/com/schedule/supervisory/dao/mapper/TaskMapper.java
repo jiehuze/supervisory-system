@@ -53,8 +53,8 @@ public interface TaskMapper extends BaseMapper<Task> {
      */
     List<Task> listTasksByStatus(@Param("status") Integer status);
 
-    @Select("SELECT DISTINCT source FROM public.task ORDER BY source")
-    List<String> selectDistinctSources();
+//    @Select("SELECT DISTINCT source FROM public.task ORDER BY source")
+//    List<String> selectDistinctSources();
 
     @Select("SELECT DISTINCT source FROM public.task WHERE source LIKE CONCAT('%', #{source}, '%') ORDER BY source")
     List<String> selectDistinctSources(@Param("source") String source);

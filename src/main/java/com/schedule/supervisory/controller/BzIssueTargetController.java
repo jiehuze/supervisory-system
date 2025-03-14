@@ -50,12 +50,12 @@ public class BzIssueTargetController {
         if (bzIssueTargets.size() > 0) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
             bzSearchDTO.setId(bzIssueTargets.get(0).getBzIssueId());
-            bzSearchDTO.setBzIssuedId(bzIssueTargets.get(0).getBzIssueId());
+            bzSearchDTO.setBzIssueId(bzIssueTargets.get(0).getBzIssueId());
             List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
                 bzIssueTargetService.removeById(bzIssueTarget.getId());
             }
-            BzIssue bzIssue = bzIssueService.getById(bzSearchDTO.getBzIssuedId());
+            BzIssue bzIssue = bzIssueService.getById(bzSearchDTO.getBzIssueId());
             //写入牵头单位
             for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
                 bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());

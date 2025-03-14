@@ -4,14 +4,17 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
+import com.schedule.excel.FormTemplateExcel;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzType;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.DateUtils;
+import com.schedule.utils.ExcelUtil;
 import com.schedule.utils.HttpUtil;
 import com.schedule.utils.util;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -73,6 +76,11 @@ public class BzFormController {
             List<BzFormTarget> bzFormTargets = bzFormTargetService.getCheckTargetByFormId(bzSearchDTO, deptDTOs);
             if (bzFormTargets != null && bzFormTargets.size() > 0) {
                 bzForm.setCheckStatus(util.joinString(bzForm.getCheckStatus(), "4"));
+                String reviewTargetIds = "";
+                for (BzFormTarget bzFormTarget : bzFormTargets) {
+                    util.joinString(reviewTargetIds, bzFormTarget.getProcessInstanceReviewIds());
+                }
+                bzForm.setProcessInstanceTargetReviewIds(reviewTargetIds);
             }
         }
 
@@ -483,5 +491,41 @@ public class BzFormController {
 
 
         return new BaseResponse(HttpStatus.OK.value(), "success", bzFormTargetIPage, Integer.toString(0));
+    }
+
+    @GetMapping(value = "/export")
+    public void export(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                       @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                       @ModelAttribute BzSearchDTO bzSearchDTO,
+                       HttpServletResponse response) throws Exception {
+
+        List<FormTemplateExcel> formTemplateExcels = new ArrayList<>();
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+        if (deptJson != null) {
+            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+            System.out.println("Dept list size: " + deptDTOs.size());
+        } else {
+            return;
+        }
+        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzSearchDTO, 1, 100, deptDTOs);
+        for (BzForm bzForm : bzFormByConditions.getRecords()) {
+            bzSearchDTO.setBzFormId(bzForm.getId());
+            List<BzFormTarget> bzFormTargets = bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs);
+            for (BzFormTarget bzFormTarget : bzFormTargets) {
+                FormTemplateExcel formTemplateExcel = new FormTemplateExcel();
+                formTemplateExcel.setType(bzForm.getType());
+                formTemplateExcel.setPredictedGear(String.valueOf(bzForm.getPredictedGear() + 'A' - 1));
+                formTemplateExcel.setName(bzFormTarget.getName());
+                formTemplateExcel.setWorkProgress(bzFormTarget.getWorkProgress());
+                formTemplateExcel.setIssues(bzFormTarget.getIssues());
+                formTemplateExcel.setDept(bzFormTarget.getDept());
+                formTemplateExcels.add(formTemplateExcel);
+            }
+        }
+        System.out.println("---- list: " + formTemplateExcels.toString());
+
+        ExcelUtil.exportExcelToTarget(response, null, "任务", formTemplateExcels, FormTemplateExcel.class);
     }
 }

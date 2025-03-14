@@ -45,4 +45,6 @@ public class ProgressReport {
     private String tbFileUrl; //通报文件
     private Long checkId;
     private String submitId; //提交人
+    private String processInstanceId;
+    private String flowId;
 }

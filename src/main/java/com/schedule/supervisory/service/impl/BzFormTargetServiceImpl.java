@@ -88,6 +88,16 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
     }
 
     @Override
+    public void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzFormTarget::getId, id)
+                .set(BzFormTarget::getProcessInstanceId, processInstanceId)
+                .set(BzFormTarget::getProcessInstanceReviewIds, processInstanceReviewIds);
+
+        update(updateWrapper);
+    }
+
+    @Override
     public List<BzFormTarget> getByFormId(BzSearchDTO bzSearchDTO, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<BzFormTarget> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BzFormTarget::getBzFormId, bzSearchDTO.getBzFormId());

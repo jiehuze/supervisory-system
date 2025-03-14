@@ -8,5 +8,5 @@ import java.util.Map;
 @Data
 public class CheckStartDTO implements Serializable {
     private String flowId;
-    private Map<String, String> paramMap;
+    private Map<String, Object> paramMap;
 }

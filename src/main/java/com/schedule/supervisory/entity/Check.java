@@ -20,9 +20,10 @@ public class Check extends Model<Check> {
     private Long bzFormTargetId;
     private Long bzIssueTargetId;
     private String dataJson;
-    //1： 审核中；2：通过审核，3.未通过审核
+    //1： 审核中；2：通过审核，3.驳回
     private Integer status;
-    /**1. 任务进度提交审核；
+    /**
+     * 1. 任务进度提交审核；
      * 2：任务阶段性目标提交审核；
      * 3：:885清单列表详情修改提交审核；
      * 4：:885清单列表指标修改提交审核；
@@ -34,6 +35,8 @@ public class Check extends Model<Check> {
     private Integer checkType;
     private String operator;
     private String operatorId;
+    private String processInstanceId;
+    private String flowId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

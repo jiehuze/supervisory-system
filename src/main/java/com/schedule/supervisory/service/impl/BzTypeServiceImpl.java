@@ -30,5 +30,17 @@ public class BzTypeServiceImpl extends ServiceImpl<BzTypeMapper, BzType> impleme
         updateWrapper.set(BzType::isDelete, true);
         return update(updateWrapper);
     }
+
+    @Override
+    public Integer getMaxTypeId(String type) {
+        LambdaQueryWrapper<BzType> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BzType::getType, type)
+                .orderByDesc(BzType::getTypeId)
+                .last("LIMIT 1");
+
+        BzType bzType = getOne(queryWrapper);
+
+        return bzType != null ? bzType.getTypeId() : null;
+    }
     // 由于 ServiceImpl 已经实现了大部分基础功能，通常不需要在此添加额外逻辑
 }

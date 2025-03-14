@@ -12,6 +12,7 @@ import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.dto.EffectiveGearCount;
 import com.schedule.supervisory.entity.BzForm;
 import com.schedule.supervisory.entity.BzIssue;
+import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.service.IBzIssueService;
 import com.schedule.utils.util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,6 +190,16 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
         updateWrapper.set(BzIssue::getCheckStatus, checkStatus);
 
         return update(updateWrapper);
+    }
+
+    @Override
+    public void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<BzIssue> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssue::getId, id)
+                .set(BzIssue::getProcessInstanceId, processInstanceId)
+                .set(BzIssue::getProcessInstanceReviewIds, processInstanceReviewIds);
+
+        update(updateWrapper);
     }
 
     @Override

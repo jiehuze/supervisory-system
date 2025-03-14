@@ -1,6 +1,7 @@
 package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.Instruction;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IInstructionService;
@@ -32,10 +33,12 @@ public class InstructionController {
     @PostMapping("/add")
     public BaseResponse addInstruction(@RequestBody Instruction instruction) {
         boolean save = instructionService.save(instruction);
-        taskService.updateInstructionById((long) instruction.getTaskId(), instruction.getContent());
+        if (instruction.getTaskId() != null) {
+            taskService.updateInstructionById((long) instruction.getTaskId(), instruction.getContent());
 
-        Task messageTask = taskService.getById(instruction.getTaskId());
-        ykbMessageService.sendMessageForInstruction(messageTask); //办结申请
+            Task messageTask = taskService.getById(instruction.getTaskId());
+            ykbMessageService.sendMessageForInstruction(messageTask); //办结申请
+        }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
@@ -47,9 +50,9 @@ public class InstructionController {
      * @return 批示列表
      */
     @GetMapping
-    public BaseResponse getInstructionsByTaskId(@RequestParam(value = "taskId", required = false) Integer taskId) {
+    public BaseResponse getInstructionsByTaskId(@ModelAttribute BzSearchDTO bzSearchDTO) {
         // 如果提供了taskId，则根据taskId查询
-        List<Instruction> instructions = instructionService.getInstructionsByTaskId(taskId);
+        List<Instruction> instructions = instructionService.getInstructionsByTaskId(bzSearchDTO);
         return new BaseResponse(HttpStatus.OK.value(), "success", instructions, Integer.toString(0));
     }
 }

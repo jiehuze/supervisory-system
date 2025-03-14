@@ -5,10 +5,16 @@ import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.DuchaReportCreationDTO;
 import com.schedule.supervisory.dto.ReportUpdateDTO;
 import com.schedule.supervisory.entity.DuchaReport;
+import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IDuchaReportService;
+import com.schedule.supervisory.service.ITaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/duchareport")
@@ -16,6 +22,8 @@ public class DuchaReportController {
 
     @Autowired
     private IDuchaReportService duchaReportService;
+    @Autowired
+    private ITaskService taskService;
 
     @GetMapping("/list")
     public Page<DuchaReport> list(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
@@ -50,6 +58,22 @@ public class DuchaReportController {
 
         Page<DuchaReport> duchaReportPage = duchaReportService.searchReports(userId, reportName, size, size);
         return new BaseResponse(HttpStatus.OK.value(), "success", duchaReportPage, Integer.toString(0));
+    }
+
+    @GetMapping("/gettasks")
+    public BaseResponse getTasks(@RequestParam(value = "taskIds", required = false) String taskIds) {
+        if (taskIds == null) {
+            return new BaseResponse(HttpStatus.OK.value(), "failed", null, Integer.toString(0));
+        }
+
+        String[] taskIdArray = taskIds.split(",");
+        // 将String数组转换为Integer列表
+        List<Integer> taskIdList = Arrays.stream(taskIdArray)
+                .map(Integer::parseInt) // 将每个String元素转换为Integer
+                .collect(Collectors.toList()); // 收集结果到List<Integer>
+        List<Task> tasklist = taskService.getTasksByIds(taskIdList);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasklist, Integer.toString(0));
     }
 
     @PutMapping("/submit")
