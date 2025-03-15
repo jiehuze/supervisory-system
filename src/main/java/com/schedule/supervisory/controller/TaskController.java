@@ -75,33 +75,34 @@ public class TaskController {
 
                 for (StageNode stageNode : taskDTO.getStageNodes()) {
                     if (util.daysDifference(stageNode.getDeadline()) > 0) {
-                        stageNode.setStatus(3);
+                        stageNode.setOverdueDays((int) util.daysDifference(stageNode.getDeadline()));
+//                        stageNode.setStatus(3);
                     }
                     taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
                 }
                 taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
                 task.setOverdueDays((int) taskoverdueDays);
 
+                if (task.getTaskType() == null || task.getTaskType() == 0) { //督查室才可以修改责任人，个人任务没有责任人
+                    if (task.getLeadingDepartmentId() == null || task.getResponsiblePerson() == null) {
+                        return new BaseResponse(HttpStatus.NO_CONTENT.value(), "未填写牵头单位和责任人", null, Integer.toString(0));
+                    }
+                    String[] departmentIds = task.getLeadingDepartmentId().split(",");
+                    String[] person = task.getResponsiblePerson().split(",");
+                    for (int i = 0; i < departmentIds.length; i++) {
+                        Membership membership = new Membership();
+                        membership.setLeadingDepartmentId(departmentIds[i]);
+                        membership.setResponsiblePerson(person[i]);
+
+                        membershipService.addOrUpdateMembership(membership);
+                    }
+                }
+
                 Long id = taskService.insertTask(task);
                 if (id == null) {
                     return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
                 }
-                if (task.getLeadingDepartmentId() == null || task.getResponsiblePerson() == null) {
-                    return new BaseResponse(HttpStatus.NO_CONTENT.value(), "未填写牵头单位和责任人", id, Integer.toString(0));
-                }
-
                 ykbMessageService.sendMessageForNewTask(task); // 发送消息
-
-                String[] departmentIds = task.getLeadingDepartmentId().split(",");
-                String[] person = task.getResponsiblePerson().split(",");
-                for (int i = 0; i < departmentIds.length; i++) {
-                    Membership membership = new Membership();
-                    membership.setLeadingDepartmentId(departmentIds[i]);
-                    membership.setResponsiblePerson(person[i]);
-
-                    membershipService.addOrUpdateMembership(membership);
-                }
-
 
                 for (StageNode stageNode : taskDTO.getStageNodes()) {
                     stageNode.setTaskId((int) id.longValue());
@@ -125,7 +126,8 @@ public class TaskController {
         for (StageNode stageNode : taskDTO.getStageNodes()) {
             long diffDays = 0;
             if (util.daysDifference(stageNode.getDeadline()) > 0 && stageNode.getStatus() != 2 && stageNode.getStatus() != 4) {
-                stageNode.setStatus(3);
+//                stageNode.setStatus(3);
+                stageNode.setOverdueDays((int) util.daysDifference(stageNode.getDeadline()));
                 diffDays = util.daysDifference(stageNode.getDeadline());
             }
             stageNode.setTaskId((int) id.longValue());

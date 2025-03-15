@@ -32,6 +32,7 @@ public interface BzIssueMapper extends BaseMapper<BzIssue> {
             "FROM public.bz_issue_target " +
             "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 4 " +
             "AND created_at BETWEEN #{startTime} AND #{endTime}" +
+            "AND delete = FALSE " +
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
     List<EffectiveGearCount> countGearCollectTargetByDate(@Param("startTime") LocalDateTime startTime,
@@ -50,6 +51,7 @@ public interface BzIssueMapper extends BaseMapper<BzIssue> {
             "FROM public.bz_issue_target " +
             "WHERE updated_at BETWEEN #{startTime} AND #{endTime} " +
             "AND CASE WHEN actual_gear IS NOT NULL THEN actual_gear ELSE predicted_gear END = #{gear} " +
+            "AND delete = FALSE " +
             "GROUP BY name " +
             "ORDER BY name")
     List<BzFromTargetNameCount> selectByTimeAndGear(@Param("startTime") LocalDateTime startTime,

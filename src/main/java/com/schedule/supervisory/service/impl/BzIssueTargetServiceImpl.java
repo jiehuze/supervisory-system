@@ -10,6 +10,7 @@ import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzIssueTarget;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IBzIssueTargetService;
+import com.schedule.utils.util;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -68,14 +69,18 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
 
     @Override
     public boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus) {
-        LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(BzIssueTarget::getId, id);
+        BzIssueTarget bzIssueTarget = getById(id);
+        String checkStatus = bzIssueTarget.getCheckStatus();
         if (addStatus != null) {
-            updateWrapper.set(BzIssueTarget::getCheckStatus, addStatus);
+            checkStatus = util.joinString(checkStatus, addStatus.toString());
         }
         if (removeStatus != null) {
-            updateWrapper.set(BzIssueTarget::getCheckStatus, "");
+            checkStatus = util.removeString(checkStatus, removeStatus.toString());
         }
+
+        LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssueTarget::getId, id)
+                .set(BzIssueTarget::getCheckStatus, checkStatus);
 
         return update(updateWrapper);
     }

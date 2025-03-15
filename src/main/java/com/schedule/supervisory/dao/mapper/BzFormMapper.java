@@ -27,6 +27,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
             "FROM public.bz_form bf\n" +
             "RIGHT JOIN public.bz_form_target bft ON bf.id = bft.bz_form_id\n" +
             "WHERE COALESCE(bft.actual_gear, bft.predicted_gear) BETWEEN 1 AND 4\n" +
+            "AND bft.delete = FALSE " +
             "GROUP BY bf.type_id, COALESCE(bft.actual_gear, bft.predicted_gear)\n" +
             "ORDER BY bf.type_id, effective_gear;")
     List<Map<String, Object>> countEffectiveGear();
@@ -42,6 +43,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
     @Select("SELECT COALESCE(actual_gear, predicted_gear) AS effective_gear, COUNT(*) AS count_effective_gear " +
             "FROM public.bz_form_target " +
             "WHERE COALESCE(actual_gear, predicted_gear) BETWEEN 1 AND 4 " +
+            "AND delete = FALSE " +
             "AND created_at BETWEEN #{startTime} AND #{endTime}" +
             "GROUP BY COALESCE(actual_gear, predicted_gear) " +
             "ORDER BY effective_gear")
@@ -79,6 +81,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "<if test='typeId != null and typeId != 0'> bf.type_id = #{typeId} </if>" +
             "AND CASE WHEN bft.actual_gear IS NOT NULL THEN bft.actual_gear ELSE bft.predicted_gear END = #{gear} " +
+            "AND bft.delete = FALSE " +
             "</where>" +
             "</script>")
     Page<BzFormTarget> selectByTypeAndGear(Page<BzFormTarget> page,

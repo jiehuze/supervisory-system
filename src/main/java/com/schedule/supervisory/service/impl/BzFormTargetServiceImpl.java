@@ -8,6 +8,7 @@ import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.dto.DeptDTO;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.IBzFormTargetService;
+import com.schedule.utils.util;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
         if (bzFormTarget.getWorkProgress() != null) {
             updateWrapper.set(BzFormTarget::getWorkProgress, bzFormTarget.getWorkProgress());
         }
+
         return update(updateWrapper);
     }
 
@@ -75,14 +77,18 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
 
     @Override
     public boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus) {
-        LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(BzFormTarget::getId, id);
+        BzFormTarget bzFormTarget = getById(id);
+        String checkStatus = bzFormTarget.getCheckStatus();
         if (addStatus != null) {
-            updateWrapper.set(BzFormTarget::getCheckStatus, addStatus);
+            checkStatus = util.joinString(checkStatus, addStatus.toString());
         }
         if (removeStatus != null) {
-            updateWrapper.set(BzFormTarget::getCheckStatus, 0);
+            checkStatus = util.removeString(checkStatus, removeStatus.toString());
         }
+
+        LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzFormTarget::getId, id)
+                .set(BzFormTarget::getCheckStatus, checkStatus);
 
         return update(updateWrapper);
     }

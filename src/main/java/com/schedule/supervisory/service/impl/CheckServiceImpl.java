@@ -205,10 +205,6 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     if (bzFormDTO != null) {
                         BzForm bzForm = bzFormDTO.getBzForm();
                         for (BzFormTarget bzFormTarget : bzFormDTO.getBzFormTargetList()) {
-                            if (bzFormTarget.isDelete()) {
-                                bzFormTargetService.removeById(bzFormTarget.getId());
-                                continue;
-                            }
                             bzFormTarget.setBzFormId(bzForm.getId());
                             //需要修改牵头单位到每个target中去
                             bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
@@ -254,10 +250,6 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     if (bzIssueDTO != null) {
                         BzIssue bzIssue = bzIssueDTO.getBzIssue();
                         for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
-                            if (bzIssueTarget.isDelete()) {
-                                bzIssueTargetService.removeById(bzIssueTarget.getId());
-                                continue;
-                            }
                             bzIssueTarget.setBzIssueId(bzIssue.getId());
                             //需要修改牵头单位到每个target中去
                             bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());

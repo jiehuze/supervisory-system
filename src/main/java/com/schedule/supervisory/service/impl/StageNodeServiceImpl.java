@@ -26,7 +26,8 @@ public class StageNodeServiceImpl extends ServiceImpl<StageNodeMapper, StageNode
     public List<StageNode> getStageNodeForOverdue(Long taskId) {
         LambdaQueryWrapper<StageNode> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(StageNode::getTaskId, taskId);
-        queryWrapper.eq(StageNode::getStatus, 3);
+        queryWrapper.ne(StageNode::getStatus, 2);
+        queryWrapper.gt(StageNode::getOverdueDays, 0);
 
         return list(queryWrapper);
     }

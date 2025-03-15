@@ -107,6 +107,7 @@ public class CheckController {
 
     @PostMapping("/start")
     public BaseResponse start(@RequestBody Check check,
+                              @ModelAttribute TaskSearchDTO taskSearchDTO,
                               @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                               @RequestHeader(value = "tenant-id", required = false) String tenantId) {
         CheckStartDTO checkStartDTO = new CheckStartDTO();
@@ -115,18 +116,24 @@ public class CheckController {
             case 1: //填报申请
                 taskService.updateCheckById(check.getTaskId(), 1, 0); //填报审核
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
-
+                Task taskrp = taskService.getById(check.getTaskId());
+                paramMap.put("submitDeptIds", taskrp.getLeadingDepartmentId().split(","));
                 //将填报数据进行历史存储,方便进行查询
                 ProgressReport progressReport = JSON.parseObject(check.getDataJson(), new TypeReference<ProgressReport>() {
                 });
-                progressReport.setFlowId("P20250312054230198JQIIT");
+                if (taskSearchDTO.getTaskType() == 0) { //督查室任务
+                    progressReport.setFlowId("P20250312054230198JQIIT");
+                    checkStartDTO.setFlowId("P20250312054230198JQIIT");
+                } else { //个人任务
+                    progressReport.setFlowId("P202503141014517893RNME");
+                    checkStartDTO.setFlowId("P202503141014517893RNME");
+                    paramMap.put("m88kgsbhz5tm1_assignee_select", getCheckUserList(taskrp.getAssignerId(), taskrp.getAssigner()));
+                }
+
                 ProgressReport progressReportNew = progressReportService.createProgressReport(progressReport);
                 check.setDataJson(JSON.toJSONString(progressReportNew)); //需要更新下，以为新增的progressReport数据没有记录id，后面审核的时候无法获取到
                 System.out.println("--------- datajson: " + progressReportNew);
 
-                checkStartDTO.setFlowId("P20250312054230198JQIIT");
-                Task taskrp = taskService.getById(check.getTaskId());
-                paramMap.put("submitDeptIds", taskrp.getLeadingDepartmentId().split(","));
                 ykbMessageService.sendMessageForCheck(taskrp, TaskStatus.TASKSTATUS_REPORT.getCode());
                 break;
             case 2: //阶段性审核
@@ -146,9 +153,9 @@ public class CheckController {
                 paramMap.put("submitDeptIds", bzform.getLeadingDepartmentId().split(","));
 
 
-                BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
-                });
-                System.out.println("================ bzformDTO: " + bzFormDTO.toString());
+//                BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
+//                });
+//                System.out.println("================ bzformDTO: " + bzFormDTO.toString());
 
 
                 break;
@@ -159,8 +166,8 @@ public class CheckController {
                 paramMap.put("submitDeptIds", bzFormTarget.getDeptId().split(","));
                 break;
             case 5: //问题清单审核
-                checkStartDTO.setFlowId("P20250312055555772BEE9J");
                 bzIssueService.updateCheckById(check.getBzIssueId(), 3, 0);
+                checkStartDTO.setFlowId("P20250312055555772BEE9J");
                 BzIssue bzIssue = bzIssueService.getById(check.getBzIssueId());
                 paramMap.put("submitDeptIds", bzIssue.getLeadingDepartmentId().split(","));
                 break;
@@ -173,10 +180,16 @@ public class CheckController {
             case 7: // 办结审核
                 taskService.updateCheckById(check.getTaskId(), 7, 0); //填报审核
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
-                checkStartDTO.setFlowId("P20250312054853669F7BFK");
                 Task taskCm = taskService.getById(check.getTaskId());
-                paramMap.put("m85i04a1nuxd2_assignee_select", getCheckUserList(taskCm.getAssignerId(), taskCm.getAssigner()));
-                paramMap.put("m85hstanyga4a_assignee_select", getCheckUserList(taskCm.getLeadingOfficialId(), taskCm.getLeadingOfficial()));
+                if (taskSearchDTO.getTaskType() == 0) { //督查室任务
+                    checkStartDTO.setFlowId("P20250312054853669F7BFK");
+                    paramMap.put("m85i04a1nuxd2_assignee_select", getCheckUserList(taskCm.getAssignerId(), taskCm.getAssigner()));
+                    paramMap.put("m85hstanyga4a_assignee_select", getCheckUserList(taskCm.getLeadingOfficialId(), taskCm.getLeadingOfficial()));
+                } else { //个人任务
+                    checkStartDTO.setFlowId("P202503141014517893RNME");
+                    paramMap.put("m88kgsbhz5tm1_assignee_select", getCheckUserList(taskCm.getAssignerId(), taskCm.getAssigner()));
+                }
+
                 paramMap.put("submitDeptIds", taskCm.getLeadingDepartmentId().split(","));
 
                 ykbMessageService.sendMessageForCheck(taskCm, 4);
@@ -185,10 +198,17 @@ public class CheckController {
             case 8: //终结审核
                 taskService.updateCheckById(check.getTaskId(), 8, 0); //填报审核
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
-                checkStartDTO.setFlowId("P20250312055005786PBMBA");
                 Task taskCn = taskService.getById(check.getTaskId());
-                paramMap.put("m85i2kyhmvg3q_assignee_select", getCheckUserList(taskCn.getAssignerId(), taskCn.getAssigner()));
-                paramMap.put("m85hvad96zqkc_assignee_select", getCheckUserList(taskCn.getLeadingOfficialId(), taskCn.getLeadingOfficial()));
+
+                if (taskSearchDTO.getTaskType() == 0) { //督查室任务
+                    checkStartDTO.setFlowId("P20250312055005786PBMBA");
+                    paramMap.put("m85i2kyhmvg3q_assignee_select", getCheckUserList(taskCn.getAssignerId(), taskCn.getAssigner()));
+                    paramMap.put("m85hvad96zqkc_assignee_select", getCheckUserList(taskCn.getLeadingOfficialId(), taskCn.getLeadingOfficial()));
+                } else { //个人任务
+                    checkStartDTO.setFlowId("P202503141014517893RNME");
+                    paramMap.put("m88kgsbhz5tm1_assignee_select", getCheckUserList(taskCn.getAssignerId(), taskCn.getAssigner()));
+                }
+
                 paramMap.put("submitDeptIds", taskCn.getLeadingDepartmentId().split(","));
 
                 ykbMessageService.sendMessageForCheck(taskCn, 7);

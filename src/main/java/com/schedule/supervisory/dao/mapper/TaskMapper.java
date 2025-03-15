@@ -74,6 +74,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
             "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
@@ -206,6 +207,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "task_period IN (1, 2, 3, 4) " +
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
@@ -253,6 +255,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
             "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
@@ -307,6 +310,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
@@ -368,6 +372,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "status = 6 " +
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +

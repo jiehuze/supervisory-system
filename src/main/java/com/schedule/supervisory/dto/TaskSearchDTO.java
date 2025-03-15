@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class TaskSearchDTO implements Serializable {
     private Long taskId;
-    private Integer taskType;
+    private Integer taskType; //0:督查室；1：个人
     private String source; // 任务来源 'source'
     private String content; // 任务内容 'content'
     private String leadingOfficial; // 牵头区领导 'leading_official'
@@ -24,6 +24,7 @@ public class TaskSearchDTO implements Serializable {
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
     private String responsiblePerson; // 责任人对应数据库列 'responsible_person'
     private String responsiblePersonId; // 责任人ID 'responsible_person_id'
+    private String assignerId; //交办人Id
     private Integer taskPeriod; // 任务周期（int类型）对应数据库列 'task_period'
 
     private String userId;

@@ -339,7 +339,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
     @Override
     public boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus) {
-        List<String> list = null;
         Task task = getTaskById(taskId);
         if (addStatus != null) {
             task.setCheckStatus(util.joinString(task.getCheckStatus(), addStatus.toString()));
