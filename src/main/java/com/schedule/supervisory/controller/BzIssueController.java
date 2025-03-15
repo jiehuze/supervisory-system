@@ -74,7 +74,7 @@ public class BzIssueController {
                 bzIssue.setCheckStatus(util.joinString(bzIssue.getCheckStatus(), "4"));
                 String reviewTargetIds = "";
                 for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
-                    util.joinString(reviewTargetIds, bzIssueTarget.getProcessInstanceReviewIds());
+                    reviewTargetIds = util.joinString(reviewTargetIds, bzIssueTarget.getProcessInstanceReviewIds());
                 }
                 bzIssue.setProcessInstanceTargetReviewIds(reviewTargetIds);
             }

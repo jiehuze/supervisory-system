@@ -78,7 +78,7 @@ public class BzFormController {
                 bzForm.setCheckStatus(util.joinString(bzForm.getCheckStatus(), "4"));
                 String reviewTargetIds = "";
                 for (BzFormTarget bzFormTarget : bzFormTargets) {
-                    util.joinString(reviewTargetIds, bzFormTarget.getProcessInstanceReviewIds());
+                    reviewTargetIds = util.joinString(reviewTargetIds, bzFormTarget.getProcessInstanceReviewIds());
                 }
                 bzForm.setProcessInstanceTargetReviewIds(reviewTargetIds);
             }
