@@ -3,6 +3,7 @@ package com.schedule.supervisory.controller;
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.ProgressReport;
+import com.schedule.supervisory.entity.StageNode;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IProgressReportService;
 import com.schedule.supervisory.service.ITaskService;
@@ -55,6 +56,12 @@ public class ProgressReportController {
                                              @RequestBody ProgressReport progressReportDetails) {
         ProgressReport progressReport = progressReportService.updateProgressReport(progressReportId, progressReportDetails);
         return new BaseResponse(HttpStatus.OK.value(), "success", progressReport, Integer.toString(0));
+    }
+
+    @PutMapping("/admin/update")
+    public BaseResponse adminUpdateStage(@RequestBody ProgressReport progressReport) {
+        boolean update = progressReportService.updateById(progressReport);
+        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
     }
 
 //    @DeleteMapping("/{id}")

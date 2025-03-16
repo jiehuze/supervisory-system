@@ -2,6 +2,7 @@ package com.schedule.supervisory.service.impl;
 
 import com.schedule.common.YkbMessage;
 import com.schedule.supervisory.dto.ParameterDTO;
+import com.schedule.supervisory.entity.Check;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.supervisory.service.IYkbMessageService;
@@ -132,7 +133,42 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
                 break;
         }
 
-        return false;
+        return true;
+    }
+
+    @Override
+    public boolean sendMessageForCheckNew(Check check, String userIds) {
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
+        String message = null;
+        switch (check.getCheckType()) {
+            case 7:
+                message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
+            case 8:
+                message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
+            case 1:
+                message = "有一条任务填报需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
+            case 2:
+                message = "有一条阶段性任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
+        }
+
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ArrayList<String> userIdList = new ArrayList<>(List.of(userIds.split(",")));
+        ykbMessage.sendYkbMessage(pcMessageUrl + check.getTaskId(), phoneMessageUrl + check.getTaskId(), userIdList, message, parameterDTO.getMessageUrl());
+        return true;
     }
 
     @Override

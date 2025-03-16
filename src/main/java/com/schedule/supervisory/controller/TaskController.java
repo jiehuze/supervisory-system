@@ -305,6 +305,19 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
     }
 
+    //这两个给超级管理员使用
+    @GetMapping("/admin/check")
+    public BaseResponse adminTaskCheck(@ModelAttribute TaskSearchDTO taskSearchDTO) {
+        boolean adminCheck = taskService.adminCheckById(taskSearchDTO.getTaskId(), taskSearchDTO.getStatus(), taskSearchDTO.getUserId());
+        return new BaseResponse(HttpStatus.OK.value(), "success", adminCheck, Integer.toString(0));
+    }
+
+    @DeleteMapping("/admin/delete")
+    public BaseResponse adminTaskDelete(@ModelAttribute TaskSearchDTO taskSearchDTO) {
+        boolean modify = taskService.adminDeleteById(taskSearchDTO.getTaskId(), taskSearchDTO.getUserId());
+        return new BaseResponse(HttpStatus.OK.value(), "success", modify, Integer.toString(0));
+    }
+
     @PutMapping("/{taskId}/urgent")
     public BaseResponse updateTaskIsUrgent(@PathVariable Long taskId,
                                            @RequestParam Boolean isUrgent) {

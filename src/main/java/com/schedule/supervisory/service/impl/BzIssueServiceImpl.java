@@ -203,6 +203,15 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
+    public boolean clearCheckUserById(Long id) {
+        LambdaUpdateWrapper<BzIssue> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssue::getId, id)
+                .set(BzIssue::getProcessInstanceReviewIds, "");
+
+        return update(updateWrapper);
+    }
+
+    @Override
     public List<Map<String, Object>> countEffectiveGear() {
         return bzIssueMapper.countEffectiveGear();
     }

@@ -44,6 +44,9 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
     @Autowired
     private IBzIssueTargetRecordService bzIssueTargetRecordService;
 
+    @Autowired
+    private IYkbMessageService ykbMessageService;
+
     @Override
     public boolean checkStatus(Check check) {
         LambdaUpdateWrapper<Check> updateWrapper = new LambdaUpdateWrapper<>();
@@ -338,6 +341,8 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
             return;
         }
 
+        //发消息
+        ykbMessageService.sendMessageForCheckNew(check, userIds);
 
         switch (check.getCheckType()) {
             case 1: //填报申请

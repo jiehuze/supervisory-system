@@ -7,7 +7,6 @@ import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.HttpUtil;
-import com.schedule.utils.TaskStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/check")
@@ -44,9 +42,6 @@ public class CheckController {
     private IBzIssueTargetService bzIssueTargetService;
 
     @Autowired
-    private IYkbMessageService ykbMessageService;
-
-    @Autowired
     private ParameterDTO parameterDTO;
 
     @PostMapping("/add")
@@ -63,7 +58,6 @@ public class CheckController {
                     taskService.updateCheckById(check.getTaskId(), 1, 0); //填报审核
                 }
                 Task messageTask = taskService.getTaskById(check.getTaskId());
-                ykbMessageService.sendMessageForCheck(messageTask, TaskStatus.TASKSTATUS_REPORT.getCode());
             }
             //报表牵头人提交审核 3；承办人指标审核 4
             if (check.getBzFormId() != null) {
@@ -134,7 +128,6 @@ public class CheckController {
                 check.setDataJson(JSON.toJSONString(progressReportNew)); //需要更新下，以为新增的progressReport数据没有记录id，后面审核的时候无法获取到
                 System.out.println("--------- datajson: " + progressReportNew);
 
-                ykbMessageService.sendMessageForCheck(taskrp, TaskStatus.TASKSTATUS_REPORT.getCode());
                 break;
             case 2: //阶段性审核
                 taskService.updateCheckById(check.getTaskId(), 2, 0);
@@ -191,9 +184,6 @@ public class CheckController {
                 }
 
                 paramMap.put("submitDeptIds", taskCm.getLeadingDepartmentId().split(","));
-
-                ykbMessageService.sendMessageForCheck(taskCm, 4);
-
                 break;
             case 8: //终结审核
                 taskService.updateCheckById(check.getTaskId(), 8, 0); //填报审核
@@ -210,8 +200,6 @@ public class CheckController {
                 }
 
                 paramMap.put("submitDeptIds", taskCn.getLeadingDepartmentId().split(","));
-
-                ykbMessageService.sendMessageForCheck(taskCn, 7);
                 break;
         }
 
@@ -317,6 +305,28 @@ public class CheckController {
             check.setStatus(3);
             boolean checkInfo = checkService.updateCheckInfoToTarget(check);
             return new BaseResponse(HttpStatus.OK.value(), "success", checkInfo, Integer.toString(0));
+        }
+
+        switch (check.getCheckType()) {
+            case 1: //填报申请,需要更新填报
+            case 2: //阶段性审核，更新阶段性审核数据
+            case 7: // 办结审核，更新办结状态为6
+            case 8: //终结审核，更新终结状态为9
+                taskService.clearCheckUserById(check.getTaskId());
+                break;
+            case 3: //报表清单编辑审核
+                //获取表单数据
+                bzFormService.clearCheckUserById(check.getBzFormId());
+                break;
+            case 4: //报表指标审核
+                bzFormTargetService.clearCheckUserById(check.getBzFormTargetId());
+                break;
+            case 5: //问题清单审核
+                bzIssueService.clearCheckUserById(check.getBzIssueId());
+                break;
+            case 6: //问题指标审核
+                bzIssueTargetService.clearCheckUserById(check.getBzIssueTargetId());
+                break;
         }
 
         //如果是通过审核了，需要延迟处理，获取节点数据，并根据节点数据进行是否审核完成处理

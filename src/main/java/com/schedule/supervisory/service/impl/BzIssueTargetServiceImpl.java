@@ -96,6 +96,15 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
     }
 
     @Override
+    public boolean clearCheckUserById(Long id) {
+        LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzIssueTarget::getId, id)
+                .set(BzIssueTarget::getProcessInstanceReviewIds, "");
+
+        return update(updateWrapper);
+    }
+
+    @Override
     public boolean reviewProgress(BzIssueTarget bzIssueTarget) {
         LambdaUpdateWrapper<BzIssueTarget> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzIssueTarget::getId, bzIssueTarget.getId())

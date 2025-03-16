@@ -26,7 +26,10 @@ public interface IBzIssueService extends IService<BzIssue> {
     boolean updateBzIssue(BzIssue bzIssue);
 
     boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
+
     void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds);
+
+    boolean clearCheckUserById(Long id);
 
     List<Map<String, Object>> countEffectiveGear();
 

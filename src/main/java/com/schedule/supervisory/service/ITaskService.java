@@ -71,7 +71,13 @@ public interface ITaskService extends IService<Task> {
 
     boolean updateCheckById(Long taskId, Integer addStatus, Integer removeStatus);
 
+    boolean adminCheckById(Long taskId, Integer status, String userId);
+
+    boolean adminDeleteById(Long taskId, String userId);
+
     boolean updateCheckInfoById(Long taskId, ProcessCheckInfoDTO processCheckInfoDTO);
+
+    boolean clearCheckUserById(Long taskId);
 
     boolean updateInstructionById(Long taskId, String instrunction);
 

@@ -14,7 +14,10 @@ public interface IBzIssueTargetService extends IService<BzIssueTarget> {
     boolean updateProgress(BzIssueTarget bzIssueTarget);
 
     boolean updateCheckById(Long id, Integer addStatus, Integer removeStatus);
+
     void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReviewIds);
+
+    boolean clearCheckUserById(Long id);
 
     boolean reviewProgress(BzIssueTarget bzIssueTarget);
 

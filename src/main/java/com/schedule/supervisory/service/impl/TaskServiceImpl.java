@@ -354,11 +354,42 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     }
 
     @Override
+    public boolean adminCheckById(Long taskId, Integer status, String userId) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId);
+        updateWrapper.set(Task::getCheckStatus, "");
+        updateWrapper.set(Task::getStatus, status);
+        updateWrapper.set(Task::getOperationAt, LocalDateTime.now());
+        updateWrapper.set(Task::getOperator, userId);
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean adminDeleteById(Long taskId, String userId) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId);
+        updateWrapper.set(Task::getDelete, true);
+        updateWrapper.set(Task::getDeleteBy, userId);
+        updateWrapper.set(Task::getDeleteAt, LocalDateTime.now());
+        updateWrapper.set(Task::getCheckStatus, "");
+        return update(updateWrapper);
+    }
+
+    @Override
     public boolean updateCheckInfoById(Long taskId, ProcessCheckInfoDTO processCheckInfoDTO) {
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, taskId);
 //        updateWrapper.set(Task::getReviewIds, processCheckInfoDTO.getReviewIds());
         updateWrapper.set(Task::getProgress, processCheckInfoDTO.getProcessInstanceId());
+
+        return update(updateWrapper);
+    }
+
+    @Override
+    public boolean clearCheckUserById(Long taskId) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId);
+        updateWrapper.set(Task::getProcessInstanceReviewIds, "");
 
         return update(updateWrapper);
     }

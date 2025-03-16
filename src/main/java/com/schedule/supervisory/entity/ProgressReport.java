@@ -47,4 +47,10 @@ public class ProgressReport {
     private String submitId; //提交人
     private String processInstanceId;
     private String flowId;
+    private String updateBy;
+    private Boolean delete = false;  // 默认值为false
+
+    private String deleteBy;
+
+    private LocalDateTime deleteAt;
 }

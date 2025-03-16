@@ -94,6 +94,15 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
     }
 
     @Override
+    public boolean clearCheckUserById(Long id) {
+        LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(BzFormTarget::getId, id)
+                .set(BzFormTarget::getProcessInstanceReviewIds, "");
+
+        return update(updateWrapper);
+    }
+
+    @Override
     public void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds) {
         LambdaUpdateWrapper<BzFormTarget> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzFormTarget::getId, id)

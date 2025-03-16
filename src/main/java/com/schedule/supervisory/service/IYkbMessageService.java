@@ -1,5 +1,6 @@
 package com.schedule.supervisory.service;
 
+import com.schedule.supervisory.entity.Check;
 import com.schedule.supervisory.entity.Task;
 
 public interface IYkbMessageService {
@@ -12,8 +13,11 @@ public interface IYkbMessageService {
     //审核，两种审核，
     public boolean sendMessageForCheck(Task task, int status);
 
+    public boolean sendMessageForCheckNew(Check check, String userIds);
+
     public boolean sendMessageForInstruction(Task task);
 
     public boolean sendMessageForNewTask(Task task);
+
     public boolean sendMessageForUrgent(Task task);
 }
