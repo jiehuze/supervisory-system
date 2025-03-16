@@ -56,7 +56,11 @@ public interface TaskMapper extends BaseMapper<Task> {
 //    @Select("SELECT DISTINCT source FROM public.task ORDER BY source")
 //    List<String> selectDistinctSources();
 
-    @Select("SELECT DISTINCT source FROM public.task WHERE source LIKE CONCAT('%', #{source}, '%') ORDER BY source")
+    @Select("SELECT DISTINCT source " +
+            "FROM public.task " +
+            "WHERE source LIKE CONCAT('%', #{source}, '%') " +
+            "AND delete = false " +  // 添加delete=false条件
+            "ORDER BY source")
     List<String> selectDistinctSources(@Param("source") String source);
 
     /**
@@ -69,6 +73,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "<if test='queryTask.taskId != null'> AND id = #{queryTask.taskId}</if>" +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.fieldId != null'> AND field_id = #{queryTask.fieldId}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
@@ -117,6 +122,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='coOrganizerId != null and coOrganizerId != \"\"'> AND co_organizer_id LIKE CONCAT('%', #{coOrganizerId}, '%') </if>" +
             "</where>" +
             "AND status IN (2, 3, 6) " +
+            "AND delete = false " +  // 添加delete=false条件
             "GROUP BY status" +
             ") " +
             "SELECT status, count AS status_count, (SELECT SUM(count) FROM status_counts) AS total_task_count FROM status_counts" +
@@ -181,6 +187,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "WHERE task_period IN (1, 2, 3, 4) " +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
@@ -205,6 +212,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "task_period IN (1, 2, 3, 4) " +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
@@ -229,6 +237,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "WHERE status = 6 AND task_period IN (1, 2, 3, 4) " +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
@@ -252,6 +261,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT task_period, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "status = 6 AND task_period IN (1, 2, 3, 4) " +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
@@ -286,6 +296,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
@@ -308,6 +319,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
@@ -348,6 +360,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "WHERE status = 6" +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='leadingDepartmentId != null and leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{leadingDepartmentId}, '%')</if>" +
             "<if test='leadingDepartmentIds != null and !leadingDepartmentIds.isEmpty()'> AND ( " +
             "<foreach item='id' collection='leadingDepartmentIds' separator=' OR ' open='' close=''>" +
@@ -370,6 +383,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "status = 6 " +
+            "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
@@ -419,6 +433,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SET overdue_days = GREATEST((CURRENT_DATE - deadline), 0) " +
             "WHERE status NOT IN (6, 9) " +
             "AND CURRENT_DATE > deadline " + // 修改这里使用CURRENT_DATE代替updated_at
+            "AND delete = false " +  // 添加delete=false条件
             "AND deadline IS NOT NULL")
     void updateOverdueDays();
 }

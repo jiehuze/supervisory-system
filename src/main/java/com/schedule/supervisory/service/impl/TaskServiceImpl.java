@@ -137,6 +137,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public List<Task> listTasksBySource(String source) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(Task::getSource, source);
+        queryWrapper.eq(Task::getDelete, false);
         return taskMapper.selectList(queryWrapper);
     }
 
@@ -148,6 +149,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 //                .isNotNull(Task::getDeadline)  // 确保 deadline 不是 null
 //                .gt(Task::getDeadline, now)   // deadline 在当前时间之后
                 .gt(Task::getOverdueDays, 0)
+                .eq(Task::getDelete, false)
                 .ne(Task::getStatus, 6)  // 排除状态 6
                 .ne(Task::getStatus, 9); // 排除状态 9
         return taskMapper.selectList(queryWrapper);
@@ -170,6 +172,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         // 构建查询条件
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Task::getDelete, false);
         if (queryTask.getTaskId() != null) {
             queryWrapper.eq(Task::getId, queryTask.getTaskId());
         }
@@ -269,6 +272,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public List<Task> getTasksBySearchDTO(TaskSearchDTO queryTask) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Task::getDelete, false);
         if (queryTask.getTaskId() != null) {
             queryWrapper.eq(Task::getId, queryTask.getTaskId());
         }
@@ -315,6 +319,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public List<Task> getTasksByIds(List<Integer> ids) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(Task::getId, ids);
+        queryWrapper.eq(Task::getDelete, false);
         return list(queryWrapper);
     }
 
@@ -500,6 +505,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public Long countTasksNums(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Task::getDelete, false);
         if (queryTask.getTaskType() != null) {
             queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
         }
@@ -557,6 +563,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
         // 添加 status 为 6 的条件
         queryWrapper.eq(Task::getStatus, 6);
+        queryWrapper.eq(Task::getDelete, false);
 
         // 添加 updated_at 小于等于 deadline 的条件
         // 添加 updated_at 小于等于 deadline 的条件
@@ -609,6 +616,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     public Long countTasksInProgress(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
 //        return taskMapper.countTasksInProgress(coOrganizerId, createdAtStart, createdAtEnd, leadingOfficialId);
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Task::getDelete, false);
+
         if (queryTask.getTaskType() != null) {
             queryWrapper.eq(Task::getTaskType, queryTask.getTaskType());
         }
@@ -676,6 +685,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
 //        queryWrapper.apply("updated_at > deadline");
         queryWrapper.gt(Task::getOverdueDays, 0); //当超时时间>0,并且status不为6或者9
+        queryWrapper.eq(Task::getDelete, false);
 
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
@@ -734,6 +744,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         }
         // 添加 status 为 6 的条件
         queryWrapper.eq(Task::getStatus, queryTask.getStatus());
+        queryWrapper.eq(Task::getDelete, false);
+
         // 添加协办单位筛选条件
         if (queryTask.getCoOrganizerId() != null && !queryTask.getCoOrganizerId().isEmpty()) {
             queryWrapper.like(Task::getCoOrganizerId, queryTask.getCoOrganizerId());
@@ -870,6 +882,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 .isNotNull(Task::getDeadline)  // 确保 deadline 不是 null
                 .gt(Task::getDeadline, now)   // deadline 在当前时间之后
                 .lt(Task::getDeadline, futureTime)  // deadline - now < N 小时
+                .eq(Task::getDelete, false)
                 .ne(Task::getStatus, 6)  // 排除状态 6
                 .ne(Task::getStatus, 9); // 排除状态 9
 

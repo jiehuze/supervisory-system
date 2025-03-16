@@ -115,6 +115,7 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
             queryWrapper.notIn(ProgressReport::getStatus, excludedStatuses);
         }
         queryWrapper.orderByDesc(ProgressReport::getId);
+        queryWrapper.eq(ProgressReport::getDelete, false);
 
         return list(queryWrapper);
     }
@@ -125,6 +126,7 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
         queryWrapper.eq(ProgressReport::getTaskId, taskId) // 替换 yourTaskId 为实际的 task_id 值
                 .eq(ProgressReport::getStatus, 3) //不为3的
                 .orderByDesc(ProgressReport::getId)
+                .eq(ProgressReport::getDelete, false)
                 .last("LIMIT 1");
 
         return getOne(queryWrapper);
@@ -137,6 +139,7 @@ public class ProgressReportServiceImpl extends ServiceImpl<ProgressReportMapper,
 //                .eq(ProgressReport::getStatus, 3) //不为3的
                 .isNotNull(ProgressReport::getHandler)
                 .isNotNull(ProgressReport::getPhone)
+                .eq(ProgressReport::getDelete, false)
                 .orderByDesc(ProgressReport::getId)
                 .last("LIMIT 1");
 
