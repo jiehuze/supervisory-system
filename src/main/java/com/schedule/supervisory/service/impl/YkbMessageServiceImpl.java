@@ -153,6 +153,11 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             case 2:
                 message = "有一条阶段性任务需要您审核，请在24小时内处理，如已经处理请忽略。";
                 break;
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                return false;
         }
 
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
