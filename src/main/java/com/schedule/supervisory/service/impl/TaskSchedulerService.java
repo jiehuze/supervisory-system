@@ -11,6 +11,8 @@ import com.schedule.utils.util;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -66,6 +68,18 @@ public class TaskSchedulerService {
     @Scheduled(cron = "0 2 9 * * ?")
     public void executeTaskAt9AM() {
         logTime("09:00 定时任务");
+        // 获取当前日期
+        LocalDate today = LocalDate.now();
+
+        // 获取当前星期几
+        DayOfWeek dayOfWeek = today.getDayOfWeek();
+
+        // 判断是否为周六或周日并打印结果
+        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+            System.out.println("今天是周末：" + dayOfWeek.name());
+            return;
+        }
+
         List<Task> tasks = taskService.getTasksDueInHours(24);
         for (Task task : tasks) {
             //todo 发送消息，不到24小时消息
@@ -84,24 +98,21 @@ public class TaskSchedulerService {
         //查询是否有快超期的任务，并做提醒
     }
 
-    //检查周期填报任务是否过期
-    @Scheduled(cron = "0 2 10 * * ?")
-    public void executeTaskAt10AM() {
-        logTime("09:00 定时任务");
-        //10点检查填报状态
-//        List<TaskWithProgressReportDTO> tasks = progressReportService.checkFileCycle();
-//        for (TaskWithProgressReportDTO task : tasks) {
-//            //todo 发送消息，不到24小时消息
-//            logTime(task.getSource() + "不到24小时消息");
-//        }
-
-        //查询是否有快超期的任务，并做提醒
-    }
-
     // 任务3：每天 12:00 执行
     @Scheduled(cron = "0 2 12 * * ?")
     public void executeTaskAt12PM() {
         logTime("12:00 定时任务");
+        // 获取当前日期
+        LocalDate today = LocalDate.now();
+
+        // 获取当前星期几
+        DayOfWeek dayOfWeek = today.getDayOfWeek();
+
+        // 判断是否为周六或周日并打印结果
+        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+            System.out.println("今天是周末：" + dayOfWeek.name());
+            return;
+        }
         List<Task> tasks = taskService.getTasksDueInHours(12);
         for (Task task : tasks) {
             //todo 发送消息，不到12小时消息

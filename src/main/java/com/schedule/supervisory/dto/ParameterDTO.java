@@ -17,6 +17,17 @@ public class ParameterDTO {
     private String phoneMessageUrl;
     @Value("${duban.message.pc}")
     private String pcMessageUrl;
+    @Value("${duban.message.form.phone}")
+    private String phoneFormMessageUrl;
+    @Value("${duban.message.form.pc}")
+    private String pcFormMessageUrl;
+    @Value("${duban.message.issue.phone}")
+    private String phoneIssueMessageUrl;
+    @Value("${duban.message.issue.pc}")
+    private String pcIssueMessageUrl;
+    @Value("${duban.send.message.flag}")
+    private String serviceEnv;
+
     @Value("${duban.oauth2}")
     private String authUrl;
 

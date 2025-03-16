@@ -52,7 +52,7 @@ public class YkbMessage {
         return userIdList;
     }
 
-    public boolean sendYkbMessage(String pcMessageUrl, String phoneMessageUrl, ArrayList<String> userIds, String msg, String url) {
+    public boolean sendYkbMessage(String pcMessageUrl, String phoneMessageUrl, ArrayList<String> userIds, String msg, String url, String env) {
 //        log("userdid: " + userIds);
 //        log("message: " + msg);
 //        log("msgUrl: " + msgUrl);
@@ -73,17 +73,20 @@ public class YkbMessage {
                 "}";
 
         // 替换模板中的占位符
-//        String jsonString = String.format(jsonTemplate, String.join(",", userIds), phoneMessageUrl, pcMessageUrl, msg, msg);
-        String jsonString = String.format(jsonTemplate, "1889955984543158273", phoneMessageUrl, pcMessageUrl, msg, msg);
+        if ("online".equals(env)) {
+            jsonTemplate = String.format(jsonTemplate, String.join(",", userIds), phoneMessageUrl, pcMessageUrl, msg, msg);
+        } else {
+            jsonTemplate = String.format(jsonTemplate, "1889955984543158273", phoneMessageUrl, pcMessageUrl, msg, msg);
+        }
 
         // 输出最终的JSON字符串
-        log(jsonString);
+        log(jsonTemplate);
 
         HttpUtil httpUtil = new HttpUtil();
         String userListData = httpUtil.post(url,
                 String.format("%s %s", this.getTokenRespDTO().getToken_type(), this.getTokenRespDTO().getAccess_token()),
                 "1877665103373783042",
-                jsonString);
+                jsonTemplate);
         log("****** listdata: " + userListData);
         return true;
     }

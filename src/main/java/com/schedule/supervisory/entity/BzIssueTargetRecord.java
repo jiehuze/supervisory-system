@@ -18,4 +18,5 @@ public class BzIssueTargetRecord {
     private String operatorId;
     private LocalDateTime createdAt;
     private String updatedBy;
+    private String processInstanceId; //审核流水号
 }

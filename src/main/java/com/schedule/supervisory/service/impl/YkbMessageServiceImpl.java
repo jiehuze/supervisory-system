@@ -33,12 +33,12 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             configService.setExternConfig("duban.message.phone", phoneMessageUrl);
         }
         String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
             pcMessageUrl = parameterDTO.getPcMessageUrl();
             configService.setExternConfig("duban.message.pc", pcMessageUrl);
         }
 
-        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
     }
 
@@ -59,12 +59,12 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             configService.setExternConfig("duban.message.phone", phoneMessageUrl);
         }
         String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
             pcMessageUrl = parameterDTO.getPcMessageUrl();
             configService.setExternConfig("duban.message.pc", pcMessageUrl);
         }
 
-        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
     }
 
@@ -101,7 +101,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             configService.setExternConfig("duban.message.phone", phoneMessageUrl);
         }
         String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
             pcMessageUrl = parameterDTO.getPcMessageUrl();
             configService.setExternConfig("duban.message.pc", pcMessageUrl);
         }
@@ -116,20 +116,20 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
                 String[] deptIds = task.getLeadingDepartmentId().split(",");
                 ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD"), List.of(deptIds));
                 if (roleUserIdList.size() > 0) {
-                    ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdList, message, parameterDTO.getMessageUrl());
+                    ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdList, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
                 }
                 break;
             case 5:
             case 8:
                 ArrayList<String> userIds = new ArrayList<>();
                 userIds.add(task.getAssignerId());
-                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
                 break;
             case 10:
             case 11:
                 String[] deptzIds = task.getLeadingDepartmentId().split(",");
                 ArrayList<String> roleUserIdListz = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("JBLD"), List.of(deptzIds));
-                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdListz, message, parameterDTO.getMessageUrl());
+                ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), roleUserIdListz, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
                 break;
         }
 
@@ -140,40 +140,58 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     public boolean sendMessageForCheckNew(Check check, String userIds) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
         String message = null;
+        String pcMessageUrl = null;
+        String phoneMessageUrl = null;
+
         switch (check.getCheckType()) {
-            case 7:
-                message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
-                break;
-            case 8:
-                message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
-                break;
             case 1:
-                message = "有一条任务填报需要您审核，请在24小时内处理，如已经处理请忽略。";
-                break;
             case 2:
-                message = "有一条阶段性任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+            case 7:
+            case 8:
+                if (check.getCheckType() == 1) {
+                    message = "有一条任务填报需要您审核，请在24小时内处理，如已经处理请忽略。";
+                } else if (check.getCheckType() == 2) {
+                    message = "有一条阶段性任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                } else if (check.getCheckType() == 7) {
+                    message = "有一条办结申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                } else if (check.getCheckType() == 8) {
+                    message = "有一条终止申请任务需要您审核，请在24小时内处理，如已经处理请忽略。";
+                }
+                phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+                if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+                    phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+                    configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+                }
+                phoneMessageUrl += check.getTaskId();
+                pcMessageUrl = configService.getExternConfig("duban.message.pc");
+                if (pcMessageUrl == null || pcMessageUrl.equals("")) {
+                    pcMessageUrl = parameterDTO.getPcMessageUrl();
+                    configService.setExternConfig("duban.message.pc", pcMessageUrl);
+                }
+                pcMessageUrl += check.getTaskId();
                 break;
             case 3:
+                message = "有一条报表需要您审核，请在24小时内处理，如已经处理请忽略。";
+                phoneMessageUrl = parameterDTO.getPhoneFormMessageUrl() + check.getBzFormId();
+                pcMessageUrl = parameterDTO.getPcFormMessageUrl() + check.getBzFormId();
+                break;
             case 4:
+                message = "有一条报表指标需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
             case 5:
+                message = "有一条清单需要您审核，请在24小时内处理，如已经处理请忽略。";
+                phoneMessageUrl = parameterDTO.getPhoneIssueMessageUrl() + check.getBzIssueId();
+                pcMessageUrl = parameterDTO.getPcIssueMessageUrl() + check.getBzIssueId();
+                break;
             case 6:
-                return false;
-        }
-
-        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
-        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
-            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
-            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
-        }
-        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
-            pcMessageUrl = parameterDTO.getPcMessageUrl();
-            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+                message = "有一条清单指标需要您审核，请在24小时内处理，如已经处理请忽略。";
+                break;
         }
 
         ArrayList<String> userIdList = new ArrayList<>(List.of(userIds.split(",")));
-        ykbMessage.sendYkbMessage(pcMessageUrl + check.getTaskId(), phoneMessageUrl + check.getTaskId(), userIdList, message, parameterDTO.getMessageUrl());
+        ykbMessage.sendYkbMessage(pcMessageUrl, phoneMessageUrl, userIdList, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
+
     }
 
     @Override
@@ -192,12 +210,12 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             configService.setExternConfig("duban.message.phone", phoneMessageUrl);
         }
         String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
             pcMessageUrl = parameterDTO.getPcMessageUrl();
             configService.setExternConfig("duban.message.pc", pcMessageUrl);
         }
 
-        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
     }
 
@@ -214,12 +232,12 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             configService.setExternConfig("duban.message.phone", phoneMessageUrl);
         }
         String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
             pcMessageUrl = parameterDTO.getPcMessageUrl();
             configService.setExternConfig("duban.message.pc", pcMessageUrl);
         }
 
-        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
     }
 
@@ -236,12 +254,12 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
             configService.setExternConfig("duban.message.phone", phoneMessageUrl);
         }
         String pcMessageUrl = configService.getExternConfig("duban.message.pc");
-        {
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
             pcMessageUrl = parameterDTO.getPcMessageUrl();
             configService.setExternConfig("duban.message.pc", pcMessageUrl);
         }
 
-        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl());
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
     }
 }

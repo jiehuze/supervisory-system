@@ -239,6 +239,7 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                         bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
                         bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
                         bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
+                        bzFormTargetRecord.setProcessInstanceId(check.getProcessInstanceId());
                         bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
                     }
                 } else if (check.getStatus() == 3) {
@@ -284,6 +285,7 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                         bzIssueTargetRecord.setUpdatedBy(bzIssueTarget.getOperatorId());
                         bzIssueTargetRecord.setOperator(bzIssueTarget.getOperator());
                         bzIssueTargetRecord.setOperatorId(bzIssueTarget.getOperatorId());
+                        bzIssueTargetRecord.setProcessInstanceId(check.getProcessInstanceId());
                         bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
                     }
                 } else if (check.getStatus() == 3) {

@@ -126,8 +126,6 @@ public class CheckController {
 
                 ProgressReport progressReportNew = progressReportService.createProgressReport(progressReport);
                 check.setDataJson(JSON.toJSONString(progressReportNew)); //需要更新下，以为新增的progressReport数据没有记录id，后面审核的时候无法获取到
-                System.out.println("--------- datajson: " + progressReportNew);
-
                 break;
             case 2: //阶段性审核
                 taskService.updateCheckById(check.getTaskId(), 2, 0);
@@ -144,13 +142,6 @@ public class CheckController {
                 checkStartDTO.setFlowId("P20250312055555772BEE9J");
                 BzForm bzform = bzFormService.getById(check.getBzFormId());
                 paramMap.put("submitDeptIds", bzform.getLeadingDepartmentId().split(","));
-
-
-//                BzFormDTO bzFormDTO = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormDTO>() {
-//                });
-//                System.out.println("================ bzformDTO: " + bzFormDTO.toString());
-
-
                 break;
             case 4: //报表指标审核
                 bzFormTargetService.updateCheckById(check.getBzFormTargetId(), 4, null);
@@ -203,11 +194,12 @@ public class CheckController {
                 break;
         }
 
+        System.out.println("---------------->>>> Process Start DataJson: " + check.getDataJson());
         paramMap.put("check_json", check.getDataJson());
         checkStartDTO.setParamMap(paramMap);
 
         //发送审核请求
-        System.out.println("check start request body: " + JSON.toJSONString(checkStartDTO));
+        System.out.println("-------------->>>>> send check start request body: " + JSON.toJSONString(checkStartDTO));
         HttpUtil httpUtil = new HttpUtil();
         String processInstanceId = httpUtil.post(parameterDTO.getCheckStart(), authorizationHeader, tenantId, JSON.toJSONString(checkStartDTO));
         if (processInstanceId == null) {
@@ -295,13 +287,15 @@ public class CheckController {
      */
     @PostMapping("callback")
     public BaseResponse callback(@RequestBody ProcessCallBackDTO processCallBackDTO) {
+        System.out.println("<<<<<<<<<<<<<<<<--------------------------------------Process Callback--------------------------------------->>>>>>>>>>>>> ");
+        System.out.println("----------------->> Callback content:  " + JSON.toJSONString(processCallBackDTO));
         Check check = checkService.getByProcessInstanceId(processCallBackDTO.getProcessInstanceId());
         if (check == null) {
             return new BaseResponse(HttpStatus.OK.value(), "[callback] ProcessInstanceId is not exist", 0, Integer.toString(0));
         }
 
         if (processCallBackDTO.getStatus() == 3) { //驳回申请,3就是被驳回，1是审核中
-            System.out.println("----------------->> Cancel: check process cancel, check type: " + check.getCheckType() + "    check id: " + check.getId());
+            System.out.println("----------------->> Cancel: process cancel, check type: " + check.getCheckType() + "    check id: " + check.getId());
             check.setStatus(3);
             boolean checkInfo = checkService.updateCheckInfoToTarget(check);
             return new BaseResponse(HttpStatus.OK.value(), "success", checkInfo, Integer.toString(0));
