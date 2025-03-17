@@ -25,7 +25,7 @@ public class ParameterDTO {
     private String phoneIssueMessageUrl;
     @Value("${duban.message.issue.pc}")
     private String pcIssueMessageUrl;
-    @Value("${duban.send.message.flag}")
+    @Value("${spring.profiles.active}")
     private String serviceEnv;
 
     @Value("${duban.oauth2}")

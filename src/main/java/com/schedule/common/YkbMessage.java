@@ -73,7 +73,7 @@ public class YkbMessage {
                 "}";
 
         // 替换模板中的占位符
-        if ("online".equals(env)) {
+        if ("prod".equals(env)) {
             jsonTemplate = String.format(jsonTemplate, String.join(",", userIds), phoneMessageUrl, pcMessageUrl, msg, msg);
         } else {
             jsonTemplate = String.format(jsonTemplate, "1889955984543158273", phoneMessageUrl, pcMessageUrl, msg, msg);
