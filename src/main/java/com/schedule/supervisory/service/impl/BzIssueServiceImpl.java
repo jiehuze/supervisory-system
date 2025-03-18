@@ -108,6 +108,12 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
+    public IPage<BzIssue> getBzIssueByConditions2(BzSearchDTO queryBzIssue, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
+        Page<BzIssue> page = new Page<>(pageNum, pageSize);
+        return bzIssueMapper.getBzIssueByConditions(page, queryBzIssue, deptDTOs);
+    }
+
+    @Override
     public List<BzIssue> getGearsByConditions(BzSearchDTO queryBzIssue) {
         LambdaQueryWrapper<BzIssue> queryWrapper = new LambdaQueryWrapper<>();
         if (queryBzIssue.getDateType() != null) {

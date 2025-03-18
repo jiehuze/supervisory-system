@@ -26,4 +26,5 @@ public class BzSearchDTO implements Serializable {
     private Integer quarter; // 季度
     private String userId;
     private String checkStatus;
+    private Boolean unAuth; //不需要权限，可以全部查看
 }

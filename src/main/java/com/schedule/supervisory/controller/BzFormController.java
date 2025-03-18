@@ -67,7 +67,7 @@ public class BzFormController {
         } else {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
-        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzSearchDTO, pageNum, pageSize, deptDTOs);
+        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions2(bzSearchDTO, pageNum, pageSize, deptDTOs);
         for (BzForm bzForm : bzFormByConditions.getRecords()) {
             System.out.println("============bzForm: " + bzForm);
             bzSearchDTO.setBzFormId(bzForm.getId());
@@ -527,14 +527,16 @@ public class BzFormController {
         } else {
             return;
         }
-        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions(bzSearchDTO, 1, 100, deptDTOs);
+        IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions2(bzSearchDTO, 1, 100, deptDTOs);
         for (BzForm bzForm : bzFormByConditions.getRecords()) {
             bzSearchDTO.setBzFormId(bzForm.getId());
             List<BzFormTarget> bzFormTargets = bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs);
             for (BzFormTarget bzFormTarget : bzFormTargets) {
                 FormTemplateExcel formTemplateExcel = new FormTemplateExcel();
                 formTemplateExcel.setType(bzForm.getType());
-                formTemplateExcel.setPredictedGear(String.valueOf(bzForm.getPredictedGear() + 'A' - 1));
+                if (bzForm.getPredictedGear() != null) {
+                    formTemplateExcel.setPredictedGear(String.valueOf((char) (bzForm.getPredictedGear() + 'A' - 1)));
+                }
                 formTemplateExcel.setName(bzFormTarget.getName());
                 formTemplateExcel.setWorkProgress(bzFormTarget.getWorkProgress());
                 formTemplateExcel.setIssues(bzFormTarget.getIssues());

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
 import com.schedule.excel.FormTemplateExcel;
+import com.schedule.excel.IssueTemplateExcel;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.IBzIssueService;
@@ -64,7 +65,7 @@ public class BzIssueController {
         } else {
             return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
         }
-        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzSearchDTO, pageNum, pageSize, deptDTOs);
+        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions2(bzSearchDTO, pageNum, pageSize, deptDTOs);
         for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
             bzSearchDTO.setBzIssueId(bzIssue.getId());
             bzSearchDTO.setCheckStatus("4");
@@ -416,7 +417,7 @@ public class BzIssueController {
                        @ModelAttribute BzSearchDTO bzSearchDTO,
                        HttpServletResponse response) throws Exception {
 
-        List<FormTemplateExcel> formTemplateExcels = new ArrayList<>();
+        List<IssueTemplateExcel> issueTemplateExcels = new ArrayList<>();
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
         String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
@@ -426,22 +427,25 @@ public class BzIssueController {
         } else {
             return;
         }
-        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions(bzSearchDTO, 1, 100, deptDTOs);
+        IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions2(bzSearchDTO, 1, 100, deptDTOs);
         for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
             bzSearchDTO.setBzIssueId(bzIssue.getId());
             List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs);
             for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
-                FormTemplateExcel formTemplateExcel = new FormTemplateExcel();
-                formTemplateExcel.setType(bzIssue.getType());
-                formTemplateExcel.setPredictedGear(String.valueOf(bzIssue.getPredictedGear() + 'A' - 1));
-                formTemplateExcel.setName(bzIssueTarget.getName());
-                formTemplateExcel.setWorkProgress(bzIssueTarget.getWorkProgress());
-                formTemplateExcel.setIssues(bzIssueTarget.getIssues());
-                formTemplateExcel.setDept(bzIssueTarget.getDept());
-                formTemplateExcels.add(formTemplateExcel);
+                IssueTemplateExcel issueTemplateExcel = new IssueTemplateExcel();
+                issueTemplateExcel.setType(bzIssue.getType());
+                if (bzIssue.getPredictedGear() != null) {
+                    issueTemplateExcel.setPredictedGear(String.valueOf((char) (bzIssue.getPredictedGear() + 'A' - 1)));
+                }
+                issueTemplateExcel.setName(bzIssueTarget.getName());
+                issueTemplateExcel.setWorkProgress(bzIssueTarget.getWorkProgress());
+                issueTemplateExcel.setIssues(bzIssueTarget.getIssues());
+                issueTemplateExcel.setDept(bzIssueTarget.getDept());
+                System.out.println("-------->>> IssueTemp: " + issueTemplateExcel.toString());
+                issueTemplateExcels.add(issueTemplateExcel);
             }
         }
 
-        ExcelUtil.exportExcelToTarget(response, null, "任务", formTemplateExcels, FormTemplateExcel.class);
+        ExcelUtil.exportExcelToTarget(response, null, "任务", issueTemplateExcels, IssueTemplateExcel.class);
     }
 }

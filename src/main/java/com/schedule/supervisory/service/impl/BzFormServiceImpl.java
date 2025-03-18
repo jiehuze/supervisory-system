@@ -45,7 +45,7 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
+    public IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzForm, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
         //权限有如下几种：1：承办人，只需要查看本单位下的数据；2：交办人：只需要看本人下的数据；3：承办领导：本部门及下属部门  4：领导：可以看到所有
         //1）交办人只读取自己创建的任务；2）承办人：只看自己负责的任务；3）交办领导：只看自己负责的部门；4）承包领导：只看自己负责的部门
         //所以看获取的人员部门数组；如果数组为空：判断创建人或者责任人；如果不为空，需要查询包含部门的数据
@@ -54,37 +54,37 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
 
         // 构建查询条件
         LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
-        if (queryBzform.getTypeId() != null) {
-            queryWrapper.eq(BzForm::getTypeId, queryBzform.getTypeId());
+        if (queryBzForm.getTypeId() != null) {
+            queryWrapper.eq(BzForm::getTypeId, queryBzForm.getTypeId());
         }
 
-        if (queryBzform.getPredictedGear() != null) {
-            queryWrapper.eq(BzForm::getPredictedGear, queryBzform.getPredictedGear());
+        if (queryBzForm.getPredictedGear() != null) {
+            queryWrapper.eq(BzForm::getPredictedGear, queryBzForm.getPredictedGear());
         }
 
-        if (queryBzform.getActualGear() != null) {
-            queryWrapper.eq(BzForm::getActualGear, queryBzform.getActualGear());
+        if (queryBzForm.getActualGear() != null) {
+            queryWrapper.eq(BzForm::getActualGear, queryBzForm.getActualGear());
         }
 
         // 添加创建时间范围的筛选条件
-        if (queryBzform.getCreatedAtStart() != null && queryBzform.getCreatedAtEnd() != null) {
-            queryWrapper.between(BzForm::getCreatedAt, queryBzform.getCreatedAtStart(), queryBzform.getCreatedAtEnd());
+        if (queryBzForm.getCreatedAtStart() != null && queryBzForm.getCreatedAtEnd() != null) {
+            queryWrapper.between(BzForm::getCreatedAt, queryBzForm.getCreatedAtStart(), queryBzForm.getCreatedAtEnd());
         }
 
-        if (queryBzform.getDateType() != null) {
-            queryWrapper.eq(BzForm::getDateType, queryBzform.getDateType());
-            if (queryBzform.getYear() != null) {
-                queryWrapper.eq(BzForm::getYear, queryBzform.getYear());
+        if (queryBzForm.getDateType() != null) {
+            queryWrapper.eq(BzForm::getDateType, queryBzForm.getDateType());
+            if (queryBzForm.getYear() != null) {
+                queryWrapper.eq(BzForm::getYear, queryBzForm.getYear());
             }
-            if (queryBzform.getQuarter() != null) {
-                queryWrapper.eq(BzForm::getQuarter, queryBzform.getQuarter());
+            if (queryBzForm.getQuarter() != null) {
+                queryWrapper.eq(BzForm::getQuarter, queryBzForm.getQuarter());
             }
         }
 
         // 处理leadingOfficialId模糊查询的情况
         queryWrapper.and(wrapper -> {
-            if (queryBzform.getUserId() != null && !queryBzform.getUserId().isEmpty()) {
-                wrapper.or(w -> w.like(BzForm::getAssignerId, queryBzform.getUserId()));
+            if (queryBzForm.getUserId() != null && !queryBzForm.getUserId().isEmpty()) {
+                wrapper.or(w -> w.like(BzForm::getAssignerId, queryBzForm.getUserId()));
             }
 
             if (deptDTOs != null && deptDTOs.size() > 0) {
@@ -99,6 +99,12 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
 //        queryWrapper.orderByAsc(BzForm::getTypeId);
 
         return page(page, queryWrapper);
+    }
+
+    @Override
+    public IPage<BzForm> getBzFormByConditions2(BzSearchDTO queryBzForm, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
+        Page<BzForm> page = new Page<>(pageNum, pageSize);
+        return bzFormMapper.getBzFormByConditions(page, queryBzForm, deptDTOs);
     }
 
     @Override
@@ -117,21 +123,21 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public long countBzForm(BzForm queryBzform) {
+    public long countBzForm(BzForm queryBzForm) {
         LambdaQueryWrapper<BzForm> queryWrapper = new LambdaQueryWrapper<>();
-        if (queryBzform.getTypeId() != null) {
-            queryWrapper.eq(BzForm::getTypeId, queryBzform.getTypeId());
+        if (queryBzForm.getTypeId() != null) {
+            queryWrapper.eq(BzForm::getTypeId, queryBzForm.getTypeId());
         } else {
 //            return -1;
         }
         //如果为1
-        if (queryBzform.getDateType() == 1) {
-            queryWrapper.eq(BzForm::getDateType, queryBzform.getDateType());
-            queryWrapper.eq(BzForm::getYear, queryBzform.getYear());
-        } else if (queryBzform.getDateType() == 2) {
-            queryWrapper.eq(BzForm::getDateType, queryBzform.getDateType());
-            queryWrapper.eq(BzForm::getYear, queryBzform.getYear());
-            queryWrapper.eq(BzForm::getQuarter, queryBzform.getQuarter());
+        if (queryBzForm.getDateType() == 1) {
+            queryWrapper.eq(BzForm::getDateType, queryBzForm.getDateType());
+            queryWrapper.eq(BzForm::getYear, queryBzForm.getYear());
+        } else if (queryBzForm.getDateType() == 2) {
+            queryWrapper.eq(BzForm::getDateType, queryBzForm.getDateType());
+            queryWrapper.eq(BzForm::getYear, queryBzForm.getYear());
+            queryWrapper.eq(BzForm::getQuarter, queryBzForm.getQuarter());
         }
 
         return count(queryWrapper);

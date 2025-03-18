@@ -1,20 +1,13 @@
 package com.schedule.excel;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.annotation.write.style.ColumnWidth;
-import com.alibaba.excel.annotation.write.style.ContentRowHeight;
-import com.alibaba.excel.annotation.write.style.HeadRowHeight;
 import lombok.Data;
 
 @Data
-@ContentRowHeight(20)
-@HeadRowHeight(20)
-@ColumnWidth(25)
-public class FormTemplateExcel {
-
-    @ExcelProperty(value = "报表", index = 0)
+public class IssueTemplateExcel {
+    @ExcelProperty(value = "清单", index = 0)
     private String type;
-    @ExcelProperty(value = "预估指标", index = 1)
+    @ExcelProperty(value = "清单预估指标", index = 1)
     private String predictedGear;
     @ExcelProperty(value = "指标名称", index = 2)
     private String name;

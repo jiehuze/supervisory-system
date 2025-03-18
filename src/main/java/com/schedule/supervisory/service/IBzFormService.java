@@ -19,11 +19,13 @@ public interface IBzFormService extends IService<BzForm> {
 
     Long insertBzForm(BzForm bzForm);
 
-    IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzform, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
+    IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzForm, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
+
+    IPage<BzForm> getBzFormByConditions2(BzSearchDTO queryBzfForm, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     List<BzForm> getGearsByConditions(BzSearchDTO queryBzSearch);
 
-    long countBzForm(BzForm queryBzform);
+    long countBzForm(BzForm queryBzForm);
 
     boolean updateBzFrom(BzForm bzForm);
 

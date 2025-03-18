@@ -19,6 +19,8 @@ public interface IBzIssueService extends IService<BzIssue> {
 
     IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
+    IPage<BzIssue> getBzIssueByConditions2(BzSearchDTO queryBzIssue, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
+
     List<BzIssue> getGearsByConditions(BzSearchDTO queryBzIssue);
 
     public long countBzIssue(BzIssue queryBzIssue);

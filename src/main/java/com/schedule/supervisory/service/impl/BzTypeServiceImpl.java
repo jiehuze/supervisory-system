@@ -27,6 +27,7 @@ public class BzTypeServiceImpl extends ServiceImpl<BzTypeMapper, BzType> impleme
     public boolean deleteById(Long id) {
         LambdaUpdateWrapper<BzType> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(BzType::getId, id);
+        updateWrapper.set(BzType::getOrderNum, 1000);
         updateWrapper.set(BzType::isDelete, true);
         return update(updateWrapper);
     }
