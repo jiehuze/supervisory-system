@@ -9,4 +9,6 @@ public interface IBzIssueTargetRecordService extends IService<BzIssueTargetRecor
     Long insertBzIssueTargetRecord(BzIssueTargetRecord bzIssueTargetRecord);
 
     List<BzIssueTargetRecord> getByTargetId(Integer targetId);
+
+    boolean updateStatus(Long id, Integer status);
 }

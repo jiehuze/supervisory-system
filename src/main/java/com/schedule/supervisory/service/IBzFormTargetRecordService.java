@@ -9,4 +9,6 @@ public interface IBzFormTargetRecordService extends IService<BzFormTargetRecord>
     Long insertBzFormTargetRecord(BzFormTargetRecord bzFormTargetRecord);
 
     List<BzFormTargetRecord> getByTargetId(Integer targetId);
+
+    boolean updateStatus(Long id, Integer status);
 }

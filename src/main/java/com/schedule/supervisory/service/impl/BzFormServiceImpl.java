@@ -96,7 +96,7 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
         });
 
 //        queryWrapper.orderByDesc(BzForm::getId);
-        queryWrapper.orderByAsc(BzForm::getTypeId);
+//        queryWrapper.orderByAsc(BzForm::getTypeId);
 
         return page(page, queryWrapper);
     }

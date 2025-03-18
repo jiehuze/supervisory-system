@@ -19,4 +19,6 @@ public class BzFormTargetRecord {
     private LocalDateTime createdAt;
     private String updatedBy;
     private String processInstanceId; //审核流水号
+    //1：审核中；2：审核完成
+    private Integer status;
 }

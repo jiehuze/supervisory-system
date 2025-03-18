@@ -210,10 +210,30 @@ public class BzFormController {
     @GetMapping("/statisticalSType")
     public BaseResponse statisticalType() {
         ArrayList<DataTypeDTO> dataList = new ArrayList<>();
+        LinkedHashMap<Integer, DataTypeDTO> linkedHashMap = new LinkedHashMap<>();
+
         // 初始化数据
-        for (int type = 0; type <= 8; type++) {
+        //第一个为总的
+        List<EffectiveGearCount> bzFormGearCounts = bzFormService.countGearCollect();
+        DataTypeDTO allDataTypeDTO = new DataTypeDTO();
+        allDataTypeDTO.setTypeId(0);
+        allDataTypeDTO.setTotal(0);
+        Map<Integer, CountDTO> countAllDTOMap = new HashMap<>();
+        allDataTypeDTO.setCountDTOMap(countAllDTOMap);
+        for (EffectiveGearCount bzFormGearCount : bzFormGearCounts) {
+            CountDTO levelData = new CountDTO(bzFormGearCount.getCountEffectiveGear().intValue(), String.format("%d%%", 0));
+            allDataTypeDTO.getCountDTOMap().put(bzFormGearCount.getEffectiveGear(), levelData);
+            allDataTypeDTO.setTotal(allDataTypeDTO.getTotal() + bzFormGearCount.getCountEffectiveGear().intValue());
+        }
+        linkedHashMap.put(0, allDataTypeDTO);
+
+        BzType bzSearchType = new BzType();
+        bzSearchType.setType("1");
+        List<BzType> bzTypeList = bzTypeService.getBzTypeByContains(bzSearchType);
+        //下面的为1-n
+        for (BzType bzType : bzTypeList) {
             DataTypeDTO dataTypeDTO = new DataTypeDTO();
-            dataTypeDTO.setTypeId(type);
+            dataTypeDTO.setTypeId(bzType.getTypeId());
             dataTypeDTO.setTotal(0);
             Map<Integer, CountDTO> countDTOMap = new HashMap<>();
             dataTypeDTO.setCountDTOMap(countDTOMap);
@@ -222,19 +242,11 @@ public class BzFormController {
                 dataTypeDTO.getCountDTOMap().put(level, countDTO);
             }
 
-            dataList.add(dataTypeDTO);
-        }
-
-        List<EffectiveGearCount> bzFormGearCounts = bzFormService.countGearCollect();
-        for (EffectiveGearCount bzFormGearCount : bzFormGearCounts) {
-            DataTypeDTO dataType = dataList.get(0);
-            CountDTO levelData = new CountDTO(bzFormGearCount.getCountEffectiveGear().intValue(), String.format("%d%%", 0));
-            dataType.getCountDTOMap().put(bzFormGearCount.getEffectiveGear(), levelData);
-            dataType.setTotal(dataType.getTotal() + bzFormGearCount.getCountEffectiveGear().intValue());
+//            dataList.add(dataTypeDTO);
+            linkedHashMap.put(bzType.getTypeId(), dataTypeDTO);
         }
 
         List<Map<String, Object>> countList = bzFormService.countEffectiveGear();
-
         for (Map<String, Object> map : countList) {
 //            System.out.println("-----key: " + map.get("count_effective_gear"));
 //            System.out.println("-----key: " + map.get("type_id"));
@@ -242,24 +254,29 @@ public class BzFormController {
             if (map.get("count_effective_gear") == null || map.get("type_id") == null || map.get("effective_gear") == null) {
                 continue;
             }
+            DataTypeDTO dataType = linkedHashMap.get((Integer) map.get("type_id"));
 
-            DataTypeDTO dataType = dataList.get((Integer) map.get("type_id"));
             CountDTO levelData = new CountDTO(((Long) map.get("count_effective_gear")).intValue(), String.format("%d%%", 0));
             dataType.getCountDTOMap().put((Integer) map.get("effective_gear"), levelData);
             dataType.setTotal(dataType.getTotal() + ((Long) map.get("count_effective_gear")).intValue());
         }
 
-        for (int type = 0; type <= 8; type++) {
-            DataTypeDTO dataTypeDTO = dataList.get(type);
-            int total = dataTypeDTO.getTotal();
-            if (total == 0) continue;
-            for (int level = 1; level <= 4; level++) {
-                CountDTO countDTO = dataTypeDTO.getCountDTOMap().get(level);
-                int rate = countDTO.getCount() * 100 / total;
-                countDTO.setPercentage(String.format("%d%%", rate));
-            }
-        }
+        linkedHashMap.forEach((key, value) -> {
+                    System.out.println("Key: " + key + ", Value: " + value);
 
+                    DataTypeDTO dataTypeDTO = linkedHashMap.get(key);
+                    int total = dataTypeDTO.getTotal();
+                    if (total != 0) {
+                        for (int level = 1; level <= 4; level++) {
+                            CountDTO countDTO = dataTypeDTO.getCountDTOMap().get(level);
+                            int rate = countDTO.getCount() * 100 / total;
+                            countDTO.setPercentage(String.format("%d%%", rate));
+                        }
+                    }
+                    dataList.add(dataTypeDTO);
+                }
+        );
+        System.out.println("-----2------------------------: ");
         return new BaseResponse(HttpStatus.OK.value(), "success", dataList, Integer.toString(0));
     }
 

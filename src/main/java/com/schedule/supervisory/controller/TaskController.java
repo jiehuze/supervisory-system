@@ -309,6 +309,13 @@ public class TaskController {
     @GetMapping("/admin/check")
     public BaseResponse adminTaskCheck(@ModelAttribute TaskSearchDTO taskSearchDTO) {
         boolean adminCheck = taskService.adminCheckById(taskSearchDTO.getTaskId(), taskSearchDTO.getStatus(), taskSearchDTO.getUserId());
+        if (taskSearchDTO.getStatus() == 6) {
+            List<StageNode> stageNodes = stageNodeService.getStageNodesByTaskId(taskSearchDTO.getTaskId().intValue());
+            for (StageNode stageNode : stageNodes) {
+                stageNode.setStatus(2);
+            }
+            stageNodeService.updateBatchById(stageNodes);
+        }
         return new BaseResponse(HttpStatus.OK.value(), "success", adminCheck, Integer.toString(0));
     }
 

@@ -178,6 +178,18 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
             case 2: //阶段性审核，更新阶段性审核数据
                 if (check.getStatus() == 2) { //通过审核
                     stageNodeService.updateStatusById(check.getStageId().intValue(), 2);
+                    StageNode stage = stageNodeService.getById(check.getStageId());
+                    if (stage.getOverdueDays() > 0) {
+                        //需要更新状态
+                        List<StageNode> stageNodeForOverdues = stageNodeService.getStageNodeForOverdue(check.getTaskId());
+                        long taskoverdueDays = 0;
+                        for (StageNode sn : stageNodeForOverdues) {
+                            taskoverdueDays = Math.max(util.daysDifference(sn.getDeadline()), taskoverdueDays);
+                        }
+                        if (taskoverdueDays > 0) {
+                            taskService.updateOverdueDays(check.getTaskId(), (int) taskoverdueDays);
+                        }
+                    }
                 } else if (check.getStatus() == 3) {
                     stageNodeService.updateStatusById(check.getStageId().intValue(), 1); //修改为正常推进
                 }
@@ -232,15 +244,8 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     });
                     if (bzFormTarget != null) {
                         boolean progress = bzFormTargetService.updateProgress(bzFormTarget);
-                        BzFormTargetRecord bzFormTargetRecord = new BzFormTargetRecord();
-                        bzFormTargetRecord.setTargetId(bzFormTarget.getId());
-                        bzFormTargetRecord.setIssue(bzFormTarget.getIssues());
-                        bzFormTargetRecord.setWorkProgress(bzFormTarget.getWorkProgress());
-                        bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
-                        bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
-                        bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
-                        bzFormTargetRecord.setProcessInstanceId(check.getProcessInstanceId());
-                        bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
+
+                        bzFormTargetRecordService.updateStatus(bzFormTarget.getId(), 2);
                     }
                 } else if (check.getStatus() == 3) {
 
@@ -278,15 +283,8 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     });
                     if (bzIssueTarget != null) {
                         boolean progress = bzIssueTargetService.updateProgress(bzIssueTarget);
-                        BzIssueTargetRecord bzIssueTargetRecord = new BzIssueTargetRecord();
-                        bzIssueTargetRecord.setTargetId(bzIssueTarget.getId());
-                        bzIssueTargetRecord.setIssue(bzIssueTarget.getIssues());
-                        bzIssueTargetRecord.setWorkProgress(bzIssueTarget.getWorkProgress());
-                        bzIssueTargetRecord.setUpdatedBy(bzIssueTarget.getOperatorId());
-                        bzIssueTargetRecord.setOperator(bzIssueTarget.getOperator());
-                        bzIssueTargetRecord.setOperatorId(bzIssueTarget.getOperatorId());
-                        bzIssueTargetRecord.setProcessInstanceId(check.getProcessInstanceId());
-                        bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
+
+                        bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId(), 2);
                     }
                 } else if (check.getStatus() == 3) {
 
