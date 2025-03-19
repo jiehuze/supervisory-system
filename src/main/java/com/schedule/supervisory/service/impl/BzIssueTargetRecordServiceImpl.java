@@ -33,8 +33,17 @@ public class BzIssueTargetRecordServiceImpl extends ServiceImpl<BzIssueTargetRec
 
     @Override
     public boolean updateStatus(Long id, Integer status) {
+        LambdaQueryWrapper<BzIssueTargetRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BzIssueTargetRecord::getTargetId, id)
+                .orderByDesc(BzIssueTargetRecord::getId)
+                .last("LIMIT 1");
+        BzIssueTargetRecord one = getOne(queryWrapper);
+        if (one == null)
+            return false;
+
+
         LambdaUpdateWrapper<BzIssueTargetRecord> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(BzIssueTargetRecord::getTargetId, id);
+        updateWrapper.eq(BzIssueTargetRecord::getId, one.getId());
         updateWrapper.set(BzIssueTargetRecord::getStatus, status);
 
         return update(updateWrapper);

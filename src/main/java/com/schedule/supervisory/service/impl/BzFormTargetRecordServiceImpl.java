@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.BzFormTargetRecordMapper;
+import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzFormTargetRecord;
 import com.schedule.supervisory.entity.BzIssueTargetRecord;
 import com.schedule.supervisory.service.IBzFormTargetRecordService;
@@ -33,8 +34,16 @@ public class BzFormTargetRecordServiceImpl extends ServiceImpl<BzFormTargetRecor
 
     @Override
     public boolean updateStatus(Long id, Integer status) {
+        LambdaQueryWrapper<BzFormTargetRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BzFormTargetRecord::getTargetId, id)
+                .orderByDesc(BzFormTargetRecord::getId)
+                .last("LIMIT 1");
+        BzFormTargetRecord one = getOne(queryWrapper);
+        if (one == null)
+            return false;
+
         LambdaUpdateWrapper<BzFormTargetRecord> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(BzFormTargetRecord::getTargetId, id);
+        updateWrapper.eq(BzFormTargetRecord::getId, one.getId());
         updateWrapper.set(BzFormTargetRecord::getStatus, status);
 
         return update(updateWrapper);

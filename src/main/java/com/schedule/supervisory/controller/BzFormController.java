@@ -131,10 +131,13 @@ public class BzFormController {
         } else if (count > 0) {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
-//        for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
-//            bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
-//            bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
-//        }
+
+        bzForm.setOperator(bzForm.getAssigner());
+        bzForm.setOperatorId(bzForm.getAssignerId());
+        for (BzFormTarget bzFormTarget : bzFromDTO.getBzFormTargetList()) {
+            bzForm.setResponsibleDept(util.joinString(bzForm.getResponsibleDept(), bzFormTarget.getDept()));
+            bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
+        }
 
         Long id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
@@ -145,10 +148,12 @@ public class BzFormController {
             //写入牵头单位
             bzFormTarget.setLeadingDepartment(bzForm.getLeadingDepartment());
             bzFormTarget.setLeadingDepartmentId(bzForm.getLeadingDepartmentId());
-//            bzFormTarget.setAssigner(bzForm.getAssigner());
-//            bzFormTarget.setAssignerId(bzForm.getAssignerId());
-//            bzFormTarget.setOperator(bzForm.getAssigner());
-//            bzFormTarget.setOperatorId(bzFormTarget.getAssignerId());
+            if (bzFormTarget.getAssigner() == null || bzFormTarget.getAssignerId() == null) {
+                bzFormTarget.setAssigner(bzForm.getAssigner());
+                bzFormTarget.setAssignerId(bzForm.getAssignerId());
+            }
+            bzFormTarget.setOperator(bzForm.getAssigner());
+            bzFormTarget.setOperatorId(bzFormTarget.getAssignerId());
         }
         if (bzFromDTO.getBzFormTargetList().size() != 0) {
             bzFormTargetService.saveBatch(bzFromDTO.getBzFormTargetList());

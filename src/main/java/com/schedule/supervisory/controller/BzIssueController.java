@@ -109,7 +109,6 @@ public class BzIssueController {
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzIssueDTO bzIssueDTO) {
         if (!Licence.getLicence()) {
-//            String tenantIdex = configService.getTenantId();
             String tenantIdex = configService.getExternConfig("tenant.id");
             System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
             if (!tenantId.equals(tenantIdex))
@@ -124,12 +123,12 @@ public class BzIssueController {
             return new BaseResponse(HttpStatus.GONE.value(), "已经存在该报表", null, Integer.toString(0));
         }
 
-//        bzIssue.setAssigner(bzIssue.getOperator());
-//        bzIssue.setAssignerId(bzIssue.getOperatorId());
-//        for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
-//            bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
-//            bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
-//        }
+        bzIssue.setOperator(bzIssue.getAssigner());
+        bzIssue.setOperatorId(bzIssue.getAssignerId());
+        for (BzIssueTarget bzIssueTarget : bzIssueDTO.getBzIssueTargetList()) {
+            bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
+            bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
+        }
         Long id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
@@ -138,10 +137,12 @@ public class BzIssueController {
             bzIssueTarget.setBzIssueId(id);
             bzIssueTarget.setLeadingDepartment(bzIssue.getLeadingDepartment());
             bzIssueTarget.setLeadingDepartmentId(bzIssue.getLeadingDepartmentId());
-//            bzIssueTarget.setAssigner(bzIssue.getAssigner());
-//            bzIssueTarget.setAssignerId(bzIssue.getAssignerId());
-//            bzIssueTarget.setOperator(bzIssue.getAssigner());
-//            bzIssueTarget.setOperatorId(bzIssue.getAssignerId());
+            if (bzIssueTarget.getAssigner() == null || bzIssueTarget.getAssignerId() == null) {
+                bzIssueTarget.setAssigner(bzIssue.getAssigner());
+                bzIssueTarget.setAssignerId(bzIssue.getAssignerId());
+            }
+            bzIssueTarget.setOperator(bzIssue.getAssigner());
+            bzIssueTarget.setOperatorId(bzIssue.getAssignerId());
         }
         if (bzIssueDTO.getBzIssueTargetList().size() != 0) {
             bzIssueTargetService.saveBatch(bzIssueDTO.getBzIssueTargetList());
