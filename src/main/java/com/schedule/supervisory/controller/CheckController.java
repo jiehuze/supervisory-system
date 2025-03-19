@@ -206,7 +206,7 @@ public class CheckController {
                 });
                 progressReportService.removeById(progressReport.getId());
             }
-            return new BaseResponse(HttpStatus.OK.value(), parameterDTO.getCheckStart() + " request failed", null, Integer.toString(0));
+            return new BaseResponse(HttpStatus.OK.value(), parameterDTO.getCheckStart() + " request failed", false, Integer.toString(0));
         }
         check.setProcessInstanceId(processInstanceId);
         check.setFlowId(checkStartDTO.getFlowId());
@@ -306,7 +306,7 @@ public class CheckController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
+        return new BaseResponse(HttpStatus.OK.value(), "success", true, Integer.toString(0));
     }
 
 
