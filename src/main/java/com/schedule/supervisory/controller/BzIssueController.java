@@ -446,6 +446,6 @@ public class BzIssueController {
             }
         }
 
-        ExcelUtil.exportExcelToTarget(response, null, "任务", issueTemplateExcels, IssueTemplateExcel.class);
+        ExcelUtil.exportExcelToTargetWithTemplate(response, null, "任务", issueTemplateExcels, IssueTemplateExcel.class, "doc/bzIssue.xlsx");
     }
 }

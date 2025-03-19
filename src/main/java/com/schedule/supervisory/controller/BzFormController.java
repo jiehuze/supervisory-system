@@ -538,14 +538,20 @@ public class BzFormController {
                     formTemplateExcel.setPredictedGear(String.valueOf((char) (bzForm.getPredictedGear() + 'A' - 1)));
                 }
                 formTemplateExcel.setName(bzFormTarget.getName());
+                formTemplateExcel.setDept(bzFormTarget.getDept());
+                if (bzFormTarget.getPredictedGear() != null) {
+                    formTemplateExcel.setPredictedGearTarget(String.valueOf((char) (bzFormTarget.getPredictedGear() + 'A' - 1)));
+                }
+                if (bzFormTarget.getActualGear() != null) {
+                    formTemplateExcel.setActualGearTarget(String.valueOf((char) (bzFormTarget.getActualGear() + 'A' - 1)));
+                }
                 formTemplateExcel.setWorkProgress(bzFormTarget.getWorkProgress());
                 formTemplateExcel.setIssues(bzFormTarget.getIssues());
-                formTemplateExcel.setDept(bzFormTarget.getDept());
                 formTemplateExcels.add(formTemplateExcel);
             }
         }
         System.out.println("---- list: " + formTemplateExcels.toString());
 
-        ExcelUtil.exportExcelToTarget(response, null, "任务", formTemplateExcels, FormTemplateExcel.class);
+        ExcelUtil.exportExcelToTargetWithTemplate(response, null, "报表", formTemplateExcels, FormTemplateExcel.class, "doc/bzForm.xlsx");
     }
 }

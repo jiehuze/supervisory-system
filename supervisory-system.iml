@@ -120,9 +120,9 @@
     <orderEntry type="library" name="Maven: org.apache.poi:poi-scratchpad:5.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.6.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.checkerframework:checker-qual:3.31.0" level="project" />
-    <orderEntry type="library" name="Maven: com.alibaba:easyexcel:3.2.1" level="project" />
-    <orderEntry type="library" name="Maven: com.alibaba:easyexcel-core:3.2.1" level="project" />
-    <orderEntry type="library" name="Maven: com.alibaba:easyexcel-support:3.2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.alibaba:easyexcel:3.3.2" level="project" />
+    <orderEntry type="library" name="Maven: com.alibaba:easyexcel-core:3.3.2" level="project" />
+    <orderEntry type="library" name="Maven: com.alibaba:easyexcel-support:3.3.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.poi:poi-ooxml-schemas:4.1.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-csv:1.8" level="project" />
     <orderEntry type="library" name="Maven: org.ehcache:ehcache:3.10.8" level="project" />

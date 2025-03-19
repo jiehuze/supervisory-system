@@ -575,6 +575,41 @@ public class TaskController {
         }
         System.out.println("=========== list: " + queryTask.getTaskIdList());
         List<Task> tasks = taskService.getTasksBySearchDTO(queryTask);
-        ExcelUtil.exportExcelToTarget(response, null, "任务", tasks, TaskTemplateExcel.class);
+        List<TaskTemplateExcel> taskTemplateExcels = new ArrayList<>();
+        Integer num = 0;
+        for (Task task : tasks) {
+            TaskTemplateExcel taskTemplateExcel = new TaskTemplateExcel();
+            taskTemplateExcel.setNum(++num);
+            taskTemplateExcel.setContent(task.getContent());
+            taskTemplateExcel.setSource(task.getSource());
+            taskTemplateExcel.setLeadingOfficial(task.getLeadingOfficial());
+            taskTemplateExcel.setLeadingDepartment(task.getLeadingDepartment());
+            taskTemplateExcel.setDeadline(task.getDeadline());
+            taskTemplateExcel.setProgress(task.getProgress());
+            taskTemplateExcel.setIssuesAndChallenges(task.getIssuesAndChallenges());
+            taskTemplateExcel.setCoOrganizer(task.getCoOrganizer());
+            switch (task.getStatus()) {
+                case 6:
+                    taskTemplateExcel.setStatus("已办结");
+                    break;
+                case 9:
+                    taskTemplateExcel.setStatus("已终止");
+                    break;
+                case 12:
+                    taskTemplateExcel.setStatus("审核中");
+                    break;
+                default:
+                    taskTemplateExcel.setStatus("正常推进中");
+                    break;
+            }
+            if (task.getStatus() != 6 && task.getStatus() != 9 & task.getOverdueDays() > 0) {
+                taskTemplateExcel.setStatus("已超期（" + task.getOverdueDays() + "）天");
+            }
+            System.out.println("-------------task:" + taskTemplateExcel);
+
+            taskTemplateExcels.add(taskTemplateExcel);
+        }
+
+        ExcelUtil.exportExcelToTargetWithTemplate(response, null, "任务", taskTemplateExcels, TaskTemplateExcel.class, "doc/task.xlsx");
     }
 }

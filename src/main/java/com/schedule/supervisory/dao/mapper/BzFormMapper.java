@@ -24,6 +24,7 @@ public interface BzFormMapper extends BaseMapper<BzForm> {
             "SELECT * FROM bz_form bf " +
             "LEFT JOIN bz_type bt ON bf.type_id = bt.type_id AND bt.type = '1' " +
             "<where>" +
+            "<if test='queryBzForm.bzFormId != null'> AND bf.id = #{queryBzForm.bzFormId}</if>" +
             "<if test='queryBzForm.typeId != null'> AND bf.type_id = #{queryBzForm.typeId}</if>" +
             "<if test='queryBzForm.predictedGear != null'> AND bf.predicted_gear = #{queryBzForm.predictedGear}</if>" +
             "<if test='queryBzForm.actualGear != null'> AND bf.actual_gear = #{queryBzForm.actualGear}</if>" +

@@ -22,6 +22,7 @@ public interface BzIssueMapper extends BaseMapper<BzIssue> {
             "SELECT * FROM bz_issue bf " +
             "LEFT JOIN bz_type bt ON bf.type_id = bt.type_id AND bt.type = '2' " +
             "<where>" +
+            "<if test='queryBzIssue.bzIssueId != null'> AND bf.id = #{queryBzIssue.bzIssueId}</if>" +
             "<if test='queryBzIssue.typeId != null'> AND bf.type_id = #{queryBzIssue.typeId}</if>" +
             "<if test='queryBzIssue.predictedGear != null'> AND bf.predicted_gear = #{queryBzIssue.predictedGear}</if>" +
             "<if test='queryBzIssue.actualGear != null'> AND bf.actual_gear = #{queryBzIssue.actualGear}</if>" +
