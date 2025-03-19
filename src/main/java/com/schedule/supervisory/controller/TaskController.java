@@ -1,6 +1,7 @@
 package com.schedule.supervisory.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.schedule.common.BaseResponse;
 import com.schedule.common.Licence;
@@ -218,25 +219,48 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", taskCollectDTO, Integer.toString(0));
     }
 
+    public List<DeptDTO> getDeptDTOByConditions(TaskSearchDTO queryTask, String authorizationHeader, String tenantId) {
+
+        List<DeptDTO> deptDTOs = null;
+        HttpUtil httpUtil = new HttpUtil();
+        if (queryTask.getTaskType() == 0) {
+            System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
+            String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
+            if (deptJson != null) {
+                deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
+                System.out.println("Dept list size: " + deptDTOs.size());
+            } else {
+//                return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
+            }
+        } else if (queryTask.getTaskType() == 1) {
+            System.out.println("person depts url: " + parameterDTO.getPersonWithDepts());
+            String json = httpUtil.get(parameterDTO.getPersonWithDepts(), authorizationHeader, tenantId);
+            if (json != null) {
+                UserDeptsDetail userDeptsDetail = JSON.parseObject(json, new TypeReference<UserDeptsDetail>() {
+                });
+                if (userDeptsDetail.getSysUser() != null) {
+                    deptDTOs = new ArrayList<>();
+                    for (String dept : userDeptsDetail.getSysUser().getDeptIds()) {
+                        DeptDTO deptDTO = new DeptDTO();
+                        deptDTO.setDeptId(dept);
+                        deptDTOs.add(deptDTO);
+                    }
+                    System.out.println("Dept list size: " + deptDTOs.size());
+                }
+            }
+        }
+        return deptDTOs;
+    }
+
     @GetMapping("/search")
     public BaseResponse searchTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                     @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                     @ModelAttribute TaskSearchDTO queryTask,
                                     @RequestParam(defaultValue = "1") int current,
                                     @RequestParam(defaultValue = "10") int size) {
-        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
-        List<DeptDTO> deptDTOs = null;
-        HttpUtil httpUtil = new HttpUtil();
-        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
-        if (deptJson != null) {
-            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("Dept list size: " + deptDTOs.size());
-        } else {
-            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
-        }
+        List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
         if (!Licence.getLicence()) {
-//            String tenantIdex = configService.getTenantId();
             String tenantIdex = configService.getExternConfig("tenant.id");
             System.out.println("+++++++++++=========== tenantId: " + tenantIdex);
             if (!tenantId.equals(tenantIdex))
@@ -256,15 +280,7 @@ public class TaskController {
                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
                               @ModelAttribute TaskSearchDTO queryTask) {
         System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
-        List<DeptDTO> deptDTOs = null;
-        HttpUtil httpUtil = new HttpUtil();
-        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
-        if (deptJson != null) {
-            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("Dept list size: " + deptDTOs.size());
-        } else {
-            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
-        }
+        List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
         if (!Licence.getLicence()) {
             String tenantIdex = configService.getExternConfig("tenant.id");
@@ -378,18 +394,7 @@ public class TaskController {
     public BaseResponse getTaskStatusStatistics(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                                 @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                                 @ModelAttribute TaskSearchDTO queryTask) {
-        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
-        List<DeptDTO> deptDTOs = null;
-        if (queryTask.getUnAuth() == null || (queryTask.getUnAuth() != null && queryTask.getUnAuth() == false)) {
-            HttpUtil httpUtil = new HttpUtil();
-            String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
-            if (deptJson != null) {
-                deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-                System.out.println("Dept list size: " + deptDTOs.size());
-            } else {
-                return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
-            }
-        }
+        List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
         System.out.println("----------" + queryTask.toString());
         //统计：已办结，未超期的任务数
@@ -421,22 +426,7 @@ public class TaskController {
     public BaseResponse countTasksByTaskPeriod(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                                @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                                @ModelAttribute TaskSearchDTO queryTask) {
-        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
-        List<DeptDTO> deptDTOs = null;
-        List<String> leadingDepartmentIds = new ArrayList<>();
-        HttpUtil httpUtil = new HttpUtil();
-        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
-        if (deptJson != null) {
-            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("Dept list size: " + deptDTOs.size());
-        } else {
-            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
-        }
-        if (deptDTOs != null && deptDTOs.size() > 0) {
-            for (DeptDTO deptDTO : deptDTOs) {
-                leadingDepartmentIds.add(deptDTO.getDeptId());
-            }
-        }
+        List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
         List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod2(queryTask, deptDTOs);
         List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus2(queryTask, deptDTOs);
@@ -478,22 +468,8 @@ public class TaskController {
     public BaseResponse countTasksByTaskField(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                               @ModelAttribute TaskSearchDTO queryTask) {
-        System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
-        List<DeptDTO> deptDTOs = null;
-        List<String> leadingDepartmentIds = new ArrayList<>();
-        HttpUtil httpUtil = new HttpUtil();
-        String deptJson = httpUtil.get(parameterDTO.getPermissionUrl(), authorizationHeader, tenantId);
-        if (deptJson != null) {
-            deptDTOs = JSON.parseArray(deptJson, DeptDTO.class);
-            System.out.println("Dept list size: " + deptDTOs.size());
-        } else {
-            return new BaseResponse(HttpStatus.OK.value(), "鉴权失败，获取权限失败！", false, Integer.toString(0));
-        }
-        if (deptDTOs != null && deptDTOs.size() > 0) {
-            for (DeptDTO deptDTO : deptDTOs) {
-                leadingDepartmentIds.add(deptDTO.getDeptId());
-            }
-        }
+        List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
+
         List<Map<String, Object>> totals = taskService.countTasksByFieldId2(queryTask, deptDTOs);
         List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus2(queryTask, deptDTOs);
         List<Field> list = fieldService.getFields(queryTask.getDeleteField());

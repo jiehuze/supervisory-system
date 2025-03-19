@@ -2,10 +2,9 @@ package com.schedule.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.schedule.supervisory.dto.DeptResponseDTO;
-import com.schedule.supervisory.dto.RoleDeptRequestDTO;
-import com.schedule.supervisory.dto.TokenRespDTO;
-import com.schedule.supervisory.dto.UserDataDTO;
+import com.alibaba.fastjson.TypeReference;
+import com.schedule.supervisory.dto.*;
+import com.schedule.supervisory.entity.Task;
 import okhttp3.*;
 
 import java.io.BufferedReader;
@@ -295,8 +294,13 @@ public class HttpUtil {
 //        }
 //
 //        System.out.println("------------- " + deptDTOs);
-        TokenRespDTO tokenRespDTO = httpUtil.oauthen2("http://113.207.111.33:48770/api/admin/oauth2/token");
-        System.out.println("++++++ token: " + tokenRespDTO.toString());
+//        TokenRespDTO tokenRespDTO = httpUtil.oauthen2("http://113.207.111.33:48770/api/admin/oauth2/token");
+//        System.out.println("++++++ token: " + tokenRespDTO.toString());
+        String json = httpUtil.get("http://113.207.111.33:31991/api/admin/user/info", "Bearer 56a4851c-0156-4cad-84fc-a3fc6c4ec6dc", "1877665103373783042");
+        System.out.println("-----json: " + json);
+        UserDeptsDetail userDeptsDetail = JSON.parseObject(json, new TypeReference<UserDeptsDetail>() {
+        });
+        System.out.println("-----userDeptsDetail: " + userDeptsDetail.toString());
 
 //        RoleDeptRequestDTO requestDTO = new RoleDeptRequestDTO();
 //        requestDTO.setRoleCodes(List.of("CBLD"));

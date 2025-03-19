@@ -42,4 +42,6 @@ public class ParameterDTO {
     private String checkFormat;
     @Value("${duban.check.complete}")
     private String checkComplete;
+    @Value("${duban.person.get.dept}")
+    private String personWithDepts;
 }
