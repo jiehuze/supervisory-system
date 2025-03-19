@@ -60,6 +60,18 @@ public class StageNodeServiceImpl extends ServiceImpl<StageNodeMapper, StageNode
     }
 
     @Override
+    public void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<StageNode> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(StageNode::getId, id);
+        if (processInstanceId != null) {
+            updateWrapper.set(StageNode::getProcessInstanceId, processInstanceId);
+        }
+
+        // 执行更新操作并返回是否成功
+        update(updateWrapper);
+    }
+
+    @Override
     public void updateOverdueDays() {
         stageNodeMapper.updateOverdueDays();
     }

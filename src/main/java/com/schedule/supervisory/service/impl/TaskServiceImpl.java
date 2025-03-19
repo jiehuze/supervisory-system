@@ -104,16 +104,63 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getUndertakerId() != null) {
             updateWrapper.set(Task::getUndertakerId, task.getUndertakerId());
         }
+        if (task.getProcessInstanceId() != null) {
+            updateWrapper.set(Task::getProcessInstanceId, task.getProcessInstanceId());
+        }
+        if (task.getProcessInstanceReportId() != null) {
+            updateWrapper.set(Task::getProcessInstanceReportId, task.getProcessInstanceReportId());
+        }
+        if (task.getStatus() != null) {
+            updateWrapper.set(Task::getStatus, task.getStatus());
+        }
+        if (task.getCbDoneDesc() != null) {
+            updateWrapper.set(Task::getCbDoneDesc, task.getCbDoneDesc());
+        }
+        if (task.getCbDoneFile() != null) {
+            updateWrapper.set(Task::getCbDoneFile, task.getCbDoneFile());
+        }
+        if (task.getCancelDesc() != null) {
+            updateWrapper.set(Task::getCancelDesc, task.getCancelDesc());
+        }
+        if (task.getCancelFile() != null) {
+            updateWrapper.set(Task::getCancelFile, task.getCancelFile());
+        }
 
         update(updateWrapper);
     }
 
     @Override
-    public void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReviewIds) {
+    public void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReportId, String processInstanceReviewIds) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId);
+        if (processInstanceId != null) {
+            updateWrapper.set(Task::getProcessInstanceId, processInstanceId);
+        }
+        if (processInstanceReportId != null) {
+            updateWrapper.set(Task::getProcessInstanceReportId, processInstanceReportId);
+
+        }
+        if (processInstanceReviewIds != null) {
+            updateWrapper.set(Task::getProcessInstanceReviewIds, processInstanceReviewIds);
+        }
+
+        update(updateWrapper);
+    }
+
+    @Override
+    public void updateCheckDoneDesc(Long taskId, String doneDesc) {
         LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(Task::getId, taskId)
-                .set(Task::getProcessInstanceId, processInstanceId)
-                .set(Task::getProcessInstanceReviewIds, processInstanceReviewIds);
+                .set(Task::getCbDoneDesc, doneDesc);
+
+        update(updateWrapper);
+    }
+
+    @Override
+    public void updateCheckCancelDesc(Long taskId, String cancelDesc) {
+        LambdaUpdateWrapper<Task> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Task::getId, taskId)
+                .set(Task::getCancelDesc, cancelDesc);
 
         update(updateWrapper);
     }

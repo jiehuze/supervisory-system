@@ -34,7 +34,13 @@ public interface ITaskService extends IService<Task> {
      */
     void updateTask(Task task);
 
-    void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReviewIds);
+    void updateCheckProcess(Long taskId, String processInstanceId, String processInstanceReportId, String processInstanceReviewIds);
+
+    //办结描述
+    void updateCheckDoneDesc(Long taskId, String doneDesc);
+
+    //终止描述
+    void updateCheckCancelDesc(Long taskId, String cancelDesc);
 
     /**
      * 获取任务列表

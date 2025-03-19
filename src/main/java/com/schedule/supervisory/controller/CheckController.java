@@ -216,6 +216,7 @@ public class CheckController {
             case 1: //填报申请
                 taskService.updateCheckById(check.getTaskId(), 1, 0); //填报审核
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
+                taskService.updateCheckProcess(check.getTaskId(), null, check.getProcessInstanceId(), "");
                 ProgressReport progressReport = JSON.parseObject(check.getDataJson(), new TypeReference<ProgressReport>() {
                 });
                 progressReport.setFlowId(check.getFlowId());
@@ -224,14 +225,20 @@ public class CheckController {
                 break;
             case 2: //阶段性审核
                 taskService.updateCheckById(check.getTaskId(), 2, 0);
-                stageNodeService.updateStatusById(check.getStageId().intValue(), 4); //审核中
                 taskService.updateStatusById(check.getTaskId(), 12);//审核中
+                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), null, "");
+                stageNodeService.updateStatusById(check.getStageId().intValue(), 4); //审核中
+                stageNodeService.updateCheckProcess(check.getStageId(), check.getProcessInstanceId(), null); //审核中
                 break;
             case 3: //报表清单编辑审核
                 bzFormService.updateCheckById(check.getBzFormId(), 3, 0);
+                bzFormService.updateCheckProcess(check.getBzFormId(), check.getProcessInstanceId(), "");
+
                 break;
             case 4: //报表指标审核
                 bzFormTargetService.updateCheckById(check.getBzFormTargetId(), 4, null);
+                bzFormTargetService.updateCheckProcess(check.getBzFormTargetId(), check.getProcessInstanceId(), "");
+
                 BzFormTarget bzFormTargetJs = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormTarget>() {
                 });
                 if (bzFormTargetJs != null) {
@@ -249,9 +256,11 @@ public class CheckController {
                 break;
             case 5: //问题清单审核
                 bzIssueService.updateCheckById(check.getBzIssueId(), 3, 0);
+                bzIssueService.updateCheckProcess(check.getBzIssueId(), check.getProcessInstanceId(), "");
                 break;
             case 6: //问题指标审核
                 bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), 4, null);
+                bzIssueTargetService.updateCheckProcess(check.getBzIssueTargetId(), check.getProcessInstanceId(), "");
                 BzIssueTarget bzIssueTargetJs = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueTarget>() {
                 });
                 if (bzIssueTargetJs != null) {
@@ -268,12 +277,27 @@ public class CheckController {
                 }
                 break;
             case 7: // 办结审核
+                Task taskDn = JSON.parseObject(check.getDataJson(), new TypeReference<Task>() {
+                });
+                taskDn.setStatus(12);
+                taskDn.setProcessInstanceId(check.getProcessInstanceId());
+                taskService.updateTask(taskDn);
                 taskService.updateCheckById(check.getTaskId(), 7, 0); //填报审核
-                taskService.updateStatusById(check.getTaskId(), 12);//审核中
+//                taskService.updateStatusById(check.getTaskId(), 12);//审核中
+//                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), null, "");
+//                taskService.updateCheckDoneDesc(check.getTaskId(), taskDn.getCbDoneDesc());
                 break;
             case 8: //终止审核
+                Task taskCd = JSON.parseObject(check.getDataJson(), new TypeReference<Task>() {
+                });
+                taskCd.setStatus(12);
+                taskCd.setProcessInstanceId(check.getProcessInstanceId());
+                taskService.updateTask(taskCd);
+
                 taskService.updateCheckById(check.getTaskId(), 8, 0); //填报审核
-                taskService.updateStatusById(check.getTaskId(), 12);//审核中
+//                taskService.updateStatusById(check.getTaskId(), 12);//审核中
+//                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), null, "");
+//                taskService.updateCheckCancelDesc(check.getTaskId(), taskCd.getCancelDesc());
                 break;
         }
 

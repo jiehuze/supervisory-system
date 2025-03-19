@@ -186,9 +186,7 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                         for (StageNode sn : stageNodeForOverdues) {
                             taskoverdueDays = Math.max(util.daysDifference(sn.getDeadline()), taskoverdueDays);
                         }
-                        if (taskoverdueDays > 0) {
-                            taskService.updateOverdueDays(check.getTaskId(), (int) taskoverdueDays);
-                        }
+                        taskService.updateOverdueDays(check.getTaskId(), (int) taskoverdueDays);
                     }
                 } else if (check.getStatus() == 3) {
                     stageNodeService.updateStatusById(check.getStageId().intValue(), 1); //修改为正常推进
@@ -239,16 +237,19 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                 bzFormService.updateCheckById(check.getBzFormId(), null, 3);
                 break;
             case 4: //报表指标审核
+                BzFormTarget bzFormTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormTarget>() {
+                });
+
                 if (check.getStatus() == 2) { //通过审核
-                    BzFormTarget bzFormTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzFormTarget>() {
-                    });
                     if (bzFormTarget != null) {
                         boolean progress = bzFormTargetService.updateProgress(bzFormTarget);
 
                         bzFormTargetRecordService.updateStatus(bzFormTarget.getId(), 2);
                     }
                 } else if (check.getStatus() == 3) {
-
+                    if (bzFormTarget != null) {
+                        bzFormTargetRecordService.updateStatus(bzFormTarget.getId(), 3);
+                    }
                 }
                 bzFormTargetService.updateCheckById(check.getBzFormTargetId(), null, 4);
                 break;
@@ -278,16 +279,16 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                 bzIssueService.updateCheckById(check.getBzIssueId(), null, 3);
                 break;
             case 6: //问题指标审核
+                BzIssueTarget bzIssueTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueTarget>() {
+                });
                 if (check.getStatus() == 2) { //通过审核
-                    BzIssueTarget bzIssueTarget = JSON.parseObject(check.getDataJson(), new TypeReference<BzIssueTarget>() {
-                    });
                     if (bzIssueTarget != null) {
                         boolean progress = bzIssueTargetService.updateProgress(bzIssueTarget);
 
                         bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId(), 2);
                     }
                 } else if (check.getStatus() == 3) {
-
+                    bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId(), 3);
                 }
                 bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), null, 4);
                 break;
@@ -346,10 +347,12 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
 
         switch (check.getCheckType()) {
             case 1: //填报申请
+                taskService.updateCheckProcess(check.getTaskId(), null, check.getProcessInstanceId(), userIds);
+                break;
             case 2: //阶段性审核
             case 7: // 办结审核
             case 8: //终结审核
-                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), userIds);
+                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), null, userIds);
                 break;
             case 3: //报表清单编辑审核
                 bzFormService.updateCheckProcess(check.getBzFormId(), check.getProcessInstanceId(), userIds);

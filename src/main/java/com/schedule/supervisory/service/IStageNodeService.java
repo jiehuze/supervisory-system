@@ -16,6 +16,8 @@ public interface IStageNodeService extends IService<StageNode> {
 
     boolean updateStatusById(Integer id, Integer status);
 
+    void updateCheckProcess(Long id, String processInstanceId, String processInstanceReviewIds);
+
     //更新超期任务
     void updateOverdueDays();
 }
