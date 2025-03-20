@@ -29,6 +29,7 @@ public class BzFormTargetRecordServiceImpl extends ServiceImpl<BzFormTargetRecor
     public List<BzFormTargetRecord> getByTargetId(Integer targetId) {
         LambdaQueryWrapper<BzFormTargetRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BzFormTargetRecord::getTargetId, targetId);
+        queryWrapper.orderByDesc(BzFormTargetRecord::getId);
         return list(queryWrapper);
     }
 

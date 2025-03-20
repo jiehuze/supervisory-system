@@ -139,7 +139,7 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
             });
         }
 
-        queryWrapper.orderByDesc(BzFormTarget::getId);
+        queryWrapper.orderByAsc(BzFormTarget::getId);
         return list(queryWrapper);
     }
 

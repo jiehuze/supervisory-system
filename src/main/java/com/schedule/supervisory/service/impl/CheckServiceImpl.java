@@ -318,6 +318,7 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
         List<ProcessNodeDTO> nodeList = JSON.parseObject(formatData, new TypeReference<List<ProcessNodeDTO>>() {
         });
         String userIds = "";
+        boolean sendFlag = true;
         for (ProcessNodeDTO nodeDTO : nodeList) {
             logTime("=====> check node: " + nodeDTO.toString());
             if (nodeDTO.getStatus() < 2) {
@@ -325,6 +326,8 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                 for (ProcessNodeDTO.UserVo userVo : userVoList) {
                     if (userVo.getStatus() < 2) {
                         userIds = util.joinString(userIds, userVo.getId());
+                    } else if (userVo.getStatus() == 2) { //说明是会签，有一个人为2，其他人就不要再发送数据消息了
+                        sendFlag = false;
                     }
                 }
                 //说明已经取到要执行的节点，直接退出即可
@@ -342,9 +345,10 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
             return;
         }
 
-        //发消息
-        ykbMessageService.sendMessageForCheckNew(check, userIds);
-
+        if (sendFlag) {
+            //发消息
+            ykbMessageService.sendMessageForCheckNew(check, userIds);
+        }
         switch (check.getCheckType()) {
             case 1: //填报申请
                 taskService.updateCheckProcess(check.getTaskId(), null, check.getProcessInstanceId(), userIds);

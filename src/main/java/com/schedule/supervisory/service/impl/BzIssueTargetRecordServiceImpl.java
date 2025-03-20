@@ -28,6 +28,7 @@ public class BzIssueTargetRecordServiceImpl extends ServiceImpl<BzIssueTargetRec
     public List<BzIssueTargetRecord> getByTargetId(Integer targetId) {
         LambdaQueryWrapper<BzIssueTargetRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BzIssueTargetRecord::getTargetId, targetId);
+        queryWrapper.orderByDesc(BzIssueTargetRecord::getId);
         return list(queryWrapper);
     }
 
