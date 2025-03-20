@@ -55,10 +55,10 @@ public class TaskSchedulerService {
                 taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
             }
 
-//            if (taskoverdueDays > 0) {
-            task.setOverdueDays((int) taskoverdueDays);
-            taskService.updateOverdueDays(task.getId(), (int) taskoverdueDays);
-//            }
+            if (task.getOverdueDays() != taskoverdueDays) {
+                task.setOverdueDays((int) taskoverdueDays);
+                taskService.updateOverdueDays(task.getId(), (int) taskoverdueDays);
+            }
         }
 
 //        taskService.updateOverdueDays();

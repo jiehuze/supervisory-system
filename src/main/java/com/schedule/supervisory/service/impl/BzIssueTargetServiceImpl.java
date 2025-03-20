@@ -136,7 +136,7 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
                 }
             });
         }
-        queryWrapper.orderByAsc(BzIssueTarget::getId);
+        queryWrapper.orderByDesc(BzIssueTarget::getId);
         return list(queryWrapper);
     }
 

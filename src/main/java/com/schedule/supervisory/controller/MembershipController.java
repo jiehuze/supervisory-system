@@ -34,6 +34,8 @@ public class MembershipController {
         if (mp != null) {
             membership.setId(mp.getId());
         }
+        System.out.println("==========save: "+ membership.toString());
+
         save = membershipService.saveOrUpdate(membership);
         return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
