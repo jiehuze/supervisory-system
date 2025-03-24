@@ -177,6 +177,8 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
                 break;
             case 4:
                 message = "有一条报表指标需要您审核，请在24小时内处理，如已经处理请忽略。";
+                phoneMessageUrl = parameterDTO.getPhoneFormMessageUrl() + check.getBzFormId();
+                pcMessageUrl = parameterDTO.getPcFormTargetMessageUrl() + check.getBzFormId();
                 break;
             case 5:
                 message = "有一条清单需要您审核，请在24小时内处理，如已经处理请忽略。";
@@ -185,6 +187,8 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
                 break;
             case 6:
                 message = "有一条清单指标需要您审核，请在24小时内处理，如已经处理请忽略。";
+                phoneMessageUrl = parameterDTO.getPhoneIssueMessageUrl() + check.getBzIssueId();
+                pcMessageUrl = parameterDTO.getPcIssueTargetMessageUrl() + check.getBzIssueId();
                 break;
         }
 

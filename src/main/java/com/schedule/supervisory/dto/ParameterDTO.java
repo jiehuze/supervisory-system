@@ -21,10 +21,18 @@ public class ParameterDTO {
     private String phoneFormMessageUrl;
     @Value("${duban.message.form.pc}")
     private String pcFormMessageUrl;
+    @Value("${duban.message.form.target.phone}")
+    private String phoneFormTargetMessageUrl;
+    @Value("${duban.message.form.target.pc}")
+    private String pcFormTargetMessageUrl;
     @Value("${duban.message.issue.phone}")
     private String phoneIssueMessageUrl;
     @Value("${duban.message.issue.pc}")
     private String pcIssueMessageUrl;
+    @Value("${duban.message.issue.target.phone}")
+    private String phoneIssueTargetMessageUrl;
+    @Value("${duban.message.issue.target.pc}")
+    private String pcIssueTargetMessageUrl;
     @Value("${spring.profiles.active}")
     private String serviceEnv;
 
