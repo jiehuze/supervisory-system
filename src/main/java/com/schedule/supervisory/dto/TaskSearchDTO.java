@@ -15,6 +15,7 @@ public class TaskSearchDTO implements Serializable {
     private String content; // 任务内容 'content'
     private String leadingOfficial; // 牵头区领导 'leading_official'
     private String leadingOfficialId; // 牵头区领导id
+    private Boolean leadingPerson; //是否是牵头人
     private String leadingDepartment; // 牵头单位 'leading_department'
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
     private LocalDate deadline; // 完成时间 'deadline'

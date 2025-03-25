@@ -3,6 +3,7 @@ package com.schedule.supervisory.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.schedule.common.BaseResponse;
+import com.schedule.common.Licence;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
@@ -111,6 +112,12 @@ public class CheckController {
                               @ModelAttribute TaskSearchDTO taskSearchDTO,
                               @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                               @RequestHeader(value = "tenant-id", required = false) String tenantId) {
+        if (!Licence.getLicence()) {
+            String tenantIdex = configService.getExternConfig("tenant.id");
+            if (!tenantId.equals(tenantIdex))
+                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+
         CheckStartDTO checkStartDTO = new CheckStartDTO();
         HashMap<String, Object> paramMap = new HashMap<>();
         switch (check.getCheckType()) {
@@ -148,7 +155,11 @@ public class CheckController {
             case 4: //报表指标审核
                 checkStartDTO.setFlowId(configService.getExternConfig("duban.zhibiao.flow.id"));
                 BzFormTarget bzFormTarget = bzFormTargetService.getById(check.getBzFormTargetId());
-                paramMap.put("submitDeptIds", bzFormTarget.getDeptId().split(","));
+                if (taskSearchDTO.getLeadingPerson() != null && taskSearchDTO.getLeadingPerson()) {
+                    paramMap.put("submitDeptIds", bzFormTarget.getLeadingDepartmentId().split(","));
+                } else {
+                    paramMap.put("submitDeptIds", bzFormTarget.getDeptId().split(","));
+                }
                 break;
             case 5: //问题清单审核
                 checkStartDTO.setFlowId(configService.getExternConfig("duban.qingdan.flow.id"));
@@ -158,7 +169,11 @@ public class CheckController {
             case 6: //问题指标审核
                 checkStartDTO.setFlowId(configService.getExternConfig("duban.zhibiao.flow.id"));
                 BzIssueTarget bzIssueTarget = bzIssueTargetService.getById(check.getBzIssueTargetId());
-                paramMap.put("submitDeptIds", bzIssueTarget.getDeptId().split(","));
+                if (taskSearchDTO.getLeadingPerson() != null && taskSearchDTO.getLeadingPerson()) {
+                    paramMap.put("submitDeptIds", bzIssueTarget.getLeadingDepartmentId().split(","));
+                } else {
+                    paramMap.put("submitDeptIds", bzIssueTarget.getDeptId().split(","));
+                }
                 break;
             case 7: // 办结审核
                 Task taskCm = taskService.getById(check.getTaskId());
@@ -302,7 +317,13 @@ public class CheckController {
         }
 
         try {
-            checkService.executeAfterDelay(parameterDTO.getCheckFormat(), authorizationHeader, tenantId, check);
+            TokenRespDTO tokenRespDTO = httpUtil.oauthen2(parameterDTO.getAuthUrl());
+            checkService.executeAfterDelay(
+                    parameterDTO.getCheckFormat(),
+                    String.format("%s %s", tokenRespDTO.getToken_type(), tokenRespDTO.getAccess_token()),
+                    "1877665103373783042",
+                    check);
+//            checkService.executeAfterDelay(parameterDTO.getCheckFormat(), authorizationHeader, tenantId, check);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

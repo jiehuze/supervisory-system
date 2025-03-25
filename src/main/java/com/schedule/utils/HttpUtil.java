@@ -237,7 +237,7 @@ public class HttpUtil {
 
     public TokenRespDTO oauthen2(String url) {
         // API endpoint URL
-//        String url = "http://113.207.111.33:48770/api/admin/oauth2/token";
+    //        String url = "http://113.207.111.33:48770/api/admin/oauth2/token";
 
         // Parameters
         String grantType = "client_credentials";
