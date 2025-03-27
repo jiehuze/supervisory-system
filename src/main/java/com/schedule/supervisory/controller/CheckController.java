@@ -112,10 +112,8 @@ public class CheckController {
                               @ModelAttribute TaskSearchDTO taskSearchDTO,
                               @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                               @RequestHeader(value = "tenant-id", required = false) String tenantId) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         CheckStartDTO checkStartDTO = new CheckStartDTO();

@@ -51,10 +51,8 @@ public class BzFormController {
                              @ModelAttribute BzSearchDTO bzSearchDTO,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
@@ -113,10 +111,8 @@ public class BzFormController {
     public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzFormDTO bzFromDTO) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         BzForm bzForm = bzFromDTO.getBzForm();
@@ -184,10 +180,8 @@ public class BzFormController {
     public BaseResponse checkBzForm(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                     @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                     @RequestBody BzFormDTO bzFormDTO) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         BzForm bzForm = bzFormDTO.getBzForm();

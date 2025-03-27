@@ -1,6 +1,9 @@
 package com.schedule.supervisory.service.impl;
 
+import com.schedule.common.BaseResponse;
+import com.schedule.common.Licence;
 import com.schedule.supervisory.service.IConfigService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -56,5 +59,21 @@ public class IConfigServiceImpl implements IConfigService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to update configuration in file: " + configFilePath, e);
         }
+    }
+
+    @Override
+    public boolean getConfig(String tenantId) {
+        if (!Licence.getLicence()) {
+            String tenantIdex = getExternConfig("tenant.id");
+            if (!tenantId.equals(tenantIdex)) {
+                return false;
+            } else {
+                Licence.addLicenceNum();
+                if (Licence.getLicenceNum() > 100) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

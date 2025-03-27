@@ -61,10 +61,8 @@ public class TaskController {
     public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody List<TaskDTO> taskDTOList) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         for (TaskDTO taskDTO : taskDTOList) {
             Task task = taskDTO.getTask();
@@ -258,10 +256,8 @@ public class TaskController {
                                     @RequestParam(defaultValue = "10") int size) {
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         System.out.println("searchTasks token：" + authorizationHeader);
@@ -277,10 +273,8 @@ public class TaskController {
         System.out.println("permissurl: " + parameterDTO.getPermissionUrl());
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         System.out.println("searchTasks token：" + authorizationHeader);
@@ -388,10 +382,8 @@ public class TaskController {
     public BaseResponse getTaskStatusStatistics(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                                 @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                                 @ModelAttribute TaskSearchDTO queryTask) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
@@ -425,10 +417,8 @@ public class TaskController {
     public BaseResponse countTasksByTaskPeriod(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                                @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                                @ModelAttribute TaskSearchDTO queryTask) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
@@ -472,10 +462,8 @@ public class TaskController {
     public BaseResponse countTasksByTaskField(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                               @ModelAttribute TaskSearchDTO queryTask) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
@@ -555,10 +543,8 @@ public class TaskController {
 //            }
 //            queryTask.setTaskIdList(taskIdList);
 //        }
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return;
+        if (!configService.getConfig(tenantId)) {
+            return;
         }
         if (taskIds != null && taskIds.size() > 0) {
             queryTask.setTaskIdList(taskIds);

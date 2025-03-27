@@ -49,10 +49,8 @@ public class BzIssueController {
                              @ModelAttribute BzSearchDTO bzSearchDTO,
                              @RequestParam(value = "current", defaultValue = "1") Integer pageNum,
                              @RequestParam(value = "size", defaultValue = "10") Integer pageSize) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         List<DeptDTO> deptDTOs = null;
         HttpUtil httpUtil = new HttpUtil();
@@ -106,10 +104,8 @@ public class BzIssueController {
     public BaseResponse saveOrUpdateTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                           @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                           @RequestBody BzIssueDTO bzIssueDTO) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         BzIssue bzIssue = bzIssueDTO.getBzIssue();
@@ -171,10 +167,8 @@ public class BzIssueController {
     public BaseResponse checkBzIssue(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                      @RequestHeader(value = "tenant-id", required = false) String tenantId,
                                      @RequestBody BzIssueDTO bzIssueDTO) {
-        if (!Licence.getLicence()) {
-            String tenantIdex = configService.getExternConfig("tenant.id");
-            if (!tenantId.equals(tenantIdex))
-                return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
 
         BzIssue bzIssue = bzIssueDTO.getBzIssue();
