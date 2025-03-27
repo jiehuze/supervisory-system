@@ -45,7 +45,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForOverdueWarn(Task task) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "您的任务【" + task.getSource() + "已逾期，请及时处理。";
+        String message = "您的任务【" + task.getSource() + "】已逾期，请及时处理。";
 
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
@@ -177,7 +177,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
                 break;
             case 4:
                 message = "有一条报表指标需要您审核，请在24小时内处理，如已经处理请忽略。";
-                phoneMessageUrl = parameterDTO.getPhoneFormMessageUrl() + check.getBzFormId();
+                phoneMessageUrl = parameterDTO.getPhoneFormTargetMessageUrl() + check.getBzFormId();
                 pcMessageUrl = parameterDTO.getPcFormTargetMessageUrl() + check.getBzFormId();
                 break;
             case 5:
@@ -187,7 +187,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
                 break;
             case 6:
                 message = "有一条清单指标需要您审核，请在24小时内处理，如已经处理请忽略。";
-                phoneMessageUrl = parameterDTO.getPhoneIssueMessageUrl() + check.getBzIssueId();
+                phoneMessageUrl = parameterDTO.getPhoneIssueTargetMessageUrl() + check.getBzIssueId();
                 pcMessageUrl = parameterDTO.getPcIssueTargetMessageUrl() + check.getBzIssueId();
                 break;
         }
