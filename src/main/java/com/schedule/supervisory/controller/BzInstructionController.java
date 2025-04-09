@@ -2,7 +2,9 @@ package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.entity.BzInstruction;
+import com.schedule.supervisory.entity.InstructionReply;
 import com.schedule.supervisory.service.IBzInstructionService;
+import com.schedule.supervisory.service.IInstructionReplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

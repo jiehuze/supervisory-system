@@ -93,6 +93,8 @@ public class BzFormTargetController {
         bzFormTargetRecord.setUpdatedBy(bzFormTarget.getOperatorId());
         bzFormTargetRecord.setOperator(bzFormTarget.getOperator());
         bzFormTargetRecord.setOperatorId(bzFormTarget.getOperatorId());
+        bzFormTargetRecord.setTargetName(bzFormTarget.getName());
+        bzFormTargetRecord.setPredictedGear(bzFormTarget.getPredictedGear());
         bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
 
         return new BaseResponse(HttpStatus.OK.value(), "success", progress, Integer.toString(0));

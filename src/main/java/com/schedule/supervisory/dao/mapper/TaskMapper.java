@@ -105,6 +105,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</choose>" +
             "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'> AND status IN (1, 12)</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
             "ORDER BY overdue_days1 DESC, order_status DESC, source_date DESC" +

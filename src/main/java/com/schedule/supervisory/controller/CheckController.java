@@ -118,6 +118,7 @@ public class CheckController {
 
         CheckStartDTO checkStartDTO = new CheckStartDTO();
         HashMap<String, Object> paramMap = new HashMap<>();
+
         switch (check.getCheckType()) {
             case 1: //填报申请
                 Task taskrp = taskService.getById(check.getTaskId());
@@ -223,7 +224,8 @@ public class CheckController {
         }
         check.setProcessInstanceId(processInstanceId);
         check.setFlowId(checkStartDTO.getFlowId());
-        boolean save = checkService.save(check);
+//        boolean save = checkService.save(check);
+        checkService.insertCheck(check);
 
         switch (check.getCheckType()) {
             case 1: //填报申请
@@ -264,6 +266,8 @@ public class CheckController {
                     bzFormTargetRecord.setOperatorId(bzFormTargetJs.getOperatorId());
                     bzFormTargetRecord.setProcessInstanceId(check.getProcessInstanceId());
                     bzFormTargetRecord.setStatus(1);
+                    bzFormTargetRecord.setTargetName(bzFormTargetJs.getName());
+                    bzFormTargetRecord.setPredictedGear(bzFormTargetJs.getPredictedGear());
                     bzFormTargetRecordService.insertBzFormTargetRecord(bzFormTargetRecord);
                 }
                 break;
@@ -286,6 +290,8 @@ public class CheckController {
                     bzIssueTargetRecord.setOperatorId(bzIssueTargetJs.getOperatorId());
                     bzIssueTargetRecord.setProcessInstanceId(check.getProcessInstanceId());
                     bzIssueTargetRecord.setStatus(1);
+                    bzIssueTargetRecord.setTargetName(bzIssueTargetJs.getName());
+                    bzIssueTargetRecord.setPredictedGear(bzIssueTargetJs.getPredictedGear());
                     bzIssueTargetRecordService.insertBzIssueTargetRecord(bzIssueTargetRecord);
                 }
                 break;

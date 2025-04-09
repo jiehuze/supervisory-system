@@ -1,6 +1,7 @@
 package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
+import com.schedule.supervisory.entity.BzFormTargetRecord;
 import com.schedule.supervisory.entity.BzIssueTargetRecord;
 import com.schedule.supervisory.service.IBzIssueTargetRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,13 @@ public class BzIssueTargetRecordController {
     public BaseResponse getByTargetId(@RequestParam Integer targetId) {
         List<BzIssueTargetRecord> bzIssueTargetRecords = bzIssueTargetRecordService.getByTargetId(targetId);
         return new BaseResponse(HttpStatus.OK.value(), "success", bzIssueTargetRecords, Integer.toString(0));
+    }
+
+    @GetMapping("/getGearHistoryByTargetId")
+    public BaseResponse getGearHistoryByTargetId(@RequestParam Integer targetId) {
+        List<BzIssueTargetRecord> historyByTargetId = bzIssueTargetRecordService.getHistoryByTargetId(targetId);
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", historyByTargetId, Integer.toString(0));
     }
 
     // 插入新记录

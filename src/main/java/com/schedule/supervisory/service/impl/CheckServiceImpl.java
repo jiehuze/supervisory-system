@@ -47,6 +47,14 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
     @Autowired
     private IYkbMessageService ykbMessageService;
 
+    @Autowired
+    private CheckMapper checkMapper;
+
+    @Override
+    public int insertCheck(Check check) {
+        return checkMapper.insert(check);
+    }
+
     @Override
     public boolean checkStatus(Check check) {
         LambdaUpdateWrapper<Check> updateWrapper = new LambdaUpdateWrapper<>();

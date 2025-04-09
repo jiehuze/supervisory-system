@@ -5,6 +5,8 @@ import com.schedule.supervisory.entity.Check;
 import org.springframework.scheduling.annotation.Async;
 
 public interface ICheckService extends IService<Check> {
+    int insertCheck(Check check);
+
     boolean checkStatus(Check check);
 
     Check getByOnlyId(Check check);

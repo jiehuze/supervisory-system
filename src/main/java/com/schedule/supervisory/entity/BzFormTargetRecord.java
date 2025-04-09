@@ -21,4 +21,6 @@ public class BzFormTargetRecord {
     private String processInstanceId; //审核流水号
     //1：审核中；2：审核完成
     private Integer status;
+    private String targetName;
+    private Integer predictedGear;
 }

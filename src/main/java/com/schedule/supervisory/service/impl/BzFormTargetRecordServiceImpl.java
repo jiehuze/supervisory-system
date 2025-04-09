@@ -8,6 +8,7 @@ import com.schedule.supervisory.entity.BzFormTarget;
 import com.schedule.supervisory.entity.BzFormTargetRecord;
 import com.schedule.supervisory.entity.BzIssueTargetRecord;
 import com.schedule.supervisory.service.IBzFormTargetRecordService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +16,18 @@ import java.util.List;
 @Service
 public class BzFormTargetRecordServiceImpl extends ServiceImpl<BzFormTargetRecordMapper, BzFormTargetRecord> implements IBzFormTargetRecordService {
 
+    @Autowired
+    private BzFormTargetRecordMapper bzFormTargetRecordMapper;
+
     @Override
-    public Long insertBzFormTargetRecord(BzFormTargetRecord bzFormTargetRecord) {
-        boolean result = save(bzFormTargetRecord);
-        if (result) {
-            return bzFormTargetRecord.getId();
-        } else {
-            return null;
-        }
+    public int insertBzFormTargetRecord(BzFormTargetRecord bzFormTargetRecord) {
+        return bzFormTargetRecordMapper.insert(bzFormTargetRecord);
+//        boolean result = save(bzFormTargetRecord);
+//        if (result) {
+//            return bzFormTargetRecord.getId();
+//        } else {
+//            return null;
+//        }
     }
 
     @Override
@@ -31,6 +36,11 @@ public class BzFormTargetRecordServiceImpl extends ServiceImpl<BzFormTargetRecor
         queryWrapper.eq(BzFormTargetRecord::getTargetId, targetId);
         queryWrapper.orderByDesc(BzFormTargetRecord::getId);
         return list(queryWrapper);
+    }
+
+    @Override
+    public List<BzFormTargetRecord> getHistoryByTargetId(Integer targetId) {
+        return bzFormTargetRecordMapper.selectDistinctPredictedGearRecords(targetId);
     }
 
     @Override

@@ -6,9 +6,11 @@ import com.schedule.supervisory.entity.BzFormTargetRecord;
 import java.util.List;
 
 public interface IBzFormTargetRecordService extends IService<BzFormTargetRecord> {
-    Long insertBzFormTargetRecord(BzFormTargetRecord bzFormTargetRecord);
+    int insertBzFormTargetRecord(BzFormTargetRecord bzFormTargetRecord);
 
     List<BzFormTargetRecord> getByTargetId(Integer targetId);
+
+    List<BzFormTargetRecord> getHistoryByTargetId(Integer targetId);
 
     boolean updateStatus(Long id, Integer status);
 }

@@ -6,12 +6,21 @@ import com.schedule.supervisory.dao.mapper.InstructionMapper;
 import com.schedule.supervisory.dto.BzSearchDTO;
 import com.schedule.supervisory.entity.Instruction;
 import com.schedule.supervisory.service.IInstructionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class InstructionServiceImpl extends ServiceImpl<InstructionMapper, Instruction> implements IInstructionService {
+    @Autowired
+    private InstructionMapper instructionMapper;
+
+    @Override
+    public int insert(Instruction instruction) {
+        return instructionMapper.insert(instruction);
+    }
+
     @Override
     public List<Instruction> getInstructionsByTaskId(BzSearchDTO bzSearchDTO) {
         LambdaQueryWrapper<Instruction> queryWrapper = new LambdaQueryWrapper<>();

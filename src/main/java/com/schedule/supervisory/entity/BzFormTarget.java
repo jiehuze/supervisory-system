@@ -32,6 +32,9 @@ public class BzFormTarget {
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
     private String processInstanceId; //审核流水号
     private String processInstanceReviewIds; //审核的人，使用逗号分割
+    private String gearDesc; //档位描述
+    private String majorRuleChange; //重大规则变动
+    private String attachment; //附件
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

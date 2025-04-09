@@ -7,6 +7,7 @@ import com.schedule.supervisory.dao.mapper.BzIssueTargetRecordMapper;
 import com.schedule.supervisory.entity.BzIssue;
 import com.schedule.supervisory.entity.BzIssueTargetRecord;
 import com.schedule.supervisory.service.IBzIssueTargetRecordService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +15,18 @@ import java.util.List;
 @Service
 public class BzIssueTargetRecordServiceImpl extends ServiceImpl<BzIssueTargetRecordMapper, BzIssueTargetRecord> implements IBzIssueTargetRecordService {
 
+    @Autowired
+    private BzIssueTargetRecordMapper bzIssueTargetRecordMapper;
+
     @Override
-    public Long insertBzIssueTargetRecord(BzIssueTargetRecord bzIssueTargetRecord) {
-        boolean result = save(bzIssueTargetRecord);
-        if (result) {
-            return bzIssueTargetRecord.getId();
-        } else {
-            return null;
-        }
+    public int insertBzIssueTargetRecord(BzIssueTargetRecord bzIssueTargetRecord) {
+        return bzIssueTargetRecordMapper.insert(bzIssueTargetRecord);
+//        boolean result = save(bzIssueTargetRecord);
+//        if (result) {
+//            return bzIssueTargetRecord.getId();
+//        } else {
+//            return null;
+//        }
     }
 
     @Override
@@ -30,6 +35,11 @@ public class BzIssueTargetRecordServiceImpl extends ServiceImpl<BzIssueTargetRec
         queryWrapper.eq(BzIssueTargetRecord::getTargetId, targetId);
         queryWrapper.orderByDesc(BzIssueTargetRecord::getId);
         return list(queryWrapper);
+    }
+
+    @Override
+    public List<BzIssueTargetRecord> getHistoryByTargetId(Integer targetId) {
+        return bzIssueTargetRecordMapper.selectDistinctPredictedGearRecords(targetId);
     }
 
     @Override
