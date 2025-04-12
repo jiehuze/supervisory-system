@@ -205,6 +205,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public IPage<Task> queryTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs) {
         Page<Task> page = new Page<>(pageNum, pageSize);
+        if (queryTask.getUntreated() != null && queryTask.getUntreated()) {
+            queryTask.setUnAuth(true);
+        }
         return taskMapper.selectTasks(page, queryTask, deptDTOs);
     }
 

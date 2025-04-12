@@ -105,7 +105,22 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</choose>" +
             "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
-            "<if test='queryTask.untreated != null and queryTask.untreated'> AND status IN (1, 12)</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) "+
+            "     </if>" +
+            " )" +
+            "</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
             "ORDER BY overdue_days1 DESC, order_status DESC, source_date DESC" +
@@ -233,6 +248,22 @@ public interface TaskMapper extends BaseMapper<Task> {
             ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.phoneUsed != null and queryTask.phoneUsed'> AND status != 9</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) "+
+            "     </if>" +
+            " )" +
+            "</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
             "GROUP BY task_period" +
@@ -286,6 +317,22 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</if>" +
             ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) "+
+            "     </if>" +
+            " )" +
+            "</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
             "GROUP BY task_period" +
@@ -350,6 +397,22 @@ public interface TaskMapper extends BaseMapper<Task> {
             ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) "+
+            "     </if>" +
+            " )" +
+            "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
             "<if test='queryTask.status != null'>" +
             "<choose>" +
@@ -418,6 +481,22 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</if>" +
             ") </if>" +
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) "+
+            "     </if>" +
+            " )" +
+            "</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
             "GROUP BY field_id" +

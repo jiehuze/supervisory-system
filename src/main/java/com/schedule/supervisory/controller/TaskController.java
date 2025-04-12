@@ -420,7 +420,9 @@ public class TaskController {
             return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
-
+        if (queryTask.getUntreated() != null && queryTask.getUntreated()) {
+            queryTask.setUnAuth(true);
+        }
         List<Map<String, Object>> totals = taskService.countTasksByTaskPeriod2(queryTask, deptDTOs);
         List<Map<String, Object>> complete_totals = taskService.countTasksByTaskPeriodAndStatus2(queryTask, deptDTOs);
 
@@ -466,6 +468,9 @@ public class TaskController {
         }
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
 
+        if (queryTask.getUntreated() != null && queryTask.getUntreated()) {
+            queryTask.setUnAuth(true);
+        }
         List<Map<String, Object>> totals = taskService.countTasksByFieldId2(queryTask, deptDTOs);
         List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus2(queryTask, deptDTOs);
         List<Field> list = fieldService.getFields(queryTask.getDeleteField());
