@@ -13,6 +13,7 @@ public class Field {
     private Long id; // 对应数据库列 'id'
     private String name; // 对应数据库列 'name'
     private String description; // 对应数据库列 'description'
+    private Integer parentId; //父节点
     private boolean delete;
     private Timestamp createdAt; // 对应数据库列 'created_at'
     private Timestamp updatedAt; // 对应数据库列 'updated_at'

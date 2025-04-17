@@ -67,6 +67,10 @@ public class Task {
     //1:短期；2：中期；3：长期；4：大于6个月
     private Integer taskPeriod; // 任务周期（int类型）对应数据库列 'task_period'
     private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
+    private String fieldIds; // 所属领域，第一级ID列表
+    private String fieldSecondIds; // 第二级领域 ID 列表
+    private String fieldThirdIds; // 第三级领域 ID 列表
+    private String fieldNames; // 领域名称列表
     private String coOrganizer; // 协办单位对应数据库列 'co_organizer'
     private String coOrganizerId; // 协办单位id对应数据库列 'co_organizer'
     private String cbDoneDesc; // 承办人办结申请描述对应数据库列 'cb_done_desc'
@@ -95,4 +99,6 @@ public class Task {
     private String operator;
 
     private LocalDateTime operationAt;
+    private Integer countDownType; // 倒计时类型，1:三个月后到期、2:一个月后到期、3:半个月后到期、4:一周后到期
+    private LocalDate countDown; // 倒计时日期
 }

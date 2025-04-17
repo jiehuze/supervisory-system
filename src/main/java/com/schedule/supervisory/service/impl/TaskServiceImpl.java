@@ -125,6 +125,24 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getCancelFile() != null) {
             updateWrapper.set(Task::getCancelFile, task.getCancelFile());
         }
+        if (task.getCountDownType() != null) {
+            updateWrapper.set(Task::getCountDownType, task.getCountDownType());
+        }
+        if (task.getCountDown() != null) {
+            updateWrapper.set(Task::getCountDown, task.getCountDown());
+        }
+        if (task.getFieldIds() != null) {
+            updateWrapper.set(Task::getFieldIds, task.getFieldIds());
+        }
+        if (task.getFieldSecondIds() != null) {
+            updateWrapper.set(Task::getFieldSecondIds, task.getFieldSecondIds());
+        }
+        if (task.getFieldThirdIds() != null) {
+            updateWrapper.set(Task::getFieldThirdIds, task.getFieldThirdIds());
+        }
+        if (task.getFieldNames() != null) {
+            updateWrapper.set(Task::getFieldNames, task.getFieldNames());
+        }
 
         update(updateWrapper);
     }

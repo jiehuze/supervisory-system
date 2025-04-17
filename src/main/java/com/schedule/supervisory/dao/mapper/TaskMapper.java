@@ -107,7 +107,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
-            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
             "     <if test='queryTask.accept != null and queryTask.accept'>" +
             "         OR (status = 1 " +
             "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
@@ -250,7 +250,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.phoneUsed != null and queryTask.phoneUsed'> AND status != 9</if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
-            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
             "     <if test='queryTask.accept != null and queryTask.accept'>" +
             "         OR (status = 1 " +
             "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
@@ -319,7 +319,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
-            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
             "     <if test='queryTask.accept != null and queryTask.accept'>" +
             "         OR (status = 1 " +
             "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
@@ -399,7 +399,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
-            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
             "     <if test='queryTask.accept != null and queryTask.accept'>" +
             "         OR (status = 1 " +
             "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
@@ -483,7 +483,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
-            "     (status = 12 AND (process_instance_report_id = #{queryTask.userId} OR process_instance_id = #{queryTask.userId}))" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
             "     <if test='queryTask.accept != null and queryTask.accept'>" +
             "         OR (status = 1 " +
             "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +

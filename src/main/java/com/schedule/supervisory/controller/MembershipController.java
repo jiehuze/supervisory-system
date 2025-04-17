@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/membership")
 public class MembershipController {
@@ -34,9 +36,15 @@ public class MembershipController {
         if (mp != null) {
             membership.setId(mp.getId());
         }
-        System.out.println("==========save: "+ membership.toString());
+        System.out.println("==========save: " + membership.toString());
 
         save = membershipService.saveOrUpdate(membership);
+        return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
+    }
+
+    @PutMapping("/batchSave")
+    public BaseResponse saveMembership(@RequestBody List<Membership> memberships) {
+        boolean save = membershipService.saveOrUpdateBatch(memberships);
         return new BaseResponse(HttpStatus.OK.value(), "success", save, Integer.toString(0));
     }
 
@@ -51,5 +59,21 @@ public class MembershipController {
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", membership, Integer.toString(0));
+    }
+
+    @GetMapping("/list/{leadingDepartmentId}")
+    public BaseResponse getListByLeadingDepartmentId(@PathVariable String leadingDepartmentId) {
+
+        List<Membership> membershiplist = membershipService.getListByLeadingDepartmentId(leadingDepartmentId);
+        for (Membership membership : membershiplist) {
+            if (membership != null) {
+                String phone = membership.getPhone();
+                if (phone != null) {
+                    membership.setPhone(util.maskPhoneNumber(phone));
+                }
+            }
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", membershiplist, Integer.toString(0));
     }
 }

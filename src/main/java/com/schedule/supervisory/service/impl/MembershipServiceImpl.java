@@ -7,6 +7,8 @@ import com.schedule.supervisory.entity.Membership;
 import com.schedule.supervisory.service.IMembershipService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MembershipServiceImpl extends ServiceImpl<MembershipMapper, Membership> implements IMembershipService {
     @Override
@@ -41,5 +43,14 @@ public class MembershipServiceImpl extends ServiceImpl<MembershipMapper, Members
 //                .orderByDesc(Membership::getPriority)
 //                .last("LIMIT 1");
         return this.getOne(queryWrapper);
+    }
+
+    @Override
+    public List<Membership> getListByLeadingDepartmentId(String leadingDepartmentId) {
+        LambdaQueryWrapper<Membership> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Membership::getLeadingDepartmentId, leadingDepartmentId);
+        queryWrapper.orderByDesc(Membership::getUpdatedAt);
+//        queryWrapper.orderByDesc(Membership::getPriority);
+        return list(queryWrapper);
     }
 }

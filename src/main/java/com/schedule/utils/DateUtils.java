@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
@@ -150,6 +151,29 @@ public class DateUtils {
                     year)); // 设置num为年
         }
         return dateInfos;
+    }
+
+    public static LocalDate calculateCountDown(LocalDate deadline, int countDownType) {
+        if (deadline == null) {
+            throw new IllegalArgumentException("Deadline cannot be null");
+        }
+
+        switch (countDownType) {
+            case 1:
+                // 三个月后到期 → 减去 3 个月
+                return deadline.minus(3, ChronoUnit.MONTHS);
+            case 2:
+                // 一个月后到期 → 减去 1 个月
+                return deadline.minus(1, ChronoUnit.MONTHS);
+            case 3:
+                // 半个月后到期 → 减去 15 天
+                return deadline.minus(15, ChronoUnit.DAYS);
+            case 4:
+                // 一周后到期 → 减去 7 天
+                return deadline.minus(7, ChronoUnit.DAYS);
+            default:
+                throw new IllegalArgumentException("Invalid countDownType: " + countDownType);
+        }
     }
 
 

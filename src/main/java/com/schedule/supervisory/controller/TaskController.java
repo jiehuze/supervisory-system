@@ -8,10 +8,7 @@ import com.schedule.excel.TaskTemplateExcel;
 import com.schedule.supervisory.dto.*;
 import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
-import com.schedule.utils.ExcelUtil;
-import com.schedule.utils.HttpUtil;
-import com.schedule.utils.TaskStatus;
-import com.schedule.utils.util;
+import com.schedule.utils.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -78,6 +75,9 @@ public class TaskController {
                 }
                 taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
                 task.setOverdueDays((int) taskoverdueDays);
+                if (task.getCountDownType() != null) {
+                    task.setCountDown(DateUtils.calculateCountDown(task.getDeadline(), task.getCountDownType()));
+                }
 
                 if (task.getTaskType() == null || task.getTaskType() == 0) { //督查室才可以修改责任人，个人任务没有责任人
                     if (task.getLeadingDepartmentId() == null || task.getResponsiblePerson() == null) {
@@ -117,6 +117,9 @@ public class TaskController {
         //创建超期时间的任务直接写超时时间
         if (util.daysDifference(task.getDeadline()) > 0 && task.getStatus() != 6 && task.getStatus() != 9) {
             taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
+        }
+        if (task.getCountDownType() != null) {
+            task.setCountDown(DateUtils.calculateCountDown(task.getDeadline(), task.getCountDownType()));
         }
 
         for (StageNode stageNode : taskDTO.getStageNodes()) {
