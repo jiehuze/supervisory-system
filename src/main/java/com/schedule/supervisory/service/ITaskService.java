@@ -63,6 +63,8 @@ public interface ITaskService extends IService<Task> {
 
     List<Task> ListTasksOverdue();
 
+    List<Task> ListTasksCountDown();
+
     IPage<Task> queryTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 
     IPage<Task> getTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
@@ -132,6 +134,10 @@ public interface ITaskService extends IService<Task> {
 
     //更新超期任务
     void updateOverdueDays();
+
+    void updateCountDownDays();
+
+    Long countCountDownDays();
 
     boolean updateOverdueDays(Long taskId, int days);
 

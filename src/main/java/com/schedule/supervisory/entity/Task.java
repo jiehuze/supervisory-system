@@ -101,4 +101,5 @@ public class Task {
     private LocalDateTime operationAt;
     private Integer countDownType; // 倒计时类型，1:三个月后到期、2:一个月后到期、3:半个月后到期、4:一周后到期
     private LocalDate countDown; // 倒计时日期
+    private Integer countDownDays; // 倒计时天数
 }

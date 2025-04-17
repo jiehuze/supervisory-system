@@ -14,6 +14,7 @@ import com.schedule.supervisory.service.ITaskService;
 import com.schedule.utils.util;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -215,6 +216,20 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 //                .gt(Task::getDeadline, now)   // deadline 在当前时间之后
                 .gt(Task::getOverdueDays, 0)
                 .eq(Task::getDelete, false)
+                .ne(Task::getStatus, 6)  // 排除状态 6
+                .ne(Task::getStatus, 9); // 排除状态 9
+        return taskMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<Task> ListTasksCountDown() {
+        // 获取当前日期（不包含时间部分）
+        LocalDate today = LocalDate.now();
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .gt(Task::getCountDownDays, 0)
+                .eq(Task::getDelete, false)
+                .eq(Task::getCountDown, today)
                 .ne(Task::getStatus, 6)  // 排除状态 6
                 .ne(Task::getStatus, 9); // 排除状态 9
         return taskMapper.selectList(queryWrapper);
@@ -928,6 +943,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public void updateOverdueDays() {
         taskMapper.updateOverdueDays();
+    }
+
+    @Override
+    public void updateCountDownDays() {
+        taskMapper.updateCountDownDays();
+    }
+
+    @Override
+    public Long countCountDownDays() {
+        return taskMapper.countCountDownDays();
     }
 
     @Override

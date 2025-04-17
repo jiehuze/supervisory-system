@@ -2,7 +2,6 @@ package com.schedule.supervisory.controller;
 
 import com.schedule.common.BaseResponse;
 import com.schedule.supervisory.dto.FieldDTO;
-import com.schedule.supervisory.entity.BzType;
 import com.schedule.supervisory.entity.Field;
 import com.schedule.supervisory.service.IFieldService;
 import org.springframework.beans.factory.annotation.Autowired;

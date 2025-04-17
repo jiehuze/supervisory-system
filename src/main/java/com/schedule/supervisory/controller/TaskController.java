@@ -401,7 +401,7 @@ public class TaskController {
         taskStatistics.setCompleteShortNums(taskService.countTasksComplete(queryTask, deptDTOs, true));
         queryTask.setStatus(TaskStatus.TASKSTATUS_CANCELLED.getCode());
         taskStatistics.setCancleNums(taskService.countTasksComplete(queryTask, deptDTOs, false));
-
+        taskStatistics.setCountDownNums(taskService.countCountDownDays());
 
         return new BaseResponse(HttpStatus.OK.value(), "success", taskStatistics, Integer.toString(0));
 

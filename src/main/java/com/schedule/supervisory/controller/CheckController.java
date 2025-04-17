@@ -239,11 +239,23 @@ public class CheckController {
                 progressReportService.updateProgressReportCheckInfo(progressReport);
                 break;
             case 2: //阶段性审核
+//                taskService.updateCheckById(check.getTaskId(), 2, 0);
+//                taskService.updateStatusById(check.getTaskId(), 12);//审核中
+//                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), null, "");
+                StageNode stageNode = JSON.parseObject(check.getDataJson(), new TypeReference<StageNode>() {
+                });
+                Task taskSn = new Task();
+                taskSn.setId(check.getTaskId());
+                taskSn.setStatus(12);
+                taskSn.setProcessInstanceId(check.getProcessInstanceId());
+                taskSn.setCbDoneDesc(stageNode.getCbDoneDesc());
+                taskSn.setCbDoneFile(stageNode.getCbDoneFile());
+                taskSn.setProcessInstanceReviewIds("");
+                taskService.updateTask(taskSn);
                 taskService.updateCheckById(check.getTaskId(), 2, 0);
-                taskService.updateStatusById(check.getTaskId(), 12);//审核中
-                taskService.updateCheckProcess(check.getTaskId(), check.getProcessInstanceId(), null, "");
+
                 stageNodeService.updateStatusById(check.getStageId().intValue(), 4); //审核中
-                stageNodeService.updateCheckProcess(check.getStageId(), check.getProcessInstanceId(), null); //审核中
+                stageNodeService.updateCheckProcess(check.getStageId(), check.getProcessInstanceId(), null, stageNode.getCbDoneDesc(), stageNode.getCbDoneFile()); //审核中
                 break;
             case 3: //报表清单编辑审核
                 bzFormService.updateCheckById(check.getBzFormId(), 3, 0);

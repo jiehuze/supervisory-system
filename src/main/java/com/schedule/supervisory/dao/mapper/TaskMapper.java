@@ -117,7 +117,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</foreach> " +
             " ) " +
             "</if>" +
-            " ) "+
+            " ) " +
             "     </if>" +
             " )" +
             "</if>" +
@@ -260,7 +260,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</foreach> " +
             " ) " +
             "</if>" +
-            " ) "+
+            " ) " +
             "     </if>" +
             " )" +
             "</if>" +
@@ -329,7 +329,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</foreach> " +
             " ) " +
             "</if>" +
-            " ) "+
+            " ) " +
             "     </if>" +
             " )" +
             "</if>" +
@@ -409,7 +409,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</foreach> " +
             " ) " +
             "</if>" +
-            " ) "+
+            " ) " +
             "     </if>" +
             " )" +
             "</if>" +
@@ -493,7 +493,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</foreach> " +
             " ) " +
             "</if>" +
-            " ) "+
+            " ) " +
             "     </if>" +
             " )" +
             "</if>" +
@@ -536,4 +536,24 @@ public interface TaskMapper extends BaseMapper<Task> {
             "AND delete = false " +  // 添加delete=false条件
             "AND deadline IS NOT NULL")
     void updateOverdueDays();
+
+    /**
+     * 自定义 SQL 更新 count_down_days 列
+     */
+    @Update("UPDATE public.task " +
+            "SET count_down_days = GREATEST((deadline::date - CURRENT_DATE), 0) " +
+            "WHERE status NOT IN (6, 9) " +
+            "AND count_down IS NOT NULL " +
+            "AND deadline IS NOT NULL " +
+            "AND CURRENT_DATE BETWEEN count_down::date AND deadline::date")
+    int updateCountDownDays();
+
+    /**
+     * 统计 count_down_days > 0 的记录个数
+     */
+    @Select("SELECT COUNT(*) " +
+            "FROM public.task " +
+            "WHERE status NOT IN (6, 9) " +
+            "AND count_down_days > 0")
+    long countCountDownDays();
 }

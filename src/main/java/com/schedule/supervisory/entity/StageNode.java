@@ -30,6 +30,8 @@ public class StageNode {
     private Integer status;
     private Integer overdueDays; // 新增逾期天数字段，当状态为3时，计算超期天数
     private String processInstanceId; //审核流水号
+    private String cbDoneDesc; // 承办人办结申请描述对应数据库列 'cb_done_desc'
+    private String cbDoneFile; // 申请文件对应数据库列 'cb_done_file'
 
     private LocalDateTime createdAt;
 

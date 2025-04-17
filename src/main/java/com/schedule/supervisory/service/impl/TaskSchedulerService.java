@@ -61,9 +61,21 @@ public class TaskSchedulerService {
             }
         }
 
+        //临期任务更新，临期天数
+        taskService.updateCountDownDays();
+
 //        taskService.updateOverdueDays();
     }
 
+    //    @Scheduled(cron = "0 26 19 * * ?")
+//    public void executeTaskAttestAM() {
+//        List<Task> countDownTasks = taskService.ListTasksCountDown();
+//        for (Task task : countDownTasks) {
+//            //发送逾期提醒
+//            logTime(task.getSource() + "逾期提醒");
+//            ykbMessageService.sendMessageForCountDownWarn(task);
+//        }
+//    }
     // 任务2：每天 09:00 执行
     @Scheduled(cron = "0 2 9 * * ?")
     public void executeTaskAt9AM() {
@@ -94,7 +106,12 @@ public class TaskSchedulerService {
             ykbMessageService.sendMessageForOverdueWarn(task);
         }
 
-
+        List<Task> countDownTasks = taskService.ListTasksCountDown();
+        for (Task task : countDownTasks) {
+            //发送逾期提醒
+            logTime(task.getSource() + "临期提醒");
+            ykbMessageService.sendMessageForCountDownWarn(task);
+        }
         //查询是否有快超期的任务，并做提醒
     }
 

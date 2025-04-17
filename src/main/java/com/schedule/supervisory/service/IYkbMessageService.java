@@ -9,6 +9,7 @@ public interface IYkbMessageService {
 
     //即将逾期提醒,推交办人，承办人，承办领导
     public boolean sendMessageForOverdueWarn(Task task);
+    public boolean sendMessageForCountDownWarn(Task task);
 
     //审核，两种审核，
     public boolean sendMessageForCheck(Task task, int status);
