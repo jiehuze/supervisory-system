@@ -64,18 +64,17 @@ public class TaskSchedulerService {
         //临期任务更新，临期天数
         taskService.updateCountDownDays();
 
+        //更新周期填报情况，设置is_fill
+        taskService.updateIsFilled();
+
 //        taskService.updateOverdueDays();
     }
 
-    //    @Scheduled(cron = "0 26 19 * * ?")
+//    @Scheduled(cron = "0 04 12 * * ?")
 //    public void executeTaskAttestAM() {
-//        List<Task> countDownTasks = taskService.ListTasksCountDown();
-//        for (Task task : countDownTasks) {
-//            //发送逾期提醒
-//            logTime(task.getSource() + "逾期提醒");
-//            ykbMessageService.sendMessageForCountDownWarn(task);
-//        }
+//        taskService.updateIsFilled();
 //    }
+
     // 任务2：每天 09:00 执行
     @Scheduled(cron = "0 2 9 * * ?")
     public void executeTaskAt9AM() {

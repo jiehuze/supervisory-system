@@ -10,6 +10,8 @@ import java.util.Map;
 public interface IFieldService extends IService<Field> {
     List<Field> getFields(Boolean delete);
 
+    List<Field> getFieldsByIds(Boolean delete, List<Long> parentIds);
+
     List<Field> getFieldsByParentId(Boolean delete, Long parentId);
 
     List<Map<String, Object>> buildTree(Map<Integer, List<Field>> fieldMap, int parentId);

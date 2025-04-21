@@ -86,6 +86,7 @@ public class Task {
     private String undertakerId; //承办人id
     private String tbFileUrl; //同步文件url
     private Integer fillCycle; //填报周期
+    private Boolean isFilled; //是否填报
     private String checkStatus; //审核状态 1: 任务审核；2：阶段性审核；3：报表审核；4：指标审核，用逗号分割
     private String processInstanceId; //审核流水号
     private String processInstanceReportId; //填报审核流水号

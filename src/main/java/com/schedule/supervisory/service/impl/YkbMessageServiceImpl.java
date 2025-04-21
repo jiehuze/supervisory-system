@@ -76,7 +76,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
         String[] deptIds = task.getLeadingDepartmentId().split(",");
-        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), List.of(deptIds));//承办人，承办领导
+        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
         userIds.addAll(roleUserIdList);
 
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");

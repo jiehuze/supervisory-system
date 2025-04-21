@@ -128,9 +128,13 @@ public interface ITaskService extends IService<Task> {
 
     List<Map<String, Object>> countTasksByFieldId2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
+    List<Map<String, Object>> countTasksByFieldId3(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
+
     List<Map<String, Object>> countTasksByFieldIdAndStatus(TaskSearchDTO queryTask, List<String> leadingDepartmentIds);
 
     List<Map<String, Object>> countTasksByFieldIdAndStatus2(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
+
+    List<Map<String, Object>> countTasksByFieldIdAndStatus3(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs);
 
     //更新超期任务
     void updateOverdueDays();
@@ -138,6 +142,8 @@ public interface ITaskService extends IService<Task> {
     void updateCountDownDays();
 
     Long countCountDownDays();
+
+    int updateIsFilled();
 
     boolean updateOverdueDays(Long taskId, int days);
 

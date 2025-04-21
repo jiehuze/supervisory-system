@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,6 +115,10 @@ public class TaskController {
         long taskoverdueDays = 0;
         Task task = taskDTO.getTask();
         System.out.println("--------- task: " + task.toString());
+        //临期计算
+        if (task.getCountDown() != null && util.daysDifference(task.getCountDown()) >= 0 && util.daysDifference(task.getDeadline()) <= 0) {
+            task.setCountDownDays((int) Math.abs(util.daysDifference(task.getDeadline())));
+        }
         //创建超期时间的任务直接写超时时间
         if (util.daysDifference(task.getDeadline()) > 0 && task.getStatus() != 6 && task.getStatus() != 9) {
             taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
@@ -253,11 +258,14 @@ public class TaskController {
     @GetMapping("/search")
     public BaseResponse searchTasks(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                     @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                    @RequestHeader(value = "system-app-type", required = false) String systemAppType,
                                     @ModelAttribute TaskSearchDTO queryTask,
                                     @RequestParam(defaultValue = "1") int current,
                                     @RequestParam(defaultValue = "10") int size) {
         List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
-
+        if ("gov".equals(systemAppType)) {
+            queryTask.setSystemAppType(systemAppType);
+        }
         if (!configService.getConfig(tenantId)) {
             return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
@@ -500,6 +508,90 @@ public class TaskController {
 //            System.out.println("-------taskFieldCount: " + taskFieldCount.toString());
 
             taskFieldCounts.add(taskFieldCount);
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", taskFieldCounts, Integer.toString(0));
+
+    }
+
+    @GetMapping("/statistics_fields_ex")
+    public BaseResponse countTasksByTaskField2(@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+                                               @RequestHeader(value = "tenant-id", required = false) String tenantId,
+                                               @ModelAttribute TaskSearchDTO queryTask) {
+        if (!configService.getConfig(tenantId)) {
+            return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
+        }
+        List<DeptDTO> deptDTOs = getDeptDTOByConditions(queryTask, authorizationHeader, tenantId);
+
+        if (queryTask.getUntreated() != null && queryTask.getUntreated()) {
+            queryTask.setUnAuth(true);
+        }
+        List<Map<String, Object>> totals = taskService.countTasksByFieldId3(queryTask, deptDTOs);
+        List<Map<String, Object>> complete_totals = taskService.countTasksByFieldIdAndStatus3(queryTask, deptDTOs);
+
+        //先获取第一级
+        HashMap<Long, String> firstFieldMap = new HashMap<>();
+        ArrayList<Long> fieldIds = new ArrayList<>();
+        fieldIds.add((long) 0);
+        List<Field> firstList = fieldService.getFieldsByIds(queryTask.getDeleteField(), fieldIds);
+        fieldIds.clear();
+        for (Field field : firstList) {
+            fieldIds.add(field.getId());
+//            System.out.println("================= " + field.getId() + " name: " + field.getName());
+            firstFieldMap.put(field.getId(), field.getName());
+        }
+        //获取第二级标签
+        List<Field> list = fieldService.getFieldsByIds(queryTask.getDeleteField(), fieldIds);
+
+        ArrayList<TaskFieldCount> taskFieldCounts = new ArrayList<>(list.size());
+        for (Field field : list) {
+            TaskFieldCount taskFieldCount = new TaskFieldCount();
+            taskFieldCount.setFieldId(field.getId());
+            taskFieldCount.setFieldName(field.getName());
+//            System.out.println("equals ++++++++++ field id :" + field.getParentId() + "  " + firstFieldMap.get(field.getParentId().longValue()));
+            taskFieldCount.setParentFieldName(firstFieldMap.get(field.getParentId().longValue()));
+            for (Map<String, Object> total : totals) {
+//                System.out.println("for ++++++++++ field id :" + total.get("field_id") + "  " + field.getId());
+                if (((String) total.get("field_id")).equals(field.getId().toString())) {
+//                    System.out.println("equals ++++++++++ field id :" + total.get("field_id") + "  " + field.getId());
+                    taskFieldCount.setTotal(((Long) total.get("count")).intValue());
+                    break;
+                }
+            }
+            for (Map<String, Object> complete_total : complete_totals) {
+                if (((String) complete_total.get("field_id")).equals(field.getId().toString())) {
+                    taskFieldCount.setComplete(((Long) complete_total.get("count")).intValue());
+                    break;
+                }
+            }
+//            System.out.println("-------taskFieldCount: " + taskFieldCount.toString());
+
+            taskFieldCounts.add(taskFieldCount);
+        }
+
+        //合并指标
+        if (queryTask.getMergeField() != null && queryTask.getMergeField()) {
+// 使用 Map 存储中间结果
+            Map<String, TaskFieldCount> map = new HashMap<>();
+
+            for (TaskFieldCount task : taskFieldCounts) {
+                String fieldName = task.getFieldName();
+
+                // 如果 fieldName 已存在，累加 total 和 complete
+                if (map.containsKey(fieldName)) {
+                    TaskFieldCount existingTask = map.get(fieldName);
+                    existingTask.setTotal(existingTask.getTotal() + task.getTotal());
+                    existingTask.setComplete(existingTask.getComplete() + task.getComplete());
+                } else {
+                    // 如果 fieldName 不存在，直接放入 Map
+                    map.put(fieldName, task);
+                }
+            }
+
+            taskFieldCounts.clear();
+
+            // 将 Map 的值转换为 List 返回
+            taskFieldCounts = new ArrayList<>(map.values());
         }
 
         return new BaseResponse(HttpStatus.OK.value(), "success", taskFieldCounts, Integer.toString(0));

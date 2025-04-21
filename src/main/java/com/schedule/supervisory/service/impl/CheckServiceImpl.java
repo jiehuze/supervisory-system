@@ -90,6 +90,9 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
         if (check.getCheckType() != null) {
             queryWrapper.eq(Check::getCheckType, check.getCheckType());
         }
+        if (check.getProcessInstanceId() != null) {
+            queryWrapper.eq(Check::getProcessInstanceId, check.getProcessInstanceId());
+        }
         queryWrapper.orderByDesc(Check::getId);
         queryWrapper.last("LIMIT 1");
         return getOne(queryWrapper);
@@ -174,12 +177,12 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     task.setHandler(progressReport.getHandler());
                     task.setPhone(progressReport.getPhone());
                     task.setTbFileUrl(progressReport.getTbFileUrl());
+                    task.setIsFilled(true);
                     taskService.updateCbReport(task);
                     progressReportService.updateStatus(progressReport.getId().intValue(), 3);
                 } else if (check.getStatus() == 3) {
                     progressReportService.updateStatus(progressReport.getId().intValue(), 5);
                     taskService.updateStatusById(check.getTaskId(), 2); //设置为正常推进状态
-
                 }
                 taskService.updateCheckById(check.getTaskId(), null, 1);
                 break;

@@ -76,6 +76,10 @@ public interface TaskMapper extends BaseMapper<Task> {
             "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.fieldId != null'> AND field_id = #{queryTask.fieldId}</if>" +
+            "<if test='queryTask.isFilled != null'> AND is_filled = #{queryTask.isFilled}</if>" +
+            "<if test='queryTask.firstFieldId != null and queryTask.firstFieldId != \"\"'> AND field_ids LIKE CONCAT('%', #{queryTask.firstFieldId}, '%')</if>" +
+            "<if test='queryTask.secondFieldId != null and queryTask.secondFieldId != \"\"'> AND field_second_ids LIKE CONCAT('%', #{queryTask.secondFieldId}, '%')</if>" +
+            "<if test='queryTask.thirdFieldId != null and queryTask.thirdFieldId != \"\"'> AND field_third_ids LIKE CONCAT('%', #{queryTask.thirdFieldId}, '%')</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
             "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
@@ -105,6 +109,8 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</choose>" +
             "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "<if test='queryTask.overDue != null and queryTask.overDue'> AND overdue_days  IS NOT NULL AND overdue_days > 0 </if>" +
+            "<if test='queryTask.countDown != null and queryTask.countDown'> AND count_down_days  IS NOT NULL AND count_down_days > 0 </if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
             "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
@@ -123,7 +129,18 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</if>" +
             "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
             "</where>" +
-            "ORDER BY overdue_days1 DESC, order_status DESC, source_date DESC" +
+            "ORDER BY " +
+            "<choose>" +
+            "<when test='queryTask.sourceOrder != null'>source ${queryTask.sourceOrder}</when>" +
+            "<when test='queryTask.deadlineOrder != null'>deadline ${queryTask.deadlineOrder}</when>" +
+            "<when test='queryTask.statusOrder != null'>status ${queryTask.statusOrder}</when>" +
+            "<otherwise>" +
+            "<choose>" +
+            "<when test='queryTask.systemAppType == \"gov\"'>created_at DESC</when>" +
+            "<otherwise>overdue_days1 DESC, order_status DESC, source_date DESC</otherwise>" +
+            "</choose>" +
+            "</otherwise>" +
+            "</choose>" +
             "</script>")
     Page<Task> selectTasks(Page<Task> page, @Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
@@ -377,6 +394,7 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
+            "field_id IS NOT NULL " +
             "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
@@ -425,6 +443,61 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</script>")
     List<Map<String, Object>> countTasksByFieldId2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
+    @Select("<script>" +
+            "SELECT field_id, COUNT(*) AS count " +
+            "FROM (" +
+            "SELECT unnest(string_to_array(field_second_ids, ',')) AS field_id FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "field_second_ids IS NOT NULL " +
+            "AND delete = false " +  // 添加delete=false条件
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "<if test='deptDTOs == null or deptDTOs.isEmpty()'>" + // 如果deptDTOs为空，则不包括OR前缀
+            " (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR undertaker_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            "<if test='deptDTOs != null and !deptDTOs.isEmpty()'>" + // 检查deptDTOs是否非空
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR undertaker_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            "</if>" +
+            ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) " +
+            "     </if>" +
+            " )" +
+            "</if>" +
+            "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "<if test='queryTask.status != null'>" +
+            "<choose>" +
+            "<when test='queryTask.status == 3'> AND status NOT IN (6, 9) AND overdue_days > 0</when>" +
+            "<otherwise> AND status = #{queryTask.status}</otherwise>" +
+            "</choose>" +
+            "</if>" +
+            "</where>" +
+            ") subquery " +
+            "GROUP BY field_id" +
+            "</script>")
+    List<Map<String, Object>> countTasksByFieldId3(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
+
 //    @Select("<script>" +
 //            "SELECT field_id, COUNT(*) AS count FROM task " +
 //            "WHERE status = 6" +
@@ -462,6 +535,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "SELECT field_id, COUNT(*) AS count FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "status = 6 " +
+            "AND field_id IS NOT NULL " +
             "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
@@ -502,6 +576,62 @@ public interface TaskMapper extends BaseMapper<Task> {
             "GROUP BY field_id" +
             "</script>")
     List<Map<String, Object>> countTasksByFieldIdAndStatus2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
+
+    @Select("<script>" +
+            "SELECT field_id, COUNT(*) AS count " +
+            "FROM (" +
+            "SELECT unnest(string_to_array(field_second_ids, ',')) AS field_id FROM task " +
+            "<where>" + // 使用<where>标签代替WHERE 1=1
+            "field_second_ids IS NOT NULL " +
+            "AND status = 6 " +
+            "AND delete = false " +  // 添加delete=false条件
+            "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
+            "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
+            "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
+            "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%') OR co_organizer_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            "<if test='queryTask.userId != null and queryTask.userId != \"\"'> " +
+            "<if test='deptDTOs == null or deptDTOs.isEmpty()'>" + // 如果deptDTOs为空，则不包括OR前缀
+            " (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR undertaker_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            "<if test='deptDTOs != null and !deptDTOs.isEmpty()'>" + // 检查deptDTOs是否非空
+            "OR (assigner_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR responsible_person_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR undertaker_id LIKE CONCAT('%', #{queryTask.userId}, '%') OR leading_official_id LIKE CONCAT('%', #{queryTask.userId}, '%')) " +
+            "</if>" +
+            "</if>" +
+            ") </if>" +
+            "<if test='queryTask.leadingDepartmentId != null and queryTask.leadingDepartmentId != \"\"'> AND leading_department_id LIKE CONCAT('%', #{queryTask.leadingDepartmentId}, '%')</if>" +
+            "<if test='queryTask.createdAtStart != null and queryTask.createdAtEnd != null'> AND created_at BETWEEN #{queryTask.createdAtStart} AND #{queryTask.createdAtEnd}</if>" +
+            "<if test='queryTask.untreated != null and queryTask.untreated'>" +
+            " AND (" +
+            "     (status = 12 AND process_instance_review_ids LIKE CONCAT('%', #{queryTask.userId}, '%'))" +
+            "     <if test='queryTask.accept != null and queryTask.accept'>" +
+            "         OR (status = 1 " +
+            "<if test='deptDTOs != null and deptDTOs.size() > 0'>" +
+            " AND ( " +
+            "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
+            "(leading_department_id LIKE CONCAT('%', #{dept.deptId}, '%')) " +
+            "</foreach> " +
+            " ) " +
+            "</if>" +
+            " ) " +
+            "     </if>" +
+            " )" +
+            "</if>" +
+            "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
+            "<if test='queryTask.status != null'>" +
+            "<choose>" +
+            "<when test='queryTask.status == 3'> AND status NOT IN (6, 9) AND overdue_days > 0</when>" +
+            "<otherwise> AND status = #{queryTask.status}</otherwise>" +
+            "</choose>" +
+            "</if>" +
+            "</where>" +
+            ") subquery " +
+            "GROUP BY field_id" +
+            "</script>")
+    List<Map<String, Object>> countTasksByFieldIdAndStatus3(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
 //    @Update("UPDATE task SET overdue_days = EXTRACT(DAY FROM (CURRENT_DATE - deadline)) " +
 //            "WHERE status = 3 AND deadline < CURRENT_DATE")
@@ -556,4 +686,29 @@ public interface TaskMapper extends BaseMapper<Task> {
             "WHERE status NOT IN (6, 9) " +
             "AND count_down_days > 0")
     long countCountDownDays();
+
+    @Update({
+            "UPDATE public.task t_main",
+            "SET is_filled = CASE",
+            "    WHEN pr.created_at IS NULL THEN false",
+            "    WHEN DATE_TRUNC('day', NOW())::date - DATE_TRUNC('day', pr.created_at)::date < t_main.fill_cycle THEN true",
+            "    ELSE false",
+            "END",
+            "FROM (",
+            "    SELECT DISTINCT ON (task_id)",
+            "        id,",
+            "        task_id,",
+            "        created_at,",
+            "        status,",
+            "        delete",
+            "    FROM public.progress_report",
+            "    WHERE delete = false AND status = 3",
+            "    ORDER BY task_id, created_at DESC",
+            ") pr",
+            "RIGHT JOIN public.task t",
+            "    ON t.id = pr.task_id",
+            "WHERE t.delete = false",
+            "  AND t.id = t_main.id"
+    })
+    int updateIsFilled();
 }

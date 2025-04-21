@@ -32,6 +32,17 @@ public class FieldServiceImpl extends ServiceImpl<FieldMapper, Field> implements
     }
 
     @Override
+    public List<Field> getFieldsByIds(Boolean delete, List<Long> parentIds) {
+        LambdaQueryWrapper<Field> queryWrapper = new LambdaQueryWrapper<>();
+        if (delete != null) {
+            queryWrapper.eq(Field::isDelete, delete); // 查询没有删除
+        }
+        queryWrapper.in(Field::getParentId, parentIds);
+        queryWrapper.orderByAsc(Field::getId);
+        return this.list(queryWrapper);
+    }
+
+    @Override
     public List<Field> getFieldsByParentId(Boolean delete, Long parentId) {
         LambdaQueryWrapper<Field> queryWrapper = new LambdaQueryWrapper<>();
         if (delete != null) {

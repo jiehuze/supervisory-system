@@ -20,6 +20,9 @@ public class TaskSearchDTO implements Serializable {
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
     private LocalDate deadline; // 完成时间 'deadline'
     private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
+    private String firstFieldId; //查询一级fieldId
+    private String secondFieldId; //查询二级fieldId
+    private String thirdFieldId; //查询三级fieldId
     private Integer status; // 任务状态 'status'
     private Integer overdueDays; // 新增逾期天数字段，当状态为3时，计算超期天数
     private LocalDate sourceDate; // 来源时间（到天）对应数据库列 'source_date'
@@ -34,10 +37,18 @@ public class TaskSearchDTO implements Serializable {
     private LocalDateTime createdAtEnd;
     private Boolean unfinished; //未完成的
     private Boolean untreated; //待处理的
-    private Boolean accept;
+    private Boolean accept; //是不是有任务接收权限
     private Boolean unAuth; //不需要权限，可以全部查看
     private Boolean phoneUsed; //手机统计需要特殊处理
     private Boolean deleteField;
+    private Boolean mergeField;
+    private Boolean overDue; //是否已经逾期，当为true时，查询逾期任务;这个如果为true时，需要unfinished配合使用，设置为true
+    private Boolean countDown; //是否已临期
+    private Boolean isFilled; //是否填报
     private String taskIds;
     private List<Long> taskIdList;
+    private String sourceOrder; //按照来源排序
+    private String deadlineOrder; //按照完成时间排序
+    private String statusOrder; //按照状态排序
+    private String systemAppType; //gov为区政府， com未区委
 }

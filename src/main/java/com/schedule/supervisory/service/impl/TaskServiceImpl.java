@@ -581,6 +581,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getTbFileUrl() != null) {
             updateWrapper.set(Task::getTbFileUrl, task.getTbFileUrl());
         }
+        if (task.getIsFilled() != null) {
+            updateWrapper.set(Task::getIsFilled, task.getIsFilled());
+        }
 
         return update(null, updateWrapper);
     }
@@ -921,6 +924,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         return taskMapper.countTasksByFieldId2(queryTask, deptDTOs);
     }
 
+    @Override
+    public List<Map<String, Object>> countTasksByFieldId3(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        return taskMapper.countTasksByFieldId3(queryTask, deptDTOs);
+    }
+
     /**
      * 计算根据fieldId分组且状态status为6的任务数。
      *
@@ -939,6 +947,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         return taskMapper.countTasksByFieldIdAndStatus2(queryTask, deptDTOs);
     }
 
+    @Override
+    public List<Map<String, Object>> countTasksByFieldIdAndStatus3(TaskSearchDTO queryTask, List<DeptDTO> deptDTOs) {
+        return taskMapper.countTasksByFieldIdAndStatus3(queryTask, deptDTOs);
+    }
 
     @Override
     public void updateOverdueDays() {
@@ -953,6 +965,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
     @Override
     public Long countCountDownDays() {
         return taskMapper.countCountDownDays();
+    }
+
+    @Override
+    public int updateIsFilled() {
+        return taskMapper.updateIsFilled();
     }
 
     @Override
