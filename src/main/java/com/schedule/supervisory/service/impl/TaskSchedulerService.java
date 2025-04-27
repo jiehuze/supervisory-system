@@ -111,6 +111,12 @@ public class TaskSchedulerService {
             logTime(task.getSource() + "临期提醒");
             ykbMessageService.sendMessageForCountDownWarn(task);
         }
+        List<Task> unfilledTasks = taskService.ListTasksUnfilled();
+        for (Task task : unfilledTasks) {
+            //发送逾期提醒
+            logTime(task.getSource() + "周期填报提醒");
+            ykbMessageService.sendMessageForCountDownWarn(task);
+        }
         //查询是否有快超期的任务，并做提醒
     }
 

@@ -144,6 +144,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getFieldNames() != null) {
             updateWrapper.set(Task::getFieldNames, task.getFieldNames());
         }
+        if (task.getLeadingOfficialOrder() != null) {
+            updateWrapper.set(Task::getLeadingOfficialOrder, task.getLeadingOfficialOrder());
+        }
+        if (task.getLeadingDepartmentOrder() != null) {
+            updateWrapper.set(Task::getLeadingDepartmentOrder, task.getLeadingDepartmentOrder());
+        }
 
         update(updateWrapper);
     }
@@ -230,6 +236,18 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 .gt(Task::getCountDownDays, 0)
                 .eq(Task::getDelete, false)
                 .eq(Task::getCountDown, today)
+                .ne(Task::getStatus, 6)  // 排除状态 6
+                .ne(Task::getStatus, 9); // 排除状态 9
+        return taskMapper.selectList(queryWrapper);
+    }
+
+    @Override
+    public List<Task> ListTasksUnfilled() {
+        LocalDate today = LocalDate.now();
+        LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .gt(Task::getIsFilled, false)
+                .eq(Task::getDelete, false)
                 .ne(Task::getStatus, 6)  // 排除状态 6
                 .ne(Task::getStatus, 9); // 排除状态 9
         return taskMapper.selectList(queryWrapper);

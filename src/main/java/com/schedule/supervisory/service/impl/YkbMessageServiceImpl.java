@@ -94,6 +94,32 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         return true;
     }
 
+    @Override
+    public boolean sendMessageForFillWarn(Task task) {
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
+        String message = "贵单位办理的【" + task.getSource() + "】任务已到填报期限了，请及时更新进展。";
+
+        ArrayList<String> userIds = new ArrayList<>();
+//        userIds.add(task.getAssignerId()); //交办人
+        String[] deptIds = task.getLeadingDepartmentId().split(",");
+        ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
+        userIds.addAll(roleUserIdList);
+
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
+        return true;
+    }
+
     /**
      * @param task 任务信息
      * @param role 角色表示，1：承办人申请；2：承办领导申请

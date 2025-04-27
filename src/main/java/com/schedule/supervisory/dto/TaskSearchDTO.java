@@ -15,9 +15,11 @@ public class TaskSearchDTO implements Serializable {
     private String content; // 任务内容 'content'
     private String leadingOfficial; // 牵头区领导 'leading_official'
     private String leadingOfficialId; // 牵头区领导id
+    private String leadingOfficialOrder; // 牵头区领导id
     private Boolean leadingPerson; //是否是牵头人
     private String leadingDepartment; // 牵头单位 'leading_department'
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
+    private String leadingDepartmentOrder; // 牵头单位ID 'leading_department_id'
     private LocalDate deadline; // 完成时间 'deadline'
     private Integer fieldId; // 所属领域（int类型）对应数据库列 'field_id'
     private String firstFieldId; //查询一级fieldId

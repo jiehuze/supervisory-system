@@ -24,8 +24,10 @@ public class Task {
     private String content; // 任务内容 'content'
     private String leadingOfficial; // 牵头区领导 'leading_official'
     private String leadingOfficialId; // 牵头区领导id
+    private Integer leadingOfficialOrder; // 牵头区领导id
     private String leadingDepartment; // 牵头单位 'leading_department'
     private String leadingDepartmentId; // 牵头单位ID 'leading_department_id'
+    private Integer leadingDepartmentOrder; // 牵头单位ID 'leading_department_id'
     private LocalDate deadline; // 完成时间 'deadline'
     private LocalDateTime createdAt; // 对应数据库列 'created_at'
     private String progress; // 具体进展 'progress'

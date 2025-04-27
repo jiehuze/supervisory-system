@@ -64,6 +64,7 @@ public interface ITaskService extends IService<Task> {
     List<Task> ListTasksOverdue();
 
     List<Task> ListTasksCountDown();
+    List<Task> ListTasksUnfilled();
 
     IPage<Task> queryTasksByConditions(TaskSearchDTO queryTask, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 

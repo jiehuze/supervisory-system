@@ -77,9 +77,18 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.fieldId != null'> AND field_id = #{queryTask.fieldId}</if>" +
             "<if test='queryTask.isFilled != null'> AND is_filled = #{queryTask.isFilled}</if>" +
-            "<if test='queryTask.firstFieldId != null and queryTask.firstFieldId != \"\"'> AND field_ids LIKE CONCAT('%', #{queryTask.firstFieldId}, '%')</if>" +
-            "<if test='queryTask.secondFieldId != null and queryTask.secondFieldId != \"\"'> AND field_second_ids LIKE CONCAT('%', #{queryTask.secondFieldId}, '%')</if>" +
-            "<if test='queryTask.thirdFieldId != null and queryTask.thirdFieldId != \"\"'> AND field_third_ids LIKE CONCAT('%', #{queryTask.thirdFieldId}, '%')</if>" +
+            // 优化后的 firstFieldId 查询
+            "<if test='queryTask.firstFieldId != null and queryTask.firstFieldId != \"\"'> " +
+            "AND #{queryTask.firstFieldId} = ANY(string_to_array(field_ids, ',')) " +
+            "</if>" +
+            // 优化后的 secondFieldId 查询
+            "<if test='queryTask.secondFieldId != null and queryTask.secondFieldId != \"\"'> " +
+            "AND #{queryTask.secondFieldId} = ANY(string_to_array(field_second_ids, ',')) " +
+            "</if>" +
+            // 优化后的 thirdFieldId 查询
+            "<if test='queryTask.thirdFieldId != null and queryTask.thirdFieldId != \"\"'> " +
+            "AND #{queryTask.thirdFieldId} = ANY(string_to_array(field_third_ids, ',')) " +
+            "</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
             "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
@@ -134,6 +143,8 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<when test='queryTask.sourceOrder != null'>source ${queryTask.sourceOrder}</when>" +
             "<when test='queryTask.deadlineOrder != null'>deadline ${queryTask.deadlineOrder}</when>" +
             "<when test='queryTask.statusOrder != null'>status ${queryTask.statusOrder}</when>" +
+            "<when test='queryTask.leadingOfficialOrder != null'>leading_official_order ${queryTask.leadingOfficialOrder}</when>" +
+            "<when test='queryTask.leadingDepartmentOrder != null'>leading_department_order ${queryTask.leadingDepartmentOrder}</when>" +
             "<otherwise>" +
             "<choose>" +
             "<when test='queryTask.systemAppType == \"gov\"'>created_at DESC</when>" +
