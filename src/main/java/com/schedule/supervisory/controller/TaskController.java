@@ -548,6 +548,7 @@ public class TaskController {
         for (Field field : list) {
             TaskFieldCount taskFieldCount = new TaskFieldCount();
             taskFieldCount.setFieldId(field.getId());
+            taskFieldCount.setSecondFieldIds(field.getId().toString());
             taskFieldCount.setFieldName(field.getName());
 //            System.out.println("equals ++++++++++ field id :" + field.getParentId() + "  " + firstFieldMap.get(field.getParentId().longValue()));
             taskFieldCount.setParentFieldName(firstFieldMap.get(field.getParentId().longValue()));
@@ -583,6 +584,7 @@ public class TaskController {
                     TaskFieldCount existingTask = map.get(fieldName);
                     existingTask.setTotal(existingTask.getTotal() + task.getTotal());
                     existingTask.setComplete(existingTask.getComplete() + task.getComplete());
+                    existingTask.setSecondFieldIds(util.joinString(existingTask.getSecondFieldIds(), task.getSecondFieldIds()));
                 } else {
                     // 如果 fieldName 不存在，直接放入 Map
                     map.put(fieldName, task);

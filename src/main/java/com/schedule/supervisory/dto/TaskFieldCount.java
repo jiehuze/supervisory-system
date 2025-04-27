@@ -10,5 +10,6 @@ public class TaskFieldCount implements Serializable {
     private int complete;
     private Long fieldId;
     private String fieldName;
+    private String secondFieldIds;
     private String parentFieldName;
 }
