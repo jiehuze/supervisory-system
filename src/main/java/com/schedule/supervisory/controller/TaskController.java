@@ -269,6 +269,7 @@ public class TaskController {
         if (!configService.getConfig(tenantId)) {
             return new BaseResponse(HttpStatus.OK.value(), "success", null, Integer.toString(0));
         }
+        System.out.println("========== fieldes: " + queryTask.getSecondFieldIds());
 
         System.out.println("searchTasks token：" + authorizationHeader);
         IPage<Task> tasksByConditions = taskService.queryTasksByConditions(queryTask, current, size, deptDTOs);

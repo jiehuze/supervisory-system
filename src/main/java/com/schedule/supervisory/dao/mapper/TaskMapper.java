@@ -78,17 +78,43 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.fieldId != null'> AND field_id = #{queryTask.fieldId}</if>" +
             "<if test='queryTask.isFilled != null'> AND is_filled = #{queryTask.isFilled}</if>" +
             // 优化后的 firstFieldId 查询
-            "<if test='queryTask.firstFieldId != null and queryTask.firstFieldId != \"\"'> " +
-            "AND #{queryTask.firstFieldId} = ANY(string_to_array(field_ids, ',')) " +
+            "<if test='queryTask.firstFieldIds != null and !queryTask.firstFieldIds.isEmpty() " +
+            "         or queryTask.secondFieldIds != null and !queryTask.secondFieldIds.isEmpty() " +
+            "         or queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'>" +
+            "AND( " +
+            "<if test='queryTask.firstFieldIds != null and !queryTask.firstFieldIds.isEmpty()'> " +
+            "EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM unnest(string_to_array(field_ids, ',')) AS field_first_id " +
+            "    WHERE field_first_id = ANY(string_to_array(#{queryTask.firstFieldIds}, ',')::text[]) " +
+            ") " +
             "</if>" +
-            // 优化后的 secondFieldId 查询
-            "<if test='queryTask.secondFieldId != null and queryTask.secondFieldId != \"\"'> " +
-            "AND #{queryTask.secondFieldId} = ANY(string_to_array(field_second_ids, ',')) " +
+            "<if test='queryTask.firstFieldIds != null and !queryTask.firstFieldIds.isEmpty() " +
+            "  and queryTask.secondFieldIds != null and !queryTask.secondFieldIds.isEmpty()'>\n" +
+            "  OR " +
             "</if>" +
+            // 第二个字段改为数组查询
+            "<if test='queryTask.secondFieldIds != null and !queryTask.secondFieldIds.isEmpty()'> " +
+            "EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM unnest(string_to_array(field_second_ids, ',')) AS field_second_id " +
+            "    WHERE field_second_id = ANY(string_to_array(#{queryTask.secondFieldIds}, ',')::text[]) " +
+            ") " +
+            "</if>" +
+            "<if test='(queryTask.firstFieldIds != null and !queryTask.firstFieldIds.isEmpty() " +
+            "  or queryTask.secondFieldIds != null and !queryTask.secondFieldIds.isEmpty()) " +
+            "  and queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'> " +
+            "  OR " +
+            "</if> " +
             // 优化后的 thirdFieldId 查询
-            "<if test='queryTask.thirdFieldId != null and queryTask.thirdFieldId != \"\"'> " +
-            "AND #{queryTask.thirdFieldId} = ANY(string_to_array(field_third_ids, ',')) " +
+            "<if test='queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'> " +
+            "EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM unnest(string_to_array(field_third_ids, ',')) AS field_third_id " +
+            "    WHERE field_third_id = ANY(string_to_array(#{queryTask.thirdFieldIds}, ',')::text[]) " +
+            ") " +
             "</if>" +
+            ") </if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.content != null and queryTask.content != \"\"'> AND content LIKE CONCAT('%', #{queryTask.content}, '%')</if>" +
             "<if test='queryTask.leadingOfficial != null and queryTask.leadingOfficial != \"\"'> AND leading_official LIKE CONCAT('%', #{queryTask.leadingOfficial}, '%')</if>" +
