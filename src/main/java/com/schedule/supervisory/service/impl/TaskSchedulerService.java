@@ -76,7 +76,7 @@ public class TaskSchedulerService {
 //    }
 
     // 任务2：每天 09:00 执行
-    @Scheduled(cron = "0 2 9 * * ?")
+    @Scheduled(cron = "0 02 9 * * ?")
     public void executeTaskAt9AM() {
         logTime("09:00 定时任务");
         // 获取当前日期
@@ -153,6 +153,6 @@ public class TaskSchedulerService {
     // 打印执行时间
     private void logTime(String taskName) {
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println(taskName + " 执行时间：" + time);
+        System.out.println(" 执行时间：" + time + "  : "+taskName);
     }
 }

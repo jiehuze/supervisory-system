@@ -246,10 +246,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         LocalDate today = LocalDate.now();
         LambdaQueryWrapper<Task> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper
-                .gt(Task::getIsFilled, false)
+                .eq(Task::getIsFilled, false)
                 .eq(Task::getDelete, false)
                 .ne(Task::getStatus, 6)  // 排除状态 6
                 .ne(Task::getStatus, 9); // 排除状态 9
+        queryWrapper.orderByDesc(Task::getId);
         return taskMapper.selectList(queryWrapper);
     }
 

@@ -23,7 +23,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForOverdue(Task task, int hour) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "您的任务【" + task.getSource() + "】将于" + hour + "小时之后逾期，请及时处理。";
+        String message = "您的任务【" + task.getContent() + "】将于" + hour + "小时之后逾期，请及时处理。";
         String[] deptIds = task.getLeadingDepartmentId().split(",");
         ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), List.of(deptIds));//承办人
 
@@ -45,7 +45,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForOverdueWarn(Task task) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "您的任务【" + task.getSource() + "】已逾期，请及时处理。";
+        String message = "您的任务【" + task.getContent() + "】已逾期，请及时处理。";
 
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
@@ -71,7 +71,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForCountDownWarn(Task task) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "您的任务【" + task.getSource() + "】已临期，点击查看。";
+        String message = "您的任务【" + task.getContent() + "】已临期，点击查看。";
 
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
@@ -97,7 +97,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForFillWarn(Task task) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "贵单位办理的【" + task.getSource() + "】任务已到填报期限了，请及时更新进展。";
+        String message = "贵单位办理的【" + task.getContent() + "】任务已到填报期限了，请及时更新进展。";
 
         ArrayList<String> userIds = new ArrayList<>();
 //        userIds.add(task.getAssignerId()); //交办人
@@ -253,7 +253,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForInstruction(Task task) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "您的任务【" + task.getSource() + "】被领导批示，请及时查看。";
+        String message = "您的任务【" + task.getContent() + "】被领导批示，请及时查看。";
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(task.getAssignerId()); //交办人
         String[] deptIds = task.getLeadingDepartmentId().split(",");
@@ -300,7 +300,7 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
     @Override
     public boolean sendMessageForUrgent(Task task) {
         YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
-        String message = "您的任务【" + task.getSource() + "】收到一条催办提醒，请及时处理。";
+        String message = "您的任务【" + task.getContent() + "】收到一条催办提醒，请及时处理。";
         String[] deptIds = task.getLeadingDepartmentId().split(",");
         ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR", "XBLD"), List.of(deptIds));//承办人
 
