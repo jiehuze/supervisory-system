@@ -66,7 +66,7 @@ public class BzFormController {
         IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions2(bzSearchDTO, pageNum, pageSize, deptDTOs);
         for (BzForm bzForm : bzFormByConditions.getRecords()) {
             System.out.println("============bzForm: " + bzForm);
-            bzSearchDTO.setBzFormId(bzForm.getId());
+            bzSearchDTO.setBzFormId(bzForm.getId().longValue());
             bzSearchDTO.setCheckStatus("4");
             System.out.println("============bzSearchDTO: " + bzSearchDTO);
             List<BzFormTarget> bzFormTargets = bzFormTargetService.getCheckTargetByFormId(bzSearchDTO, deptDTOs);
@@ -132,7 +132,7 @@ public class BzFormController {
             bzForm.setResponsibleDeptId(util.joinString(bzForm.getResponsibleDeptId(), bzFormTarget.getDeptId()));
         }
 
-        Long id = bzFormService.insertBzForm(bzForm);
+        Integer id = bzFormService.insertBzForm(bzForm);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
         }
@@ -161,7 +161,7 @@ public class BzFormController {
         BzForm bf = bzFormService.getById(bzForm.getId());
         if (bf.getLeadingDepartmentId() != null && !bf.getLeadingDepartmentId().equals(bzForm.getLeadingDepartmentId())) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
-            bzSearchDTO.setBzFormId(bzForm.getId());
+            bzSearchDTO.setBzFormId(bzForm.getId().longValue());
 
             List<BzFormTarget> bzFormTargetList = bzFormTargetService.getByFormId(bzSearchDTO, null);
             for (BzFormTarget bzFormTarget : bzFormTargetList) {
@@ -524,7 +524,7 @@ public class BzFormController {
         }
         IPage<BzForm> bzFormByConditions = bzFormService.getBzFormByConditions2(bzSearchDTO, 1, 100, deptDTOs);
         for (BzForm bzForm : bzFormByConditions.getRecords()) {
-            bzSearchDTO.setBzFormId(bzForm.getId());
+            bzSearchDTO.setBzFormId(bzForm.getId().longValue());
             List<BzFormTarget> bzFormTargets = bzFormTargetService.getByFormId(bzSearchDTO, deptDTOs);
             for (BzFormTarget bzFormTarget : bzFormTargets) {
                 FormTemplateExcel formTemplateExcel = new FormTemplateExcel();

@@ -724,11 +724,18 @@ public interface TaskMapper extends BaseMapper<Task> {
             "AND count_down_days > 0")
     long countCountDownDays();
 
+    /**
+     *             "SET is_filled = CASE",
+     *             "    WHEN pr.created_at IS NULL THEN false",
+     *             "    WHEN DATE_TRUNC('day', NOW())::date - DATE_TRUNC('day', pr.created_at)::date < t_main.fill_cycle THEN true",
+     *             "    ELSE false",
+     *             "END",
+     * @return
+     */
     @Update({
             "UPDATE public.task t_main",
             "SET is_filled = CASE",
-            "    WHEN pr.created_at IS NULL THEN false",
-            "    WHEN DATE_TRUNC('day', NOW())::date - DATE_TRUNC('day', pr.created_at)::date < t_main.fill_cycle THEN true",
+            "    WHEN DATE_TRUNC('day', NOW())::date - DATE_TRUNC('day', COALESCE(pr.created_at, t_main.created_at))::date < t_main.fill_cycle THEN true",
             "    ELSE false",
             "END",
             "FROM (",

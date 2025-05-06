@@ -15,7 +15,7 @@ import java.util.Map;
 public interface IBzIssueService extends IService<BzIssue> {
     boolean addBzIssue(BzIssue bzIssue);
 
-    Long insertBzIssue(BzIssue bzIssue);
+    Integer insertBzIssue(BzIssue bzIssue);
 
     IPage<BzIssue> getBzIssueByConditions(BzSearchDTO queryBzIssue, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 

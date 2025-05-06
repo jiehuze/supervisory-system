@@ -17,7 +17,7 @@ import java.util.Map;
 public interface IBzFormService extends IService<BzForm> {
     boolean addBzForm(BzForm bzForm);
 
-    Long insertBzForm(BzForm bzForm);
+    Integer insertBzForm(BzForm bzForm);
 
     IPage<BzForm> getBzFormByConditions(BzSearchDTO queryBzForm, int pageNum, int pageSize, List<DeptDTO> deptDTOs);
 

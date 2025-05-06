@@ -49,8 +49,8 @@ public class BzIssueTargetController {
         boolean saveBatch = false;
         if (bzIssueTargets.size() > 0) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
-            bzSearchDTO.setId(bzIssueTargets.get(0).getBzIssueId());
-            bzSearchDTO.setBzIssueId(bzIssueTargets.get(0).getBzIssueId());
+            bzSearchDTO.setId(bzIssueTargets.get(0).getBzIssueId().longValue());
+            bzSearchDTO.setBzIssueId(bzIssueTargets.get(0).getBzIssueId().longValue());
             List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
                 bzIssueTargetService.removeById(bzIssueTarget.getId());

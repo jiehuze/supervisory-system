@@ -1,5 +1,6 @@
 package com.schedule.supervisory.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -7,8 +8,8 @@ import lombok.Data;
 @Data
 @TableName("bz_issue")
 public class BzIssue {
-    @TableId
-    private Long id; // 表id
+    @TableId(type = IdType.AUTO)
+    private Integer id; // 表id
     private String name; // 名称
     private String type; // 类型
     private Integer typeId; // 类型id

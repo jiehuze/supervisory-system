@@ -36,7 +36,7 @@ public class BzIssueServiceImpl extends ServiceImpl<BzIssueMapper, BzIssue> impl
     }
 
     @Override
-    public Long insertBzIssue(BzIssue bzIssue) {
+    public Integer insertBzIssue(BzIssue bzIssue) {
         boolean result = save(bzIssue);
         if (result) {
             return bzIssue.getId();

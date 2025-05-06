@@ -63,7 +63,7 @@ public class BzIssueController {
         }
         IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions2(bzSearchDTO, pageNum, pageSize, deptDTOs);
         for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
-            bzSearchDTO.setBzIssueId(bzIssue.getId());
+            bzSearchDTO.setBzIssueId(bzIssue.getId().longValue());
             bzSearchDTO.setCheckStatus("4");
             System.out.println("============bzSearchDTO: " + bzSearchDTO);
             List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getCheckByIssueId(bzSearchDTO, deptDTOs);
@@ -122,7 +122,7 @@ public class BzIssueController {
             bzIssue.setResponsibleDept(util.joinString(bzIssue.getResponsibleDept(), bzIssueTarget.getDept()));
             bzIssue.setResponsibleDeptId(util.joinString(bzIssue.getResponsibleDeptId(), bzIssueTarget.getDeptId()));
         }
-        Long id = bzIssueService.insertBzIssue(bzIssue);
+        Integer id = bzIssueService.insertBzIssue(bzIssue);
         if (id == null) {
             return new BaseResponse(HttpStatus.NO_CONTENT.value(), "failed", id, Integer.toString(0));
         }
@@ -149,7 +149,7 @@ public class BzIssueController {
         BzIssue bi = bzIssueService.getById(bzIssue.getId());
         if (bi.getLeadingDepartmentId() != null && !bi.getLeadingDepartmentId().equals(bzIssue.getLeadingDepartmentId())) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
-            bzSearchDTO.setBzIssueId(bzIssue.getId());
+            bzSearchDTO.setBzIssueId(bzIssue.getId().longValue());
 
             List<BzIssueTarget> bzIssueTargetList = bzIssueTargetService.getByIssueId(bzSearchDTO, null);
             for (BzIssueTarget bzIssueTarget : bzIssueTargetList) {
@@ -420,7 +420,7 @@ public class BzIssueController {
         }
         IPage<BzIssue> bzIssueByConditions = bzIssueService.getBzIssueByConditions2(bzSearchDTO, 1, 100, deptDTOs);
         for (BzIssue bzIssue : bzIssueByConditions.getRecords()) {
-            bzSearchDTO.setBzIssueId(bzIssue.getId());
+            bzSearchDTO.setBzIssueId(bzIssue.getId().longValue());
             List<BzIssueTarget> bzIssueTargets = bzIssueTargetService.getByIssueId(bzSearchDTO, deptDTOs);
             for (BzIssueTarget bzIssueTarget : bzIssueTargets) {
                 IssueTemplateExcel issueTemplateExcel = new IssueTemplateExcel();

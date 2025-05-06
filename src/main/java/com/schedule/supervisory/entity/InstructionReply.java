@@ -1,5 +1,6 @@
 package com.schedule.supervisory.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @TableName("instruction_reply") // 指定表名
 public class InstructionReply {
 
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Integer id; // 主键
 
     private Integer instructionId; // 批示 ID

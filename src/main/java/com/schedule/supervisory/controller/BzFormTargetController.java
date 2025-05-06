@@ -51,8 +51,8 @@ public class BzFormTargetController {
         boolean saveBatch = false;
         if (bzFormTargets.size() > 0) {
             BzSearchDTO bzSearchDTO = new BzSearchDTO();
-            bzSearchDTO.setId(bzFormTargets.get(0).getBzFormId());
-            bzSearchDTO.setBzFormId(bzFormTargets.get(0).getBzFormId());
+            bzSearchDTO.setId(bzFormTargets.get(0).getBzFormId().longValue());
+            bzSearchDTO.setBzFormId(bzFormTargets.get(0).getBzFormId().longValue());
             List<BzFormTarget> bzFormTargetList = bzFormTargetService.getByFormId(bzSearchDTO, null);
             for (BzFormTarget bzformTarget : bzFormTargetList) {
                 bzFormTargetService.removeById(bzformTarget.getId());

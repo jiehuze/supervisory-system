@@ -1,5 +1,6 @@
 package com.schedule.supervisory.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("ducha_report")
 public class DuchaReport {
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long id; // 自增主键
 
     private String tasks; // 任务字段，现称为tasks，类型为字符串

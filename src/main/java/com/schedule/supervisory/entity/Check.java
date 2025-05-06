@@ -1,5 +1,6 @@
 package com.schedule.supervisory.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("duban_check")
 public class Check extends Model<Check> {
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     private Long taskId;

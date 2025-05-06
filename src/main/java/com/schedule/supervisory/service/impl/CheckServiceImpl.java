@@ -255,11 +255,11 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     if (bzFormTarget != null) {
                         boolean progress = bzFormTargetService.updateProgress(bzFormTarget);
 
-                        bzFormTargetRecordService.updateStatus(bzFormTarget.getId(), 2);
+                        bzFormTargetRecordService.updateStatus(bzFormTarget.getId().longValue(), 2);
                     }
                 } else if (check.getStatus() == 3) {
                     if (bzFormTarget != null) {
-                        bzFormTargetRecordService.updateStatus(bzFormTarget.getId(), 3);
+                        bzFormTargetRecordService.updateStatus(bzFormTarget.getId().longValue(), 3);
                     }
                 }
                 bzFormTargetService.updateCheckById(check.getBzFormTargetId(), null, 4);
@@ -296,10 +296,10 @@ public class CheckServiceImpl extends ServiceImpl<CheckMapper, Check> implements
                     if (bzIssueTarget != null) {
                         boolean progress = bzIssueTargetService.updateProgress(bzIssueTarget);
 
-                        bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId(), 2);
+                        bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId().longValue(), 2);
                     }
                 } else if (check.getStatus() == 3) {
-                    bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId(), 3);
+                    bzIssueTargetRecordService.updateStatus(bzIssueTarget.getId().longValue(), 3);
                 }
                 bzIssueTargetService.updateCheckById(check.getBzIssueTargetId(), null, 4);
                 break;

@@ -35,7 +35,7 @@ public class BzFormServiceImpl extends ServiceImpl<BzFormMapper, BzForm> impleme
     }
 
     @Override
-    public Long insertBzForm(BzForm bzForm) {
+    public Integer insertBzForm(BzForm bzForm) {
         boolean result = save(bzForm);
         if (result) {
             return bzForm.getId();
