@@ -63,6 +63,12 @@ public class BzFormTargetServiceImpl extends ServiceImpl<BzFormTargetMapper, BzF
         if (bzFormTarget.getWorkProgress() != null) {
             updateWrapper.set(BzFormTarget::getWorkProgress, bzFormTarget.getWorkProgress());
         }
+        if (bzFormTarget.getMajorRuleChange() != null) {
+            updateWrapper.set(BzFormTarget::getMajorRuleChange, bzFormTarget.getMajorRuleChange());
+        }
+        if (bzFormTarget.getAttachment() != null) {
+            updateWrapper.set(BzFormTarget::getAttachment, bzFormTarget.getAttachment());
+        }
         return update(updateWrapper);
     }
 

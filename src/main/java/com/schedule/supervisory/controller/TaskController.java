@@ -363,14 +363,14 @@ public class TaskController {
     }
 
     //所有审核申请接口
-    @PutMapping("/closureReviewUpdate")
-    public BaseResponse closureReviewUpdate(@RequestBody Task task) {
-        boolean update = taskService.updateClosureReview(task);
-
-        Task messageTask = taskService.getById(task.getId());
-        ykbMessageService.sendMessageForCheck(messageTask, task.getStatus()); //办结申请
-        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
-    }
+//    @PutMapping("/closureReviewUpdate")
+//    public BaseResponse closureReviewUpdate(@RequestBody Task task) {
+//        boolean update = taskService.updateClosureReview(task);
+//
+//        Task messageTask = taskService.getById(task.getId());
+//        ykbMessageService.sendMessageForCheck(messageTask, task.getStatus()); //办结申请
+//        return new BaseResponse(HttpStatus.OK.value(), "success", update, Integer.toString(0));
+//    }
 
     @PutMapping("/updateCancelInfo")
     public BaseResponse updateCancelInfo(@RequestBody Task task) {

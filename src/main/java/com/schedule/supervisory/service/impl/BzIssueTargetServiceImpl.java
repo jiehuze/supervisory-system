@@ -64,6 +64,12 @@ public class BzIssueTargetServiceImpl extends ServiceImpl<BzIssueTargetMapper, B
         if (bzIssueTarget.getWorkProgress() != null) {
             updateWrapper.set(BzIssueTarget::getWorkProgress, bzIssueTarget.getWorkProgress());
         }
+        if (bzIssueTarget.getMajorRuleChange() != null) {
+            updateWrapper.set(BzIssueTarget::getMajorRuleChange, bzIssueTarget.getMajorRuleChange());
+        }
+        if (bzIssueTarget.getAttachment() != null) {
+            updateWrapper.set(BzIssueTarget::getAttachment, bzIssueTarget.getAttachment());
+        }
         return update(updateWrapper);
     }
 

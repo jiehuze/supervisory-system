@@ -7,7 +7,7 @@ import java.util.Random;
 public class Licence {
     private static Random random = new Random();
     private static int licenceNum = 0;
-    private static LocalDate freeUntilDate = LocalDate.of(2025, 6, 1);
+    private static LocalDate freeUntilDate = LocalDate.of(2025, 12, 1);
 
     public static int getLicenceNum() {
         return licenceNum;
