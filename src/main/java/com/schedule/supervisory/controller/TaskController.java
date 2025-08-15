@@ -47,6 +47,8 @@ public class TaskController {
     private ParameterDTO parameterDTO;
     @Autowired
     private ICheckService checkService;
+    private long taskoverdueDays;
+    private long taskoverdueDays1;
 
     @PostMapping
     public BaseResponse createTask(@RequestBody Task task) {
@@ -65,17 +67,17 @@ public class TaskController {
             Task task = taskDTO.getTask();
             if (task.getId() == null) {
                 //创建超期时间的任务直接写超时时间
-                long taskoverdueDays = 0;
+                long taskoverdueDays1 = 0;
 
                 for (StageNode stageNode : taskDTO.getStageNodes()) {
                     if (util.daysDifference(stageNode.getDeadline()) > 0) {
                         stageNode.setOverdueDays((int) util.daysDifference(stageNode.getDeadline()));
 //                        stageNode.setStatus(3);
                     }
-                    taskoverdueDays = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays);
+                    taskoverdueDays1 = Math.max(util.daysDifference(stageNode.getDeadline()), taskoverdueDays1);
                 }
-                taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
-                task.setOverdueDays((int) taskoverdueDays);
+                taskoverdueDays1 = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays1);
+                task.setOverdueDays((int) taskoverdueDays1);
                 if (task.getCountDownType() != null) {
                     task.setCountDown(DateUtils.calculateCountDown(task.getDeadline(), task.getCountDownType()));
                 }

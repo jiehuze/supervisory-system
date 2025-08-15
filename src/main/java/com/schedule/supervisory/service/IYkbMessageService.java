@@ -1,6 +1,7 @@
 package com.schedule.supervisory.service;
 
 import com.schedule.supervisory.entity.Check;
+import com.schedule.supervisory.entity.ExternalTask;
 import com.schedule.supervisory.entity.Task;
 
 public interface IYkbMessageService {
@@ -24,4 +25,6 @@ public interface IYkbMessageService {
     public boolean sendMessageForNewTask(Task task);
 
     public boolean sendMessageForUrgent(Task task);
+
+    public boolean sendMessageForExternal(ExternalTask externalTask);
 }

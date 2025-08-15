@@ -33,6 +33,10 @@ public class ParameterDTO {
     private String phoneIssueTargetMessageUrl;
     @Value("${duban.message.issue.target.pc}")
     private String pcIssueTargetMessageUrl;
+    @Value("${duban.message.add.task.pc}")
+    private String pcAddTaskMessageUrl;
+    @Value("${duban.message.add.task.phone}")
+    private String phoneAddTaskMessageUrl;
     @Value("${spring.profiles.active}")
     private String serviceEnv;
 

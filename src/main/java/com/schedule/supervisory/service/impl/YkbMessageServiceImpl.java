@@ -3,6 +3,7 @@ package com.schedule.supervisory.service.impl;
 import com.schedule.common.YkbMessage;
 import com.schedule.supervisory.dto.ParameterDTO;
 import com.schedule.supervisory.entity.Check;
+import com.schedule.supervisory.entity.ExternalTask;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.supervisory.service.IYkbMessageService;
@@ -316,6 +317,19 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         }
 
         ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
+        return true;
+    }
+
+    @Override
+    public boolean sendMessageForExternal(ExternalTask externalTask) {
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
+        String message = "【经济地图】有新的批示，批示内容:" + externalTask.getContent() + "，时限:" + externalTask.getDeadline() + "，牵头单位:" + externalTask.getLeadingDepartment() + "，请注意查收。";
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("JIAOBAN"), null);//承办人
+
+        String phoneMessageUrl = parameterDTO.getPhoneAddTaskMessageUrl() + externalTask.getId();
+        String pcMessageUrl = parameterDTO.getPcAddTaskMessageUrl() + externalTask.getId();
+
+        ykbMessage.sendYkbMessage(pcMessageUrl, phoneMessageUrl, userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
     }
 }
