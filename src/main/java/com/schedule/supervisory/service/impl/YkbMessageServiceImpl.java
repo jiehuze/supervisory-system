@@ -3,6 +3,7 @@ package com.schedule.supervisory.service.impl;
 import com.schedule.common.YkbMessage;
 import com.schedule.supervisory.dto.ParameterDTO;
 import com.schedule.supervisory.entity.Check;
+import com.schedule.supervisory.entity.Consultation;
 import com.schedule.supervisory.entity.ExternalTask;
 import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IConfigService;
@@ -328,6 +329,19 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
 
         String phoneMessageUrl = parameterDTO.getPhoneAddTaskMessageUrl() + externalTask.getId();
         String pcMessageUrl = parameterDTO.getPcAddTaskMessageUrl() + externalTask.getId();
+
+        ykbMessage.sendYkbMessage(pcMessageUrl, phoneMessageUrl, userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
+        return true;
+    }
+
+    @Override
+    public boolean sendMessageForConsult(Consultation consultation) {
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
+        String message = "【咨询单位名称】有一个新的咨询，咨询问题：" + consultation.getContent() + "，请及时查看。";
+        ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), null);//承办人
+
+        String phoneMessageUrl = parameterDTO.getPhoneAddTaskMessageUrl() + consultation.getId();
+        String pcMessageUrl = parameterDTO.getPcAddTaskMessageUrl() + consultation.getId();
 
         ykbMessage.sendYkbMessage(pcMessageUrl, phoneMessageUrl, userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;
