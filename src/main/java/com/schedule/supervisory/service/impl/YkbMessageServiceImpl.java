@@ -340,8 +340,8 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         String message = "【咨询单位名称】有一个新的咨询，咨询问题：" + consultation.getContent() + "，请及时查看。";
         ArrayList<String> userIds = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBR"), null);//承办人
 
-        String phoneMessageUrl = parameterDTO.getPhoneAddTaskMessageUrl() + consultation.getId();
-        String pcMessageUrl = parameterDTO.getPcAddTaskMessageUrl() + consultation.getId();
+        String phoneMessageUrl = parameterDTO.getPhoneConsultMessageUrl();
+        String pcMessageUrl = parameterDTO.getPcConsultMessageUrl();
 
         ykbMessage.sendYkbMessage(pcMessageUrl, phoneMessageUrl, userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
         return true;

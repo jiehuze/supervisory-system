@@ -223,6 +223,9 @@ public class BzIssueController {
                 continue;
             }
             DataTypeDTO dataType = dataList.get((Integer) map.get("type_id"));
+            if (dataType == null) {
+                continue;
+            }
             CountDTO levelData = new CountDTO(((Long) map.get("count_effective_gear")).intValue(), String.format("%d%%", 0));
             dataType.getCountDTOMap().put((Integer) map.get("effective_gear"), levelData);
             dataType.setTotal(dataType.getTotal() + ((Long) map.get("count_effective_gear")).intValue());

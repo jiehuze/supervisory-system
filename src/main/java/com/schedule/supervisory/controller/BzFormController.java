@@ -243,15 +243,20 @@ public class BzFormController {
 
         List<Map<String, Object>> countList = bzFormService.countEffectiveGear();
         for (Map<String, Object> map : countList) {
-//            System.out.println("-----key: " + map.get("count_effective_gear"));
-//            System.out.println("-----key: " + map.get("type_id"));
-//            System.out.println("-----key: " + map.get("effective_gear"));
+//            System.out.println("-----count_effective_gear: " + map.get("count_effective_gear"));
+//            System.out.println("-----type_id: " + map.get("type_id"));
+//            System.out.println("-----effective_gear: " + map.get("effective_gear"));
             if (map.get("count_effective_gear") == null || map.get("type_id") == null || map.get("effective_gear") == null) {
                 continue;
             }
+
             DataTypeDTO dataType = linkedHashMap.get((Integer) map.get("type_id"));
+            if (dataType == null) {
+                continue;
+            }
 
             CountDTO levelData = new CountDTO(((Long) map.get("count_effective_gear")).intValue(), String.format("%d%%", 0));
+
             dataType.getCountDTOMap().put((Integer) map.get("effective_gear"), levelData);
             dataType.setTotal(dataType.getTotal() + ((Long) map.get("count_effective_gear")).intValue());
         }
@@ -271,7 +276,7 @@ public class BzFormController {
                     dataList.add(dataTypeDTO);
                 }
         );
-        System.out.println("-----2------------------------: ");
+        System.out.println("-----3------------------------: ");
         return new BaseResponse(HttpStatus.OK.value(), "success", dataList, Integer.toString(0));
     }
 
