@@ -1,6 +1,8 @@
 package com.schedule.supervisory.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,4 +23,6 @@ public class Consultation {
     private LocalDateTime createTime;
 
     private String leadingDepartment;
+
+    private String expert;
 }
