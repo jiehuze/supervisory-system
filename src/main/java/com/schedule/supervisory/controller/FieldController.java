@@ -24,7 +24,8 @@ public class FieldController {
         boolean result = true;
         Field fieldByName = fieldService.getFieldByName(field.getName());
         if (fieldByName == null) {
-            result = fieldService.insertField(field) > 0 ? true : false;
+            System.out.println("--------field: -"+field);
+            result = fieldService.save(field);
         } else {
             if (fieldByName.isDelete() == true) {
                 result = fieldService.recover(fieldByName.getId());
