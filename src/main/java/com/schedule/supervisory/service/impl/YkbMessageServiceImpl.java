@@ -2,10 +2,7 @@ package com.schedule.supervisory.service.impl;
 
 import com.schedule.common.YkbMessage;
 import com.schedule.supervisory.dto.ParameterDTO;
-import com.schedule.supervisory.entity.Check;
-import com.schedule.supervisory.entity.Consultation;
-import com.schedule.supervisory.entity.ExternalTask;
-import com.schedule.supervisory.entity.Task;
+import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.IConfigService;
 import com.schedule.supervisory.service.IYkbMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +51,65 @@ public class YkbMessageServiceImpl implements IYkbMessageService {
         String[] deptIds = task.getLeadingDepartmentId().split(",");
         ArrayList<String> roleUserIdList = ykbMessage.getRoleUserId(parameterDTO.getUsersUrl(), List.of("CBLD", "CBR"), List.of(deptIds));//承办人，承办领导
         userIds.addAll(roleUserIdList);
+
+        String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
+        if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {
+            phoneMessageUrl = parameterDTO.getPhoneMessageUrl();
+            configService.setExternConfig("duban.message.phone", phoneMessageUrl);
+        }
+        String pcMessageUrl = configService.getExternConfig("duban.message.pc");
+        if (pcMessageUrl == null || pcMessageUrl.equals("")) {
+            pcMessageUrl = parameterDTO.getPcMessageUrl();
+            configService.setExternConfig("duban.message.pc", pcMessageUrl);
+        }
+
+        ykbMessage.sendYkbMessage(pcMessageUrl + task.getId(), phoneMessageUrl + task.getId(), userIds, message, parameterDTO.getMessageUrl(), parameterDTO.getServiceEnv());
+        return true;
+    }
+
+    /**
+     * 特殊的叮给区长的
+     *
+     * @param task
+     * @param stageNode
+     * @return
+     */
+    @Override
+    public boolean sendMessageForOverdueWarn(Task task, StageNode stageNode) {
+        YkbMessage ykbMessage = new YkbMessage(parameterDTO.getAuthUrl());
+        String message = "招商项目逾期提醒，任务【" + task.getContent() + "】已逾期，请及时处理。";
+        if (stageNode != null) {
+            message = "招商项目逾期提醒，任务【" + task.getContent() + "】，阶段性目标：【" + stageNode.getStageGoal() + "】已逾期，该阶段原计划【"+ stageNode.getDeadline()+"】前完成。";
+        }
+        // 添加指定的固定 ID 到 userIds 中（区长及牵头领导）
+        String[] fixedUserIds = {
+                "1879369053333721090", // 王银川 - 区长
+                "1879369382464950275", // 何勇 - 牵头领导
+                "1879871903927209987", // 赵祺 - 牵头领导
+                "1879872108479221762", // 陈明平 - 牵头领导
+                "187987254492171878",  // 钟文 - 牵头领导
+                "1879872683983867906", // 边维慧 - 牵头领导
+                "1879872828033044483", // 王晶 - 牵头领导
+                "1890990798431948802", // 何怀东 - 牵头领导
+                "1879873000460881922", // 韩小雨 - 牵头领导
+                "1887066915018477570", // 阚敬侠 - 牵头领导
+                "1879369801111015427", // 户邑 - 牵头领导
+                "1879869880385245186", // 张磊 - 牵头领导
+                "1879870043317178370", // 文刚 - 牵头领导
+                "1879870469802397699", // 邓朝霞 - 牵头领导
+                "1882092728217362435", // 吴加祥 - 牵头领导
+                "1887066477485461506", // 孙红光 - 牵头领导
+                "1879873507636121602", // 郭文荫 - 牵头领导
+                "1879874219627614211", // 吴大君 - 牵头领导
+                "1879874421411385346", // 颜春龙 - 牵头领导
+                "1879874603150577667", // 曾康 - 牵头领导
+                "1879874876883439618", // 钟代笛 - 牵头领导
+                "1879368530383704067", // 赖明才 - 牵头领导
+                "1879368764157431810"  // 杨邦维 - 牵头领导
+        };
+
+        ArrayList<String> userIds = new ArrayList<>();
+        userIds.addAll(List.of(fixedUserIds));
 
         String phoneMessageUrl = configService.getExternConfig("duban.message.phone");
         if (phoneMessageUrl == null || phoneMessageUrl.equals("")) {

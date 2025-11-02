@@ -15,6 +15,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -103,6 +104,29 @@ public class TaskSchedulerService {
             //发送逾期提醒
             logTime(task.getSource() + "逾期提醒");
             ykbMessageService.sendMessageForOverdueWarn(task);
+
+            if (task.getOverdueDays() == 1) {
+                // 逾期时间为1天，并且是商务标签下的任务
+                String fieldIds = task.getFieldIds();
+                if (fieldIds != null) {
+                    String[] split = fieldIds.split(",");
+                    // 方法2：使用Stream API
+                    boolean contains18 = Arrays.stream(split)
+                            .map(String::trim)  // 去除空格
+                            .anyMatch("18"::equals);
+                    if (contains18) {
+                        List<StageNode> stageNodeForOverdue = stageNodeService.getStageNodeForOverdue(task.getId());
+                        for (StageNode stageNode : stageNodeForOverdue) {
+                            if (stageNode.getOverdueDays() == 1) {
+                                ykbMessageService.sendMessageForOverdueWarn(task, stageNode);
+                                break;
+                            }
+                        }
+                        //如果不是阶段性目标，则发送任务
+//                        ykbMessageService.sendMessageForOverdueWarn(task, null);
+                    }
+                }
+            }
         }
 
         List<Task> countDownTasks = taskService.ListTasksCountDown();
@@ -153,6 +177,6 @@ public class TaskSchedulerService {
     // 打印执行时间
     private void logTime(String taskName) {
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println(" 执行时间：" + time + "  : "+taskName);
+        System.out.println(" 执行时间：" + time + "  : " + taskName);
     }
 }
