@@ -10,15 +10,14 @@ import com.schedule.supervisory.entity.*;
 import com.schedule.supervisory.service.*;
 import com.schedule.utils.*;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
@@ -112,6 +111,48 @@ public class TaskController {
         return new BaseResponse(HttpStatus.OK.value(), "success", 0, Integer.toString(0));
     }
 
+    @PutMapping("/update")
+    public BaseResponse updateTask(@RequestBody Task[] tasks1) {
+        TaskSearchDTO taskSearchDTO = new TaskSearchDTO();
+        taskSearchDTO.setFirstFieldIds("18");
+
+        List<Task> tasksBySearchDTO = taskService.getTasksBySearchDTO(taskSearchDTO);
+
+        List<Field> fields = fieldService.getFields(false);
+        Map<Long, String> fieldMaps = new HashMap<>();
+        for (Field field : fields) {
+            fieldMaps.put(field.getId(), field.getName());
+        }
+
+        for (Task task : tasksBySearchDTO) {
+            task.setContent(null);
+            task.setSource(null);
+            String[] splitFirsts = task.getFieldIds().split(",");
+            String[] splitSeconds = task.getFieldSecondIds().split(",");
+            String[] splitThirds = task.getFieldThirdIds().split(",");
+            if (splitFirsts.length != splitSeconds.length || splitSeconds.length != splitThirds.length) {
+                return new BaseResponse(HttpStatus.NO_CONTENT.value(), "字段填写错误", null, Integer.toString(0));
+            }
+            String fieldNames = "";
+            for (int i = 0; i < splitFirsts.length; i++) {
+                if (i != 0) {
+                    fieldNames += ",";
+                }
+                fieldNames += fieldMaps.get(Long.parseLong(splitFirsts[i])) + "-"
+                        + fieldMaps.get(Long.parseLong(splitSeconds[i])) + "-"
+                        + fieldMaps.get(Long.parseLong(splitThirds[i]));
+            }
+            task.setFieldNames(fieldNames);
+            Task task1 = new Task();
+            task1.setId(task.getId());
+            task1.setFieldNames(task.getFieldNames());
+//            System.out.println("-------- task:" + task);
+            taskService.updateTask(task1);
+        }
+
+        return new BaseResponse(HttpStatus.OK.value(), "success", tasksBySearchDTO, Integer.toString(0));
+    }
+
     @PutMapping("/update/{id}")
     public BaseResponse updateTask(@PathVariable Long id, @RequestBody TaskDTO taskDTO) {
         long taskoverdueDays = 0;
@@ -194,7 +235,24 @@ public class TaskController {
 
     @GetMapping
     public BaseResponse getAllTasks() {
-        List<Task> tasks = taskService.listTasks();
+//        List<Task> tasks = taskService.listTasks();
+        List<Task> tasks = taskService.lambdaQuery().orderByAsc(Task::getId).list();
+//        List<TaskFields> taskFields = new ArrayList<>();
+//        for (Task task : tasks) {
+//            if (Arrays.asList(task.getFieldIds().split(",")).contains("18")) {
+//                continue;
+//            }
+//            TaskFields taskField = new TaskFields();
+//            taskField.setId(task.getId());
+//            taskField.setSource(task.getSource());
+//            taskField.setContent(task.getContent());
+//            taskField.setFieldIds(task.getFieldIds());
+//            taskField.setFieldSecondIds(task.getFieldSecondIds());
+//            taskField.setFieldThirdIds(task.getFieldThirdIds());
+//            taskField.setFieldNames(task.getFieldNames());
+//
+//            taskFields.add(taskField);
+//        }
         return new BaseResponse(HttpStatus.OK.value(), "success", tasks, Integer.toString(0));
     }
 

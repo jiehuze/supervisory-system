@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.schedule.supervisory.dao.mapper.StageNodeMapper;
 import com.schedule.supervisory.entity.StageNode;
-import com.schedule.supervisory.entity.Task;
 import com.schedule.supervisory.service.IStageNodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

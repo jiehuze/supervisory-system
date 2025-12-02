@@ -396,6 +396,27 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getLeadingOfficialId() != null && !queryTask.getLeadingOfficialId().isEmpty()) {
             queryWrapper.like(Task::getLeadingOfficialId, queryTask.getLeadingOfficialId());
         }
+        //增加一级便签集合的搜索
+        if (queryTask.getFirstFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getFirstFieldIds()
+            );
+        }
+        //增加二级便签集合的搜索
+        if (queryTask.getSecondFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_second_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getSecondFieldIds()
+            );
+        }
+        //增加三级便签集合的搜索
+        if (queryTask.getThirdFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_third_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getThirdFieldIds()
+            );
+        }
         if (queryTask.getStatus() != null) {
             //延期任务
             if (queryTask.getStatus() == 3) {
@@ -414,6 +435,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (queryTask.getTaskIdList() != null) {
             queryWrapper.in(Task::getId, queryTask.getTaskIdList());
         }
+
+        queryWrapper.orderByDesc(Task::getId);
         return list(queryWrapper);
     }
 
@@ -648,6 +671,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
             });
         }
 
+        //增加三级便签集合的搜索
+        if (queryTask.getThirdFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_third_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getThirdFieldIds()
+            );
+        }
+
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
             queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
@@ -708,6 +739,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                     }
                 }
             });
+        }
+        //增加三级便签集合的搜索
+        if (queryTask.getThirdFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_third_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getThirdFieldIds()
+            );
         }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
@@ -771,7 +809,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 }
             });
         }
-
+        //增加三级便签集合的搜索
+        if (queryTask.getThirdFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_third_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getThirdFieldIds()
+            );
+        }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
             queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
@@ -832,6 +876,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                 }
             });
         }
+        //增加三级便签集合的搜索
+        if (queryTask.getThirdFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_third_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getThirdFieldIds()
+            );
+        }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {
             queryWrapper.between(Task::getCreatedAt, queryTask.getCreatedAtStart(), queryTask.getCreatedAtEnd());
@@ -886,6 +937,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
                     }
                 }
             });
+        }
+        //增加三级便签集合的搜索
+        if (queryTask.getThirdFieldIds() != null) {
+            queryWrapper.apply(
+                    "string_to_array(field_third_ids, ',')::text[] && string_to_array({0}, ',')::text[]",
+                    queryTask.getThirdFieldIds()
+            );
         }
         // 添加创建时间范围的筛选条件
         if (queryTask.getCreatedAtStart() != null && queryTask.getCreatedAtEnd() != null) {

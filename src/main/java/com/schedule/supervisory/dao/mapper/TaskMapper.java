@@ -68,7 +68,7 @@ public interface TaskMapper extends BaseMapper<Task> {
      */
     @Select("<script>" +
             "SELECT *, " +
-            "CASE WHEN status = 6 THEN 0 WHEN status = 9 Then 0 ELSE overdue_days END AS overdue_days1, " +
+            "CASE WHEN status = 6 THEN 0 WHEN status = 9 Then 0 WHEN overdue_days > 0 THEN 1 ELSE 0 END AS overdue_days1, " +
             "CASE WHEN status = 9 THEN 2 WHEN status = 6 THEN 1 ELSE 3 END AS order_status " +
             "FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
@@ -104,7 +104,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='(queryTask.firstFieldIds != null and !queryTask.firstFieldIds.isEmpty() " +
             "  or queryTask.secondFieldIds != null and !queryTask.secondFieldIds.isEmpty()) " +
             "  and queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'> " +
-            "  OR " +
+            "  AND " +
             "</if> " +
             // 优化后的 thirdFieldId 查询
             "<if test='queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'> " +
@@ -144,7 +144,16 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</choose>" +
             "</if>" +
             "<if test='queryTask.unfinished != null and queryTask.unfinished'> AND status NOT IN (6, 9)</if>" +
-            "<if test='queryTask.overDue != null and queryTask.overDue'> AND overdue_days  IS NOT NULL AND overdue_days > 0 </if>" +
+            "<if test='queryTask.overDue != null'>\n" +
+            "  <choose>" +
+            "    <when test='queryTask.overDue'>" +
+            "      AND overdue_days IS NOT NULL AND overdue_days > 0" +
+            "    </when>" +
+            "    <otherwise>\n" +
+            "      AND (overdue_days IS NULL OR overdue_days = 0)" +
+            "    </otherwise>" +
+            "  </choose>" +
+            "</if>" +
             "<if test='queryTask.countDown != null and queryTask.countDown'> AND count_down_days  IS NOT NULL AND count_down_days > 0 </if>" +
             "<if test='queryTask.untreated != null and queryTask.untreated'>" +
             " AND (" +
@@ -173,7 +182,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<when test='queryTask.leadingDepartmentOrder != null'>leading_department_order ${queryTask.leadingDepartmentOrder}</when>" +
             "<otherwise>" +
             "<choose>" +
-            "<when test='queryTask.systemAppType == \"gov\"'>created_at DESC</when>" +
+            "<when test='queryTask.systemAppType == \"gov\"'>overdue_days1 DESC, created_at DESC</when>" +
             "<otherwise>overdue_days1 DESC, order_status DESC, source_date DESC</otherwise>" +
             "</choose>" +
             "</otherwise>" +
@@ -436,6 +445,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
+            "<if test='queryTask.overDue != null and queryTask.overDue'> AND overdue_days  IS NOT NULL AND overdue_days > 0 </if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
@@ -480,15 +490,33 @@ public interface TaskMapper extends BaseMapper<Task> {
             "</script>")
     List<Map<String, Object>> countTasksByFieldId2(@Param("queryTask") TaskSearchDTO queryTask, @Param("deptDTOs") List<DeptDTO> deptDTOs);
 
+    ////            "SELECT unnest(string_to_array(field_second_ids, ',')) AS field_id FROM task " +
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count " +
             "FROM (" +
-            "SELECT unnest(string_to_array(field_second_ids, ',')) AS field_id FROM task " +
+            "SELECT split_part(field_second_ids, ',', 1) AS field_id FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "field_second_ids IS NOT NULL " +
             "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
+            "<if test='queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'> " +
+            " AND EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM unnest(string_to_array(field_third_ids, ',')) AS field_third_id " +
+            "    WHERE field_third_id = ANY(string_to_array(#{queryTask.thirdFieldIds}, ',')::text[]) " +
+            ") " +
+            "</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.overDue != null'>\n" +
+            "  <choose>" +
+            "    <when test='queryTask.overDue'>" +
+            "      AND overdue_days IS NOT NULL AND overdue_days > 0" +
+            "    </when>" +
+            "    <otherwise>\n" +
+            "      AND (overdue_days IS NULL OR overdue_days = 0)" +
+            "    </otherwise>" +
+            "  </choose>" +
+            "</if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
@@ -576,6 +604,7 @@ public interface TaskMapper extends BaseMapper<Task> {
             "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
+            "<if test='queryTask.overDue != null and queryTask.overDue'> AND overdue_days  IS NOT NULL AND overdue_days > 0 </if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
@@ -617,14 +646,31 @@ public interface TaskMapper extends BaseMapper<Task> {
     @Select("<script>" +
             "SELECT field_id, COUNT(*) AS count " +
             "FROM (" +
-            "SELECT unnest(string_to_array(field_second_ids, ',')) AS field_id FROM task " +
+            "SELECT split_part(field_second_ids, ',', 1) AS field_id FROM task " +
             "<where>" + // 使用<where>标签代替WHERE 1=1
             "field_second_ids IS NOT NULL " +
             "AND status = 6 " +
             "AND delete = false " +  // 添加delete=false条件
             "<if test='queryTask.taskType != null'> AND task_type = #{queryTask.taskType}</if>" +
+            "<if test='queryTask.thirdFieldIds != null and !queryTask.thirdFieldIds.isEmpty()'> " +
+            " AND EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM unnest(string_to_array(field_third_ids, ',')) AS field_third_id " +
+            "    WHERE field_third_id = ANY(string_to_array(#{queryTask.thirdFieldIds}, ',')::text[]) " +
+            ") " +
+            "</if>" +
             "<if test='queryTask.source != null and queryTask.source != \"\"'> AND source LIKE CONCAT('%', #{queryTask.source}, '%')</if>" +
             "<if test='queryTask.assignerId != null and queryTask.assignerId != \"\"'> AND assigner_id LIKE CONCAT('%', #{queryTask.assignerId}, '%')</if>" +
+            "<if test='queryTask.overDue != null'>\n" +
+            "  <choose>" +
+            "    <when test='queryTask.overDue'>" +
+            "      AND overdue_days IS NOT NULL AND overdue_days > 0" +
+            "    </when>" +
+            "    <otherwise>\n" +
+            "      AND (overdue_days IS NULL OR overdue_days = 0)" +
+            "    </otherwise>" +
+            "  </choose>" +
+            "</if>" +
             "<if test='queryTask.leadingOfficialId != null and queryTask.leadingOfficialId != \"\"'> AND leading_official_id LIKE CONCAT('%', #{queryTask.leadingOfficialId}, '%')</if>" +
             "<if test='queryTask.unAuth == null or !queryTask.unAuth'> AND (" +
             "<foreach collection='deptDTOs' item='dept' separator=' OR '> " +
@@ -725,11 +771,12 @@ public interface TaskMapper extends BaseMapper<Task> {
     long countCountDownDays();
 
     /**
-     *             "SET is_filled = CASE",
-     *             "    WHEN pr.created_at IS NULL THEN false",
-     *             "    WHEN DATE_TRUNC('day', NOW())::date - DATE_TRUNC('day', pr.created_at)::date < t_main.fill_cycle THEN true",
-     *             "    ELSE false",
-     *             "END",
+     * "SET is_filled = CASE",
+     * "    WHEN pr.created_at IS NULL THEN false",
+     * "    WHEN DATE_TRUNC('day', NOW())::date - DATE_TRUNC('day', pr.created_at)::date < t_main.fill_cycle THEN true",
+     * "    ELSE false",
+     * "END",
+     *
      * @return
      */
     @Update({
