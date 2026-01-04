@@ -159,15 +159,21 @@ public class TaskController {
         Task task = taskDTO.getTask();
         System.out.println("--------- task: " + task.toString());
         //临期计算
-        if (task.getCountDown() != null && util.daysDifference(task.getCountDown()) >= 0 && util.daysDifference(task.getDeadline()) <= 0) {
+        if (task.getDeadline() != null) {
+            task.setCountDownDays(0);
+            task.setOverdueDays(0);
+        }
+        if (task.getCountDownType() != null) {
+            task.setCountDown(DateUtils.calculateCountDown(task.getDeadline(), task.getCountDownType()));
+        }
+        if (task.getCountDown() != null
+                && util.daysDifference(task.getCountDown()) >= 0
+                && util.daysDifference(task.getDeadline()) <= 0) {
             task.setCountDownDays((int) Math.abs(util.daysDifference(task.getDeadline())));
         }
         //创建超期时间的任务直接写超时时间
         if (util.daysDifference(task.getDeadline()) > 0 && task.getStatus() != 6 && task.getStatus() != 9) {
             taskoverdueDays = Math.max(util.daysDifference(task.getDeadline()), taskoverdueDays);
-        }
-        if (task.getCountDownType() != null) {
-            task.setCountDown(DateUtils.calculateCountDown(task.getDeadline(), task.getCountDownType()));
         }
 
         for (StageNode stageNode : taskDTO.getStageNodes()) {
