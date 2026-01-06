@@ -178,8 +178,8 @@ public class TaskController {
 
         for (StageNode stageNode : taskDTO.getStageNodes()) {
             long diffDays = 0;
+            stageNode.setOverdueDays(0);
             if (util.daysDifference(stageNode.getDeadline()) > 0 && stageNode.getStatus() != 2 && stageNode.getStatus() != 4) {
-//                stageNode.setStatus(3);
                 stageNode.setOverdueDays((int) util.daysDifference(stageNode.getDeadline()));
                 diffDays = util.daysDifference(stageNode.getDeadline());
             }

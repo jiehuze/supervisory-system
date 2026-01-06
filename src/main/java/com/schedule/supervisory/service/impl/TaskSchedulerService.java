@@ -34,7 +34,7 @@ public class TaskSchedulerService {
     }
 
     // 任务1：每天 01:00 执行
-    @Scheduled(cron = "0 02 1 * * ?")
+    @Scheduled(cron = "0 19 15 * * ?")
     public void executeTaskAt1AM() {
         logTime("01:00 定时任务");
         //每天1点更新下过期时间

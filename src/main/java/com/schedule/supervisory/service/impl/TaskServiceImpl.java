@@ -132,6 +132,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
         if (task.getCountDown() != null) {
             updateWrapper.set(Task::getCountDown, task.getCountDown());
         }
+        if (task.getCountDownDays() != null) {
+            updateWrapper.set(Task::getCountDownDays, task.getCountDownDays());
+        }
         if (task.getFieldIds() != null) {
             updateWrapper.set(Task::getFieldIds, task.getFieldIds());
         }
@@ -1036,6 +1039,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
     @Override
     public void updateCountDownDays() {
+        taskMapper.updateCountDownDaysForCompletedTasks();
         taskMapper.updateCountDownDays();
     }
 

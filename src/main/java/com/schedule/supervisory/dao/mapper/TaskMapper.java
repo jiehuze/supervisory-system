@@ -762,6 +762,16 @@ public interface TaskMapper extends BaseMapper<Task> {
     int updateCountDownDays();
 
     /**
+     * 更新状态为6或9且count_down_days大于0的任务的count_down_days为0
+     */
+    @Update("UPDATE public.task " +
+            "SET count_down_days = 0 " +
+            "WHERE status IN (6, 9) " +
+            "AND count_down_days > 0 " +
+            "AND delete = false")
+    int updateCountDownDaysForCompletedTasks();
+
+    /**
      * 统计 count_down_days > 0 的记录个数
      */
     @Select("SELECT COUNT(*) " +
